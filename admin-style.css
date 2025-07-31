@@ -1,0 +1,59 @@
+/** @format */
+
+.ethora-wrap {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 700px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  margin-top: 30px;
+}
+
+.ethora-wrap h1 {
+  font-size: 26px;
+  color: #2c3e50;
+  margin-bottom: 25px;
+}
+
+.form-table th {
+  font-weight: 600;
+  padding: 15px 10px 15px 0;
+  vertical-align: top;
+  color: #333;
+}
+
+.form-table td {
+  padding: 15px 0;
+}
+
+input.regular-text {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+select {
+  padding: 8px;
+  border-radius: 4px;
+  min-width: 200px;
+  border: 1px solid #ccc;
+}
+
+.powered-by-text {
+  font-style: italic;
+  color: #888;
+  margin-top: 20px;
+}
+
+.ethora-logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.ethora-logo img {
+  max-width: 150px;
+  height: auto;
+  display: inline-block;
+}
