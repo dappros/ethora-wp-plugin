@@ -2,7 +2,7 @@
 /*
 Plugin Name: Ethora Chat Assistant
 Description: Injects custom script with dynamic bot ID and position option.
-Version: 1.2
+Version: 1.3
 */
 
 add_action('admin_menu', function () {
