@@ -12,7 +12,4 @@
         submit_button('Save Settings');
         ?>
   </form>
-  <p class="powered-by-text">
-    Powered by <a href="https://ethora.com" target="_blank">Ethora</a>
-  </p>
 </div>

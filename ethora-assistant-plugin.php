@@ -16,7 +16,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 
     wp_enqueue_style(
         'ethora-chat-assistant-style',
-        plugin_dir_url(__FILE__) . 'admin-style.css',
+        plugin_dir_url(__FILE__) . 'ethora-admin-style.css',
         [],
         '1.0'
     );
@@ -63,23 +63,7 @@ function inject_ethora_chat_assistant_script() {
         id='chat-content-assistant' 
         data-bot-id='{$botId}'>
     </script>
-    <div class='ethora-powered-by'>
-        Powered by <a href='https://ethora.com' target='_blank'>Ethora</a>
-    </div>
-    <style>
-        .ethora-powered-by {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            font-size: 11px;
-            color: #999;
-            z-index: 9999;
-        }
-        .ethora-powered-by a {
-            color: #999;
-            text-decoration: none;
-        }
-    </style>";
+   ";
 }
 
 add_action('wp_head', function () {

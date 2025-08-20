@@ -41,12 +41,6 @@ select {
   border: 1px solid #ccc;
 }
 
-.powered-by-text {
-  font-style: italic;
-  color: #888;
-  margin-top: 20px;
-}
-
 .ethora-logo {
   text-align: center;
   margin-bottom: 20px;
