@@ -1,0 +1,211 @@
+/**
+ * Admin styles for Ethora Chat Assistant
+ *
+ * @format
+ * @package EthoraChatAssistant
+ * @since 1.4.0
+ */
+
+.ethora-wrap {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 800px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
+  border: 1px solid #e1e5e9;
+}
+
+.ethora-wrap h1 {
+  font-size: 26px;
+  color: #2c3e50;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+}
+
+.ethora-logo {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.ethora-logo img {
+  max-width: 150px;
+  height: auto;
+  display: inline-block;
+  filter: brightness(0) invert(1);
+}
+
+.form-table th {
+  font-weight: 600;
+  padding: 15px 10px 15px 0;
+  vertical-align: top;
+  color: #333;
+  width: 200px;
+}
+
+.form-table td {
+  padding: 15px 0;
+}
+
+input.regular-text {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px;
+  border: 2px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+input.regular-text:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+select {
+  padding: 12px;
+  border-radius: 6px;
+  min-width: 200px;
+  border: 2px solid #e1e5e9;
+  font-size: 14px;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+select:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.ethora-info {
+  margin-top: 40px;
+  padding: 25px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #3498db;
+}
+
+.ethora-info h3 {
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.ethora-info h4 {
+  color: #34495e;
+  margin-bottom: 10px;
+}
+
+.ethora-info ul {
+  margin-left: 20px;
+}
+
+.ethora-info li {
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.ethora-info p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.ethora-local-info {
+  background: #e8f4fd;
+  border: 1px solid #b3d9f2;
+  border-radius: 6px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.ethora-local-info h4 {
+  color: #1e3a8a;
+  margin-top: 0;
+}
+
+.ethora-local-info ul {
+  margin: 15px 0;
+}
+
+.ethora-local-info li {
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.ethora-local-info p em {
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Settings form improvements */
+.settings_page_ethora-chat-assistant .form-table th {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.settings_page_ethora-chat-assistant .form-table td {
+  padding: 20px 0;
+}
+
+.settings_page_ethora-chat-assistant .description {
+  color: #666;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+/* Submit button styling */
+.settings_page_ethora-chat-assistant .submit {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e1e5e9;
+}
+
+.settings_page_ethora-chat-assistant .button-primary {
+  background: #3498db;
+  border-color: #2980b9;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.settings_page_ethora-chat-assistant .button-primary:hover {
+  background: #2980b9;
+  border-color: #1f5f8b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .ethora-wrap {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  .ethora-wrap h1 {
+    font-size: 22px;
+  }
+
+  .form-table th,
+  .form-table td {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+  }
+
+  input.regular-text,
+  select {
+    max-width: 100%;
+    min-width: 100%;
+  }
+}
