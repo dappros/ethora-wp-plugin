@@ -3,7 +3,7 @@
  * Admin page template for Ethora Chat Assistant
  *
  * @package EthoraChatAssistant
- * @since 1.4.0
+ * @since 1.5.0
  */
 
 if (!defined('ABSPATH')) {

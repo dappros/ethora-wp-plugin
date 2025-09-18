@@ -3,7 +3,7 @@
  * Plugin Name: Ethora Chat Assistant
  * Plugin URI: https://ethora.com
  * Description: WordPress plugin that integrates the Ethora AI chatbot into websites using the official Ethora assistant with local JavaScript implementation.
- * Version: 1.4.0
+ * Version: 1.5.0
  * Requires at least: 5.0
  * Tested up to: 6.5
  * Requires PHP: 7.4
@@ -15,7 +15,7 @@
  * Network: true
  *
  * @package EthoraChatAssistant
- * @version 1.4.0
+ * @version 1.5.0
  * @author RLDP, Ethora Team
  */
 
@@ -25,7 +25,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ETHORA_PLUGIN_VERSION', '1.4.0');
+define('ETHORA_PLUGIN_VERSION', '1.5.0');
 define('ETHORA_PLUGIN_FILE', __FILE__);
 define('ETHORA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ETHORA_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -214,7 +214,7 @@ class Ethora_Chat_Assistant {
         // Enqueue the local Ethora assistant script
         wp_enqueue_script(
             'ethora-chat-assistant',
-            ETHORA_PLUGIN_URL . 'assets/js/ethora_assistant.js',
+            ETHORA_PLUGIN_URL . 'assets/js/ethora_assistant.min.js',
             array(),
             ETHORA_PLUGIN_VERSION,
             get_option('ethora_chat_assistant_position', 'head') === 'footer'

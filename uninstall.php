@@ -6,7 +6,7 @@
  * It removes all plugin data and options from the database.
  *
  * @package EthoraChatAssistant
- * @since 1.4.0
+ * @since 1.5.0
  */
 
 // If uninstall not called from WordPress, exit
