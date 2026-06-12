@@ -3,7 +3,7 @@
  * Plugin Name: Ethora Chat Assistant
  * Plugin URI: https://ethora.com
  * Description: Add the Ethora AI chat assistant to your WordPress site. The widget script is bundled with the plugin and connects at runtime to the Ethora chat service (see readme: External services).
- * Version: 1.6.1
+ * Version: 1.6.2
  * Requires at least: 5.0
  * Tested up to: 7.0
  * Requires PHP: 7.4
@@ -14,7 +14,7 @@
  * Domain Path: /languages
  *
  * @package EthoraChatAssistant
- * @version 1.6.1
+ * @version 1.6.2
  * @author RLDP, Ethora Team
  */
 
@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ETHORA_PLUGIN_VERSION', '1.6.1');
+define('ETHORA_PLUGIN_VERSION', '1.6.2');
 define('ETHORA_DEFAULT_API_URL', 'https://api.chat.ethora.com/v1');
 define('ETHORA_PLUGIN_FILE', __FILE__);
 define('ETHORA_PLUGIN_DIR', plugin_dir_path(__FILE__));
@@ -52,6 +52,7 @@ class Ethora_Chat_Assistant {
             add_action('admin_menu', array($this, 'add_admin_menu'));
             add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
             add_action('admin_init', array($this, 'register_settings'));
+            add_filter('plugin_action_links_' . ETHORA_PLUGIN_BASENAME, array($this, 'add_settings_link'));
         }
         
         // Frontend functionality
@@ -59,6 +60,16 @@ class Ethora_Chat_Assistant {
         add_action('wp_footer', array($this, 'inject_script_footer'));
     }
     
+    /**
+     * Add a "Settings" link to the plugin row on the Plugins screen.
+     */
+    public function add_settings_link($links) {
+        $url = admin_url('options-general.php?page=ethora-chat-assistant');
+        $settings_link = '<a href="' . esc_url($url) . '">' . esc_html__('Settings', 'ethora-chat-assistant') . '</a>';
+        array_unshift($links, $settings_link);
+        return $links;
+    }
+
     /**
      * Add admin menu
      */

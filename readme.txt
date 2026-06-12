@@ -1,10 +1,10 @@
 === Ethora Chat Assistant ===
-Contributors: rldp, ethorateam
+Contributors: rldp, dmytroberberov, phwizard
 Tags: chatbot, chat, assistant, customer-support, live-chat
 Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,9 @@ The widget is produced with a standard `npm install` + Vite build from the sourc
 
 == Changelog ==
 
+= 1.6.2 =
+* Added a "Settings" link to the plugin row on the Plugins screen.
+
 = 1.6.1 =
 * Reworded the readme description to remove promotional phrasing.
 * Hardened the script-position setting sanitization (strict whitelist comparison).
@@ -135,6 +138,9 @@ The widget is produced with a standard `npm install` + Vite build from the sourc
 * Initial release with Bot ID setting and script injection.
 
 == Upgrade Notice ==
+
+= 1.6.2 =
+Adds a Settings shortcut on the Plugins screen.
 
 = 1.6.1 =
 Readme and sanitization improvements addressing WordPress.org review feedback.
