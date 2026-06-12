@@ -2,20 +2,19 @@
 /**
  * Plugin Name: Ethora Chat Assistant
  * Plugin URI: https://ethora.com
- * Description: WordPress plugin that integrates the Ethora AI chatbot into websites using the official Ethora assistant with local JavaScript implementation.
- * Version: 1.5.0
+ * Description: Add the Ethora AI chat assistant to your WordPress site. The widget script is bundled with the plugin and connects at runtime to the Ethora chat service (see readme: External services).
+ * Version: 1.6.1
  * Requires at least: 5.0
- * Tested up to: 6.5
+ * Tested up to: 7.0
  * Requires PHP: 7.4
  * Author: RLDP, Ethora Team 
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: ethora-chat-assistant
  * Domain Path: /languages
- * Network: true
  *
  * @package EthoraChatAssistant
- * @version 1.5.0
+ * @version 1.6.1
  * @author RLDP, Ethora Team
  */
 
@@ -25,7 +24,8 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ETHORA_PLUGIN_VERSION', '1.5.0');
+define('ETHORA_PLUGIN_VERSION', '1.6.1');
+define('ETHORA_DEFAULT_API_URL', 'https://api.chat.ethora.com/v1');
 define('ETHORA_PLUGIN_FILE', __FILE__);
 define('ETHORA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ETHORA_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -111,7 +111,17 @@ class Ethora_Chat_Assistant {
                 'default' => 'head'
             )
         );
-        
+
+        register_setting(
+            'ethora_chat_assistant_settings',
+            'ethora_chat_assistant_api_url',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => array($this, 'sanitize_api_url'),
+                'default' => ETHORA_DEFAULT_API_URL
+            )
+        );
+
         add_settings_section(
             'ethora_chat_assistant_section',
             esc_html__('Chat Assistant Configuration', 'ethora-chat-assistant'),
@@ -131,6 +141,14 @@ class Ethora_Chat_Assistant {
             'ethora_chat_assistant_position',
             esc_html__('Script Position', 'ethora-chat-assistant'),
             array($this, 'position_field_callback'),
+            'ethora-chat-assistant',
+            'ethora_chat_assistant_section'
+        );
+
+        add_settings_field(
+            'ethora_chat_assistant_api_url',
+            esc_html__('API URL (advanced)', 'ethora-chat-assistant'),
+            array($this, 'api_url_field_callback'),
             'ethora-chat-assistant',
             'ethora_chat_assistant_section'
         );
@@ -165,11 +183,33 @@ class Ethora_Chat_Assistant {
     }
     
     /**
+     * Position field callback
+     */
+    public function api_url_field_callback() {
+        $value = get_option('ethora_chat_assistant_api_url', ETHORA_DEFAULT_API_URL);
+        echo '<input type="url" name="ethora_chat_assistant_api_url" value="' . esc_attr($value) . '" class="regular-text" placeholder="' . esc_attr(ETHORA_DEFAULT_API_URL) . '" />';
+        echo '<p class="description">' . esc_html__('Ethora API base URL the chat widget connects to. Leave as the default for Ethora Cloud; change it only if you use a self-hosted or dedicated Ethora server.', 'ethora-chat-assistant') . '</p>';
+    }
+
+    /**
      * Sanitize position value
      */
     public function sanitize_position($value) {
+        $value = sanitize_key((string) $value);
         $allowed_values = array('head', 'footer');
-        return in_array($value, $allowed_values) ? $value : 'head';
+        return in_array($value, $allowed_values, true) ? $value : 'head';
+    }
+
+    /**
+     * Sanitize the API URL. Falls back to the default when empty or invalid.
+     */
+    public function sanitize_api_url($value) {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return ETHORA_DEFAULT_API_URL;
+        }
+        $value = esc_url_raw($value, array('http', 'https'));
+        return $value !== '' ? $value : ETHORA_DEFAULT_API_URL;
     }
     
     /**
@@ -211,24 +251,30 @@ class Ethora_Chat_Assistant {
             return;
         }
         
-        // Enqueue the local Ethora assistant script
+        // Enqueue the local, non-minified Ethora assistant script
         wp_enqueue_script(
             'ethora-chat-assistant',
-            ETHORA_PLUGIN_URL . 'assets/js/ethora_assistant.min.js',
+            ETHORA_PLUGIN_URL . 'assets/js/ethora_assistant.js',
             array(),
             ETHORA_PLUGIN_VERSION,
             get_option('ethora_chat_assistant_position', 'head') === 'footer'
         );
         
+        $api_url = get_option('ethora_chat_assistant_api_url', ETHORA_DEFAULT_API_URL);
+        if (empty($api_url)) {
+            $api_url = ETHORA_DEFAULT_API_URL;
+        }
+
         // Add inline script to create the required script tag with bot ID
-        // This is how the actual Ethora assistant expects to be initialized
+        // and the API URL. This is how the Ethora assistant expects to be initialized.
         wp_add_inline_script(
             'ethora-chat-assistant',
             'document.addEventListener("DOMContentLoaded", function() {
-                // Create script tag with bot ID for the Ethora assistant to read
+                // Create script tag with config for the Ethora assistant to read
                 var scriptTag = document.createElement("script");
                 scriptTag.id = "chat-content-assistant";
                 scriptTag.setAttribute("data-bot-id", "' . esc_js($bot_id) . '");
+                scriptTag.setAttribute("data-api-url", "' . esc_js($api_url) . '");
                 document.head.appendChild(scriptTag);
             });'
         );

@@ -19,6 +19,10 @@ if (!current_user_can('manage_options')) {
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
     
     <div class="ethora-wrap">
+        <div class="ethora-logo">
+            <img src="<?php echo esc_url(ETHORA_PLUGIN_URL . 'logo.png'); ?>" alt="<?php esc_attr_e('Ethora Logo', 'ethora-chat-assistant'); ?>" />
+        </div>
+
         <form method="post" action="options.php">
             <?php
             settings_fields('ethora_chat_assistant_settings');
@@ -33,25 +37,22 @@ if (!current_user_can('manage_options')) {
             
             <h4><?php esc_html_e('Features:', 'ethora-chat-assistant'); ?></h4>
             <ul>
-                <li><?php esc_html_e('Easy bot ID configuration', 'ethora-chat-assistant'); ?></li>
-                <li><?php esc_html_e('Flexible script positioning (header or footer)', 'ethora-chat-assistant'); ?></li>
-                <li><?php esc_html_e('Official Ethora assistant with local implementation', 'ethora-chat-assistant'); ?></li>
-                <li><?php esc_html_e('Professional chat experience for your visitors', 'ethora-chat-assistant'); ?></li>
+                <li><?php esc_html_e('Bot ID configuration', 'ethora-chat-assistant'); ?></li>
+                <li><?php esc_html_e('Script positioning (header or footer)', 'ethora-chat-assistant'); ?></li>
+                <li><?php esc_html_e('Ethora assistant served locally from your site', 'ethora-chat-assistant'); ?></li>
+                <li><?php esc_html_e('Chat widget for your site visitors', 'ethora-chat-assistant'); ?></li>
             </ul>
             
             <div class="ethora-local-info">
-                <h4><?php esc_html_e('Local Implementation:', 'ethora-chat-assistant'); ?></h4>
-                <p><?php esc_html_e('This plugin includes the official Ethora assistant JavaScript file locally, ensuring:', 'ethora-chat-assistant'); ?></p>
+                <h4><?php esc_html_e('How it works:', 'ethora-chat-assistant'); ?></h4>
+                <p><?php esc_html_e('The chat widget JavaScript is bundled with this plugin and served from your own site. To deliver live chat and AI responses, the widget connects at runtime to the Ethora chat service and a small number of other third-party services.', 'ethora-chat-assistant'); ?></p>
                 <ul>
-                    <li><?php esc_html_e('Full compliance with WordPress plugin guidelines', 'ethora-chat-assistant'); ?></li>
-                    <li><?php esc_html_e('No external dependencies or remote resource loading', 'ethora-chat-assistant'); ?></li>
-                    <li><?php esc_html_e('Authentic Ethora assistant functionality', 'ethora-chat-assistant'); ?></li>
-                    <li><?php esc_html_e('Faster loading times and better performance', 'ethora-chat-assistant'); ?></li>
-                    <li><?php esc_html_e('Improved reliability and security', 'ethora-chat-assistant'); ?></li>
+                    <li><?php esc_html_e('Widget script served locally from your site (not from a remote CDN)', 'ethora-chat-assistant'); ?></li>
+                    <li><?php esc_html_e('Connects to the Ethora chat & AI service to send and receive messages', 'ethora-chat-assistant'); ?></li>
+                    <li><?php esc_html_e('Optional Google Sign-In for chat users', 'ethora-chat-assistant'); ?></li>
                     <li><?php esc_html_e('Same features as the cloud-based version', 'ethora-chat-assistant'); ?></li>
                 </ul>
-                <p><em><?php esc_html_e('The official Ethora assistant JavaScript file is stored locally within the plugin directory.', 'ethora-chat-assistant'); ?></em></p>
-                <p><strong><?php esc_html_e('Architecture:', 'ethora-chat-assistant'); ?></strong> <?php esc_html_e('Official Ethora assistant with local JavaScript, WordPress-compliant enqueue methods, authentic functionality.', 'ethora-chat-assistant'); ?></p>
+                <p><em><?php esc_html_e('The third-party services used, and the data sent to them, are documented in the plugin readme under "External services".', 'ethora-chat-assistant'); ?></em></p>
             </div>
             
             <p>

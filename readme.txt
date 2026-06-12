@@ -1,216 +1,143 @@
 === Ethora Chat Assistant ===
 Contributors: rldp, ethorateam
-Tags: chatbot, chat, assistant, customer-support, live-chat, widget, javascript
+Tags: chatbot, chat, assistant, customer-support, live-chat
 Requires at least: 5.0
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.6.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Integrate the powerful Ethora chatbot into your WordPress website with easy configuration and flexible positioning options.
+Add the Ethora AI chat assistant to your WordPress site. Enter a Bot ID, pick a position, and a customizable chat widget appears on your pages.
 
 == Description ==
 
-**Ethora Chat Assistant** is a WordPress plugin that integrates the official Ethora AI chatbot into your website with a local JavaScript implementation. This plugin provides customer support and engagement through the authentic Ethora assistant that works without external dependencies.
+**Ethora Chat Assistant** adds the Ethora AI chat widget to your WordPress website. You enter your Ethora Bot ID, choose whether the widget script loads in the header or footer, and the assistant appears on your site so visitors can chat with your AI agent.
 
-= Key Features: =
+The widget JavaScript is bundled with the plugin and served from your own site (it is not loaded from a remote CDN). To provide live chat and AI answers, the widget connects at runtime to the Ethora chat service and a small number of other third-party services. These are listed in full in the **External services** section below.
 
-* **Easy Setup**: Simple bot ID configuration through WordPress admin
-* **Flexible Positioning**: Choose between header or footer script injection
-* **Lightweight**: Minimal impact on page load times
-* **Professional Design**: Clean, modern chat interface
-* **Mobile Responsive**: Works perfectly on all devices
-* **Customizable**: Easy to configure and maintain
+= Features =
 
-= Perfect For: =
+* Configure your Bot ID from a single settings screen.
+* Load the widget script in the page header or footer.
+* The assistant's answers are produced by your configured Ethora AI agent.
+* Widget branding and behaviour are controlled by your Ethora app configuration.
+* The widget is responsive and works across screen sizes.
 
-* E-commerce websites
-* Business websites
-* Customer support portals
-* Lead generation sites
-* Any site needing live chat functionality
+= Typical use cases =
 
-= How It Works: =
+* Business and e-commerce websites.
+* Customer support and help centres.
+* Lead generation and pre-sales chat.
+* Any site that needs an AI chat assistant.
 
-1. Install and activate the plugin
-2. Enter your Ethora bot ID in the settings
-3. Choose where to position the chat widget (header or footer)
-4. Save settings and your chat widget is live!
+= How it works =
 
-**Local Implementation:** This plugin includes the official Ethora assistant JavaScript file locally, ensuring compliance with WordPress plugin guidelines. The chat widget is the authentic Ethora assistant that provides the same functionality as the cloud version, but without external resource requests.
+1. Install and activate the plugin.
+2. Create an app / AI agent in your Ethora account and copy its Bot ID.
+3. In **Settings > Ethora Chat Assistant**, paste the Bot ID and choose the script position.
+4. Save. The chat widget is now live on your site.
 
 == Installation ==
 
-1. Upload the `ethora-chat-assistant` folder to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to **Settings > Ethora Chat Assistant** to configure your bot ID and positioning
-4. Enter your Ethora bot ID and choose script position (header or footer)
-5. Click 'Save Settings' and your chat widget will be live
+1. Upload the `ethora-chat-assistant` folder to `/wp-content/plugins/`, or install the plugin through the WordPress Plugins screen.
+2. Activate the plugin through the **Plugins** menu in WordPress.
+3. Go to **Settings > Ethora Chat Assistant** to configure your Bot ID and position.
+4. Enter your Ethora Bot ID, choose script position (header or footer), and click **Save Settings**.
 
 == Frequently Asked Questions ==
 
-= What is a bot ID? =
+= What is a Bot ID and where do I get one? =
 
-A bot ID is a unique identifier for your specific Ethora chatbot instance. You can obtain this from your Ethora dashboard on beta.ethora.com .
+A Bot ID is the unique identifier of your Ethora AI agent / app. Create a free account and an app at https://app.chat.ethora.com, configure your AI agent, and copy the Bot ID from the app settings.
 
-= Why does this plugin load external scripts? =
+= Does the plugin send data to external services? =
 
-This plugin now includes the official Ethora assistant JavaScript file locally within the plugin directory. This approach ensures:
-- Full compliance with WordPress plugin guidelines
-- No external dependencies or remote resource loading
-- Authentic Ethora assistant functionality
-- Faster loading times and better performance
-- Improved reliability and security
-- Complete control over the chat widget functionality
+Yes. The plugin itself stores only your Bot ID and position setting in WordPress. However, the embedded chat widget connects at runtime to the Ethora chat service (and to Google Sign-In and a link-preview service) in order to deliver live messaging and AI responses. The full list, including what data is sent and the relevant terms and privacy policies, is in the **External services** section below.
 
-The plugin uses the same official Ethora assistant that would normally load from the cloud, but now runs locally for better WordPress compliance.
+= Can I point the widget at a self-hosted Ethora server? =
 
+Yes. The settings screen has an optional **API URL (advanced)** field. It defaults to Ethora Cloud (https://api.chat.ethora.com/v1). If you run a self-hosted or dedicated Ethora server, enter its API base URL there and the widget will connect to it instead.
 
+= Is the widget JavaScript loaded from a remote server? =
+
+No. The widget JavaScript is bundled inside the plugin and served from your own WordPress site. Network requests happen only after a visitor opens the chat, and only to the documented services below.
 
 = Is the chat widget mobile responsive? =
 
-Yes! The Ethora chat widget is fully responsive and works perfectly on all devices and screen sizes.
+Yes. The Ethora chat widget is responsive and works on all common devices and screen sizes.
 
 = Can I use this on multiple sites? =
 
-Yes, you can install this plugin on multiple WordPress sites. Each site will need its own bot ID configuration.
-
-= Does this affect my website's performance? =
-
-The plugin is designed to be lightweight and has minimal impact on page load times. The chat script loads asynchronously to ensure optimal performance.
-
-== Changelog ==
-
-= 1.5.0 =
-* Updated version number to 1.5.0
-* All WordPress plugin review compliance issues resolved
-* Plugin ready for WordPress.org submission
-
-= 1.4.0 =
-* Fixed WordPress plugin review compliance issues
-* Integrated official Ethora assistant JavaScript file locally
-* Removed all remote dependencies to comply with WordPress guidelines
-* Updated plugin architecture to use authentic Ethora assistant
-* Improved performance and reliability with local implementation
-* Added human-readable source code (ethora_assistant_source.js)
-* Documented all external services and data usage in readme.txt
-* Replaced external image URLs with local assets
-* Added comprehensive documentation for Google Firebase and OAuth services
-
-= 1.2.0 =
-* Added frontend and admin Ethora branding
-* Improved admin interface styling
-
-= 1.1.0 =
-* Added option to choose between head or footer injection
-* Enhanced settings page layout
-
-= 1.0.0 =
-* Initial release with bot ID setting
-* Basic script injection functionality
-
-== Upgrade Notice ==
-
-= 1.5.0 =
-This update resolves all WordPress plugin review compliance issues and prepares the plugin for WordPress.org submission. All external dependencies have been properly documented and local assets have been implemented.
-
-For development and contribution, please visit our GitHub repository.
-
-== Local Implementation ==
-
-This plugin is designed as a **self-contained WordPress plugin** that includes all necessary resources locally. This approach ensures:
-
-**Benefits of Local Implementation:**
-* **WordPress Compliance:** Fully compliant with WordPress.org plugin guidelines
-* **No External Dependencies:** Official Ethora assistant JavaScript file included within the plugin
-* **Authentic Functionality:** Same features and capabilities as the cloud version
-* **Improved Performance:** Faster loading times without external resource requests
-* **Enhanced Security:** No external script loading reduces security risks
-* **Better Reliability:** No dependency on external CDNs or services
-* **Complete Control:** Full control over the chat widget functionality and updates
-
-**Technical Implementation:**
-* Uses WordPress-compliant `wp_enqueue_script()` and `wp_enqueue_style()` functions
-* Implements proper security measures (nonces, capability checks, data sanitization)
-* Follows WordPress coding standards and best practices
-* Includes comprehensive error handling and fallbacks
-* Supports internationalization
-* Integrates official Ethora assistant with proper initialization
-
-**Architecture:**
-* **Local Resources:** Official Ethora assistant JavaScript stored in `/assets/js/` directory
-* **Modular Design:** Clean separation of concerns between PHP and JavaScript
-* **WordPress Integration:** Proper hooks and filters for extensibility
-* **Performance Optimized:** Minimal impact on page load times
-* **Mobile Responsive:** Works perfectly on all devices and screen sizes
-* **Authentic Experience:** Same functionality as the cloud-based Ethora assistant
+Yes. Install it on as many sites as you like; each site uses its own Bot ID.
 
 == External services ==
 
-This plugin uses the following external services:
+This plugin embeds the Ethora chat / AI assistant. Once you set a Bot ID and a visitor opens the chat, the widget connects to the following third-party services. No data is sent to these services until a visitor interacts with the chat widget.
 
-**Google Firebase Authentication**
-- Service: Google Firebase Authentication API
-- Purpose: User authentication and session management for chat functionality
-- Data sent: User credentials, email address, profile information
-- When: During user sign-in/sign-up and session validation
-- Domains: identitytoolkit.googleapis.com, securetoken.googleapis.com
+**1. Ethora chat & AI service (provided by Dappros Ltd, trading as Ethora)**
+- Purpose: deliver real-time messaging, authenticate the chat session, and return AI assistant responses.
+- Data sent: chat messages, the configured Bot ID, session/authentication tokens, and basic profile data for signed-in users.
+- When: while a visitor uses the chat widget.
+- Service endpoints: Ethora REST API and XMPP real-time messaging servers on ethora.com domains.
+- Provider: https://ethora.com
+- Terms of Service: https://wiki.ethora.com/wiki/Info:Privacy_policy#Terms_of_Service
+- Privacy Policy: https://wiki.ethora.com/wiki/Info:Privacy_policy
+
+**2. Google Sign-In (Google Firebase Authentication / Google OAuth 2.0)**
+- Purpose: optional "Sign in with Google" login for chat users.
+- Data sent: email address and basic Google profile information, only when a visitor chooses to sign in with Google.
+- When: during the optional Google sign-in flow.
+- Domains: identitytoolkit.googleapis.com, securetoken.googleapis.com, accounts.google.com.
 - Terms of Service: https://policies.google.com/terms
 - Privacy Policy: https://policies.google.com/privacy
 
-**Google OAuth**
-- Service: Google OAuth 2.0
-- Purpose: Access to user profile information for personalized chat experience
-- Data sent: OAuth tokens, user email, profile data
-- When: During authentication flow
-- Domains: www.googleapis.com
-- Scopes: userinfo.email, userinfo.profile
-- Terms of Service: https://policies.google.com/terms
-- Privacy Policy: https://policies.google.com/privacy
+**3. LinkPreview (linkpreview.net)**
+- Purpose: generate preview cards for URLs shared inside chat messages.
+- Data sent: URLs contained in chat messages.
+- When: when a message contains a link.
+- Provider & Privacy Policy: https://www.linkpreview.net
 
-**Ethora Chat Service**
-- Service: Ethora AI Chat API
-- Purpose: Chat functionality and AI responses
-- Data sent: Chat messages, user context, bot configuration
-- When: During chat interactions
-- Provider: Ethora (ethora.com)
-- Terms of Service: https://ethora.com/terms
-- Privacy Policy: https://ethora.com/privacy
+Profile images for signed-in users may be displayed directly from Google's user-content servers (lh3.googleusercontent.com).
 
-== Source Code ==
+== Source code ==
 
-This plugin includes both minified and source code versions:
+The chat widget bundled with this plugin is built from Ethora's open-source code.
 
-**Minified Version:** assets/js/ethora_assistant.min.js
-- Production-ready minified JavaScript file
-- Optimized for performance and reduced file size
+- Plugin source: https://github.com/dappros/ethora-wp-plugin
+- Chat widget source: https://github.com/dappros/ethora (Ethora SDK monorepo; the embeddable widget is built with Vite)
+- The non-minified, human-readable build of the widget is shipped alongside the plugin as `assets/js/ethora_assistant.js`.
 
-**Source Code:** assets/js/ethora_assistant_source.js
-- Human-readable source code with detailed comments
-- Includes documentation of external services and data usage
-- Available for review and modification
+The widget is produced with a standard `npm install` + Vite build from the source repository above; no build step is required to run the plugin.
 
-**Original Source Repository:** https://github.com/dappros/ethora-chat-component/tree/assistant-ui
-- Complete source code repository
-- Build tools and development environment
-- Issue tracking and contribution guidelines
+== Changelog ==
 
-**Build Process:**
-The minified version is built from the source repository using npm/webpack. The source code is maintained at the GitHub repository above and includes:
-- React library integration
-- Firebase Authentication setup
-- Ethora chat component implementation
-- Local asset management (no external image dependencies)
+= 1.6.1 =
+* Reworded the readme description to remove promotional phrasing.
+* Hardened the script-position setting sanitization (strict whitelist comparison).
+* Clarified the External services disclosure with separate Terms of Service and Privacy Policy links.
 
-== Support ==
+= 1.6.0 =
+* Corrected the External services disclosure to accurately list every third-party service the chat widget contacts (Ethora chat/AI, Google Sign-In, LinkPreview), with the data sent and the relevant terms and privacy policies.
+* Removed inaccurate "no external dependencies / no remote resource loading" statements from the readme and admin screen.
+* Replaced the previous placeholder source file with the actual non-minified widget build to comply with the human-readable code guideline.
+* Corrected the documentation link for obtaining a Bot ID (now app.chat.ethora.com).
 
-For support, feature requests, or bug reports, please contact the Ethora team or visit our documentation.
+= 1.2.0 =
+* Added frontend and admin Ethora branding.
+* Improved admin interface styling.
 
-== License ==
+= 1.1.0 =
+* Added option to choose between head or footer injection.
+* Enhanced settings page layout.
 
-This plugin is licensed under the GPL v2 or later.
+= 1.0.0 =
+* Initial release with Bot ID setting and script injection.
 
-== Credits ==
+== Upgrade Notice ==
 
-Developed by the RDLP & Ethora Team. For more information about Ethora, visit [ethora.com](https://ethora.com).
+= 1.6.1 =
+Readme and sanitization improvements addressing WordPress.org review feedback.
+
+= 1.6.0 =
+Accurate external-services disclosure and a genuine non-minified source build, prepared for WordPress.org review.
