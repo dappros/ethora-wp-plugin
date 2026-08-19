@@ -4,7 +4,7 @@ Tags: chatbot, chat, assistant, customer-support, live-chat
 Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.6.2
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,15 @@ The chat widget bundled with this plugin is built from Ethora's open-source code
 The widget is produced with a standard `npm install` + Vite build from the source repository above; no build step is required to run the plugin.
 
 == Changelog ==
+
+= 1.7.0 =
+* New: starter message from the assistant ("Hi, how can I help you?" by default, or the Agent's own greeting) - the chat never opens blank
+* New: fullscreen toggle in the chat header
+* New: larger, screen-adaptive default panel size for desktop
+* Changed: text-only composer by default (no attach/mic - the AI cannot use uploads); re-enable via data-disable-media="false"
+* Changed: interface language now follows the site language
+* Fixed: chat stuck on "Connecting" for returning visitors
+* Fixed: bot stopped responding after a network reconnect
 
 = 1.6.2 =
 * Added a "Settings" link to the plugin row on the Plugins screen.

@@ -3,7 +3,7 @@
  * Plugin Name: Ethora Chat Assistant
  * Plugin URI: https://ethora.com
  * Description: Add the Ethora AI chat assistant to your WordPress site. The widget script is bundled with the plugin and connects at runtime to the Ethora chat service (see readme: External services).
- * Version: 1.6.2
+ * Version: 1.7.0
  * Requires at least: 5.0
  * Tested up to: 7.0
  * Requires PHP: 7.4
@@ -14,7 +14,7 @@
  * Domain Path: /languages
  *
  * @package EthoraChatAssistant
- * @version 1.6.2
+ * @version 1.7.0
  * @author RLDP, Ethora Team
  */
 
@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ETHORA_PLUGIN_VERSION', '1.6.2');
+define('ETHORA_PLUGIN_VERSION', '1.7.0');
 define('ETHORA_DEFAULT_API_URL', 'https://api.chat.ethora.com/v1');
 define('ETHORA_PLUGIN_FILE', __FILE__);
 define('ETHORA_PLUGIN_DIR', plugin_dir_path(__FILE__));
@@ -163,6 +163,56 @@ class Ethora_Chat_Assistant {
             'ethora-chat-assistant',
             'ethora_chat_assistant_section'
         );
+
+        // Optional appearance / theming settings. Each maps to a data-*
+        // attribute the widget reads.
+        add_settings_section(
+            'ethora_chat_assistant_appearance_section',
+            esc_html__('Appearance (optional)', 'ethora-chat-assistant'),
+            array($this, 'appearance_section_callback'),
+            'ethora-chat-assistant'
+        );
+        foreach ($this->appearance_settings() as $key => $cfg) {
+            $option = 'ethora_chat_assistant_' . $key;
+            register_setting(
+                'ethora_chat_assistant_settings',
+                $option,
+                array(
+                    'type' => 'string',
+                    'sanitize_callback' => $cfg['sanitize'],
+                    'default' => '',
+                )
+            );
+            add_settings_field(
+                $option,
+                esc_html($cfg['label']),
+                array($this, 'appearance_field_callback'),
+                'ethora-chat-assistant',
+                'ethora_chat_assistant_appearance_section',
+                array('key' => $key)
+            );
+        }
+    }
+
+    /**
+     * Appearance settings definition: option key => label / data-* attribute /
+     * input renderer / sanitizer. Keeps registration, rendering and emitting
+     * in one place.
+     */
+    private function appearance_settings() {
+        return array(
+            'primary_color'   => array('label' => 'Primary color', 'attr' => 'data-primary-color', 'render' => 'color', 'sanitize' => array($this, 'sanitize_color')),
+            'secondary_color' => array('label' => 'Secondary color', 'attr' => 'data-secondary-color', 'render' => 'color', 'sanitize' => array($this, 'sanitize_color')),
+            'icons_color'     => array('label' => 'Icons color', 'attr' => 'data-icons-color', 'render' => 'color', 'sanitize' => array($this, 'sanitize_color')),
+            'own_bubble_bg'   => array('label' => 'Your bubble background', 'attr' => 'data-own-bubble-bg', 'render' => 'color', 'sanitize' => array($this, 'sanitize_color')),
+            'other_bubble_bg' => array('label' => 'Bot bubble background', 'attr' => 'data-other-bubble-bg', 'render' => 'color', 'sanitize' => array($this, 'sanitize_color')),
+            'input_bg'        => array('label' => 'Input background', 'attr' => 'data-input-bg', 'render' => 'color', 'sanitize' => array($this, 'sanitize_color')),
+            'font_family'     => array('label' => 'Font family', 'attr' => 'data-font-family', 'render' => 'text', 'sanitize' => 'sanitize_text_field'),
+            'google_font'     => array('label' => 'Google font name', 'attr' => 'data-google-font', 'render' => 'text', 'sanitize' => 'sanitize_text_field'),
+            'dock'            => array('label' => 'Widget position', 'attr' => 'data-position', 'render' => 'dock', 'sanitize' => array($this, 'sanitize_dock')),
+            'width'           => array('label' => 'Width (px)', 'attr' => 'data-width', 'render' => 'number', 'sanitize' => 'absint'),
+            'height'          => array('label' => 'Height (px)', 'attr' => 'data-height', 'render' => 'number', 'sanitize' => 'absint'),
+        );
     }
     
     /**
@@ -200,6 +250,71 @@ class Ethora_Chat_Assistant {
         $value = get_option('ethora_chat_assistant_api_url', ETHORA_DEFAULT_API_URL);
         echo '<input type="url" name="ethora_chat_assistant_api_url" value="' . esc_attr($value) . '" class="regular-text" placeholder="' . esc_attr(ETHORA_DEFAULT_API_URL) . '" />';
         echo '<p class="description">' . esc_html__('Ethora API base URL the chat widget connects to. Leave as the default for Ethora Cloud; change it only if you use a self-hosted or dedicated Ethora server.', 'ethora-chat-assistant') . '</p>';
+    }
+
+    /**
+     * Appearance section intro
+     */
+    public function appearance_section_callback() {
+        echo '<p>' . esc_html__('Customize the look of the chat widget. Leave any field blank to use the default.', 'ethora-chat-assistant') . '</p>';
+    }
+
+    /**
+     * Generic renderer for an appearance field (color / text / number / dock).
+     */
+    public function appearance_field_callback($args) {
+        $settings = $this->appearance_settings();
+        $key = isset($args['key']) ? $args['key'] : '';
+        if (!isset($settings[$key])) {
+            return;
+        }
+        $cfg = $settings[$key];
+        $option = 'ethora_chat_assistant_' . $key;
+        $value = get_option($option, '');
+
+        switch ($cfg['render']) {
+            case 'color':
+                echo '<input type="text" name="' . esc_attr($option) . '" value="' . esc_attr($value) . '" class="regular-text" placeholder="#1976d2 / rgb(...)" />';
+                break;
+            case 'number':
+                echo '<input type="number" min="0" name="' . esc_attr($option) . '" value="' . esc_attr($value) . '" class="small-text" />';
+                break;
+            case 'dock':
+                echo '<select name="' . esc_attr($option) . '">';
+                echo '<option value="" ' . selected($value, '', false) . '>' . esc_html__('Default (right)', 'ethora-chat-assistant') . '</option>';
+                echo '<option value="right" ' . selected($value, 'right', false) . '>' . esc_html__('Right', 'ethora-chat-assistant') . '</option>';
+                echo '<option value="left" ' . selected($value, 'left', false) . '>' . esc_html__('Left', 'ethora-chat-assistant') . '</option>';
+                echo '</select>';
+                break;
+            default:
+                echo '<input type="text" name="' . esc_attr($option) . '" value="' . esc_attr($value) . '" class="regular-text" />';
+                break;
+        }
+    }
+
+    /**
+     * Sanitize a CSS color (hex or rgb/rgba). Empty string clears it.
+     */
+    public function sanitize_color($value) {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+        if (preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/', $value)) {
+            return $value;
+        }
+        if (preg_match('/^rgba?\(\s*[0-9.,%\s]+\)$/', $value)) {
+            return $value;
+        }
+        return '';
+    }
+
+    /**
+     * Sanitize the widget dock side.
+     */
+    public function sanitize_dock($value) {
+        $value = sanitize_key((string) $value);
+        return in_array($value, array('left', 'right'), true) ? $value : '';
     }
 
     /**
@@ -276,16 +391,40 @@ class Ethora_Chat_Assistant {
             $api_url = ETHORA_DEFAULT_API_URL;
         }
 
-        // Add inline script to create the required script tag with bot ID
-        // and the API URL. This is how the Ethora assistant expects to be initialized.
+        // Derive the appId for the widget's session call from the bot ID.
+        // Ethora bot JIDs look like "<appId>_<botUser>-bot@host", so the appId
+        // is the local-part prefix before the first underscore. The widget can
+        // also fall back to deriving it from data-bot-id, but we pass it
+        // explicitly so the new-arch contract works without relying on that.
+        $app_id = $bot_id;
+        if (strpos($app_id, '@') !== false) {
+            $app_id = substr($app_id, 0, strpos($app_id, '@'));
+        }
+        if (strpos($app_id, '_') !== false) {
+            $app_id = substr($app_id, 0, strpos($app_id, '_'));
+        }
+
+        // Build the optional appearance attributes (only those the admin set).
+        $appearance_js = '';
+        foreach ($this->appearance_settings() as $key => $cfg) {
+            $val = get_option('ethora_chat_assistant_' . $key, '');
+            if ($val !== '' && $val !== null) {
+                $appearance_js .= "\n                scriptTag.setAttribute(\"" . esc_js($cfg['attr']) . "\", \"" . esc_js($val) . "\");";
+            }
+        }
+
+        // Add inline script to create the required script tag with bot ID,
+        // app ID, the API URL and any appearance overrides. This is how the
+        // Ethora assistant expects to be initialized.
         wp_add_inline_script(
             'ethora-chat-assistant',
             'document.addEventListener("DOMContentLoaded", function() {
                 // Create script tag with config for the Ethora assistant to read
                 var scriptTag = document.createElement("script");
                 scriptTag.id = "chat-content-assistant";
+                scriptTag.setAttribute("data-app-id", "' . esc_js($app_id) . '");
                 scriptTag.setAttribute("data-bot-id", "' . esc_js($bot_id) . '");
-                scriptTag.setAttribute("data-api-url", "' . esc_js($api_url) . '");
+                scriptTag.setAttribute("data-api-url", "' . esc_js($api_url) . '");' . $appearance_js . '
                 document.head.appendChild(scriptTag);
             });'
         );
