@@ -4,7 +4,7 @@ Tags: chatbot, chat, assistant, customer-support, live-chat
 Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,9 @@ The chat widget bundled with this plugin is built from Ethora's open-source code
 The widget is produced with a standard `npm install` + Vite build from the source repository above; no build step is required to run the plugin.
 
 == Changelog ==
+
+= 1.7.1 =
+* Fixed: the "Ask me anything!" teaser bubble above the chat launcher could stay invisible indefinitely (a CSS opacity animation that never advances in a backgrounded or inactive browser tab).
 
 = 1.7.0 =
 * New: starter message from the assistant ("Hi, how can I help you?" by default, or the Agent's own greeting) - the chat never opens blank
