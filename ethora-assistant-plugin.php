@@ -416,9 +416,17 @@ class Ethora_Chat_Assistant {
         // Add inline script to create the required script tag with bot ID,
         // app ID, the API URL and any appearance overrides. This is how the
         // Ethora assistant expects to be initialized.
+        //
+        // Must run BEFORE the main widget script (hence the 'before' position
+        // below) and must run synchronously, not on DOMContentLoaded: the main
+        // script tag above is enqueued as a plain, non-deferred <script src>,
+        // so it executes the instant the browser parses it and reads its
+        // config off the "chat-content-assistant" tag immediately. Waiting for
+        // DOMContentLoaded to create that tag runs it long after the widget
+        // already checked for it and failed with "missing data-app-id".
         wp_add_inline_script(
             'ethora-chat-assistant',
-            'document.addEventListener("DOMContentLoaded", function() {
+            '(function() {
                 // Create script tag with config for the Ethora assistant to read
                 var scriptTag = document.createElement("script");
                 scriptTag.id = "chat-content-assistant";
@@ -426,7 +434,8 @@ class Ethora_Chat_Assistant {
                 scriptTag.setAttribute("data-bot-id", "' . esc_js($bot_id) . '");
                 scriptTag.setAttribute("data-api-url", "' . esc_js($api_url) . '");' . $appearance_js . '
                 document.head.appendChild(scriptTag);
-            });'
+            })();',
+            'before'
         );
     }
 }
