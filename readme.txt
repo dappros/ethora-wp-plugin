@@ -2,9 +2,9 @@
 Contributors: rldp, dmytroberberov, phwizard
 Tags: chatbot, chat, assistant, customer-support, live-chat
 Requires at least: 5.0
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,14 @@ The widget is produced with a standard `npm install` + Vite build from the sourc
 
 == Changelog ==
 
+= 1.7.2 =
+* Tested with WordPress 7.1.
+* Fixed: the bot's avatar was used as the chat button and header icon. The widget icon is now its own setting (Widget icon URL); without it the default icon is shown.
+* Fixed: clicking the bot's avatar next to a message opened an empty profile. It now does nothing.
+* Fixed: the bot could appear under two different names in one conversation, one in the header and greeting and another on its replies. One name is now used everywhere, and it can be set with the new Bot name setting.
+* Fixed: after saving the settings page with Width and Height left empty, the chat opened as an invisible 0x0 panel. Empty sizes are no longer saved as 0, and a stored 0 from an earlier version is ignored, so affected sites are repaired by the update without re-saving.
+* New settings under Appearance: Bot name, Bot avatar URL, Widget icon URL.
+
 = 1.7.1 =
 * Fixed: the "Ask me anything!" teaser bubble above the chat launcher could stay invisible indefinitely (a CSS opacity animation that never advances in a backgrounded or inactive browser tab).
 
@@ -150,6 +158,9 @@ The widget is produced with a standard `npm install` + Vite build from the sourc
 * Initial release with Bot ID setting and script injection.
 
 == Upgrade Notice ==
+
+= 1.7.2 =
+Fixes an invisible chat panel after saving settings with empty Width/Height, the bot's avatar being used as the chat button, clicking the bot's avatar, and the bot showing under two names. Tested with WordPress 7.1.
 
 = 1.6.2 =
 Adds a Settings shortcut on the Plugins screen.
