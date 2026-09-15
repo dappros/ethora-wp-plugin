@@ -1,6 +1,6 @@
-=== Ethora Chat Assistant ===
+=== Ethora AI Chatbot - AI Chat Assistant for Your Website ===
 Contributors: rldp, dmytroberberov, phwizard
-Tags: chatbot, chat, assistant, customer-support, live-chat
+Tags: ai-chatbot, chatbot, ai-assistant, live-chat, customer-support
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -8,35 +8,54 @@ Stable tag: 1.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Add the Ethora AI chat assistant to your WordPress site. Enter a Bot ID, pick a position, and a customizable chat widget appears on your pages.
+AI chatbot for WordPress that answers visitor questions from your own website pages and documents, in a chat widget styled to match your site.
 
 == Description ==
 
-**Ethora Chat Assistant** adds the Ethora AI chat widget to your WordPress website. You enter your Ethora Bot ID, choose whether the widget script loads in the header or footer, and the assistant appears on your site so visitors can chat with your AI agent.
+**Ethora AI Chatbot** adds an AI chat assistant to your WordPress website. Visitors ask questions in a chat widget and get answers from an AI agent that knows your website content and your documents.
 
-The widget JavaScript is bundled with the plugin and served from your own site (it is not loaded from a remote CDN). To provide live chat and AI answers, the widget connects at runtime to the Ethora chat service and a small number of other third-party services. These are listed in full in the **External services** section below.
+You create the AI agent in Ethora (there is a free plan, no credit card needed): add your website so the agent can index your pages, upload documents such as FAQs, price lists or manuals, and write the agent's instructions. Then paste the agent's Bot ID into this plugin and the chatbot appears on your site. No coding is needed.
+
+The widget JavaScript is bundled with the plugin and served from your own site (it is not loaded from a remote CDN). To deliver real-time chat and AI answers, the widget connects at runtime to the Ethora chat service and a small number of other third-party services. These are listed in full in the **External services** section below.
+
+= What you can use it for =
+
+* **Customer support chatbot:** answer common support questions at any hour, using your own pages and documents as the source (RAG, retrieval-augmented generation).
+* **Pre-sales and product questions:** help visitors on business, SaaS and WooCommerce store pages find the right product, plan or page.
+* **Knowledge base assistant:** let customers, students, patients or members search your help centre, docs or policies by asking a question in plain language.
+* **FAQ bot:** replace a long FAQ page with a chat that answers the question the visitor actually asked.
 
 = Features =
 
-* Configure your Bot ID from a single settings screen.
-* Load the widget script in the page header or footer.
-* The assistant's answers are produced by your configured Ethora AI agent.
-* Widget branding and behaviour are controlled by your Ethora app configuration.
-* The widget is responsive and works across screen sizes.
+* **Answers from your content:** the Ethora dashboard indexes your website pages and uploaded documents, and the AI agent answers from them.
+* **Quick setup:** paste the Bot ID, save, and the chat widget is live.
+* **Customizable chat widget:** primary and secondary colors, icon color, message bubble colors, input background, font family or any Google Font, left or right position, width and height.
+* **Your own bot identity:** set the bot name, bot avatar and chat button icon.
+* **Greeting message:** the assistant opens with a starter message, so the chat never starts empty.
+* **Fullscreen mode:** visitors can expand the chat from the header.
+* **Follows your site language:** the chat interface uses your WordPress site language.
+* **Mobile friendly:** the chat window adapts to phones, tablets and desktops.
+* **Works with your theme:** classic and block themes; choose whether the script loads in the page header or footer.
+* **No remote script:** the widget code ships inside the plugin and is served from your own site.
+* **Self-hosted option:** point the plugin at your own Ethora server (AWS, private cloud or on-premises) when you need full data ownership, for example for HIPAA or GDPR requirements.
 
-= Typical use cases =
+= Who it is for =
 
-* Business and e-commerce websites.
-* Customer support and help centres.
-* Lead generation and pre-sales chat.
-* Any site that needs an AI chat assistant.
+* Small business, agency and portfolio websites.
+* WooCommerce and other online stores.
+* SaaS products and documentation sites.
+* Healthcare, clinics and insurance (self-hosted deployments available).
+* Education, courses and membership sites.
+* Customer support teams and help centres.
 
 = How it works =
 
 1. Install and activate the plugin.
-2. Create an app / AI agent in your Ethora account and copy its Bot ID.
-3. In **Settings > Ethora Chat Assistant**, paste the Bot ID and choose the script position.
-4. Save. The chat widget is now live on your site.
+2. Create a free account at https://app.chat.ethora.com and create an AI agent.
+3. Add your website and documents to the agent so it can answer from your content, then copy its Bot ID.
+4. In **Settings > Ethora Chat Assistant**, paste the Bot ID, optionally set colors, icon and position, and save. The AI chatbot is now live on your site.
+
+More about the plugin: https://ethora.com/ai-sdk/wordpress-ai-agent-plugin/
 
 == Installation ==
 
@@ -46,6 +65,30 @@ The widget JavaScript is bundled with the plugin and served from your own site (
 4. Enter your Ethora Bot ID, choose script position (header or footer), and click **Save Settings**.
 
 == Frequently Asked Questions ==
+
+= Is the AI chatbot free? =
+
+The plugin is free. The Ethora service it connects to has a free plan (up to 1,000 monthly active users, no credit card). Paid plans for more users are listed at https://ethora.com/pricing/.
+
+= How do I train the chatbot on my website content? =
+
+In the Ethora dashboard (https://app.chat.ethora.com), open your AI agent, add your website so its pages are indexed, and upload any documents you want it to know, such as FAQs, price lists or manuals. The agent then answers visitors from that content. The plugin itself only needs the agent's Bot ID.
+
+= Do I need coding skills? =
+
+No. You paste a Bot ID into the settings screen. Colors, fonts, icon and position are set with normal form fields.
+
+= Does it work with WooCommerce? =
+
+Yes. The chat widget loads on your site's front-end pages, including WooCommerce shop and product pages. Add your product pages or product documents to the agent so it can answer product questions.
+
+= Can I change how the chat widget looks? =
+
+Yes. Under **Settings > Ethora Chat Assistant > Appearance** you can set colors, message bubble colors, font or Google Font, bot name, bot avatar, chat button icon, left or right position, and the chat window size.
+
+= Which languages does it support? =
+
+The chat interface follows your WordPress site language. What language the AI agent answers in is controlled by the agent's instructions in the Ethora dashboard.
 
 = What is a Bot ID and where do I get one? =
 
