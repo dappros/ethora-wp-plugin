@@ -108,11 +108,19 @@ No. The widget JavaScript is bundled inside the plugin and served from your own 
 
 = Is the chat widget mobile responsive? =
 
-Yes. The Ethora chat widget is responsive and works on all common devices and screen sizes.
+Yes. The Ethora chat widget is responsive and works on all common devices and screen sizes. For the best result on phones, set **Width (px)** under Appearance (for example 400): the chat window never grows wider than the screen, so the same value works on desktop and mobile.
 
 = Can I use this on multiple sites? =
 
 Yes. Install it on as many sites as you like; each site uses its own Bot ID.
+
+== Screenshots ==
+
+1. The AI chatbot answering a visitor's question on a WordPress site.
+2. The same chat on a phone.
+3. The chat button with its "Ask me anything!" prompt, before a visitor opens the chat.
+4. Settings: paste your Bot ID, choose where the script loads, and optionally point to a self-hosted Ethora server.
+5. Appearance settings: bot name, avatar, chat button icon, colors, font, position and size.
 
 == External services ==
 

@@ -28,16 +28,17 @@
   text-align: center;
   margin-bottom: 30px;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #061430 0%, #0052CD 100%);
   border-radius: 8px;
   margin-top: 20px;
 }
 
+/* logo.png is a blue mark on an opaque white tile; show it as a tile. */
 .ethora-logo img {
-  max-width: 150px;
+  max-width: 96px;
   height: auto;
   display: inline-block;
-  filter: brightness(0) invert(1);
+  border-radius: 20px;
 }
 
 .form-table th {
