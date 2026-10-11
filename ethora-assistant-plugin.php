@@ -3,9 +3,9 @@
  * Plugin Name: Ethora Chat Assistant
  * Plugin URI: https://ethora.com
  * Description: Add the Ethora AI chat assistant to your WordPress site. The widget script is bundled with the plugin and connects at runtime to the Ethora chat service (see readme: External services).
- * Version: 1.7.1
+ * Version: 1.7.2
  * Requires at least: 5.0
- * Tested up to: 7.0
+ * Tested up to: 7.1
  * Requires PHP: 7.4
  * Author: RLDP, Ethora Team 
  * License: GPL v2 or later
@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ETHORA_PLUGIN_VERSION', '1.7.1');
+define('ETHORA_PLUGIN_VERSION', '1.7.2');
 define('ETHORA_DEFAULT_API_URL', 'https://api.chat.ethora.com/v1');
 define('ETHORA_PLUGIN_FILE', __FILE__);
 define('ETHORA_PLUGIN_DIR', plugin_dir_path(__FILE__));
@@ -201,6 +201,9 @@ class Ethora_Chat_Assistant {
      */
     private function appearance_settings() {
         return array(
+            'bot_name'        => array('label' => 'Bot name', 'attr' => 'data-bot-name', 'render' => 'text', 'sanitize' => 'sanitize_text_field', 'desc' => 'Name shown for the bot everywhere in the chat: header, greeting and every reply. Leave empty to use the name set for your agent in Ethora.'),
+            'bot_avatar'      => array('label' => 'Bot avatar URL', 'attr' => 'data-bot-avatar', 'render' => 'url', 'sanitize' => 'esc_url_raw', 'desc' => 'Image shown next to the bot\'s messages. Not used for the chat button.'),
+            'launcher_icon'   => array('label' => 'Widget icon URL', 'attr' => 'data-launcher-icon', 'render' => 'url', 'sanitize' => 'esc_url_raw', 'desc' => 'Image shown on the chat button and in the chat header. Paste any image URL, or the URL of a file from your Media Library. Leave empty for the default icon.'),
             'primary_color'   => array('label' => 'Primary color', 'attr' => 'data-primary-color', 'render' => 'color', 'sanitize' => array($this, 'sanitize_color')),
             'secondary_color' => array('label' => 'Secondary color', 'attr' => 'data-secondary-color', 'render' => 'color', 'sanitize' => array($this, 'sanitize_color')),
             'icons_color'     => array('label' => 'Icons color', 'attr' => 'data-icons-color', 'render' => 'color', 'sanitize' => array($this, 'sanitize_color')),
@@ -210,8 +213,8 @@ class Ethora_Chat_Assistant {
             'font_family'     => array('label' => 'Font family', 'attr' => 'data-font-family', 'render' => 'text', 'sanitize' => 'sanitize_text_field'),
             'google_font'     => array('label' => 'Google font name', 'attr' => 'data-google-font', 'render' => 'text', 'sanitize' => 'sanitize_text_field'),
             'dock'            => array('label' => 'Widget position', 'attr' => 'data-position', 'render' => 'dock', 'sanitize' => array($this, 'sanitize_dock')),
-            'width'           => array('label' => 'Width (px)', 'attr' => 'data-width', 'render' => 'number', 'sanitize' => 'absint'),
-            'height'          => array('label' => 'Height (px)', 'attr' => 'data-height', 'render' => 'number', 'sanitize' => 'absint'),
+            'width'           => array('label' => 'Width (px)', 'attr' => 'data-width', 'render' => 'number', 'sanitize' => array($this, 'sanitize_dimension')),
+            'height'          => array('label' => 'Height (px)', 'attr' => 'data-height', 'render' => 'number', 'sanitize' => array($this, 'sanitize_dimension')),
         );
     }
     
@@ -277,7 +280,14 @@ class Ethora_Chat_Assistant {
                 echo '<input type="text" name="' . esc_attr($option) . '" value="' . esc_attr($value) . '" class="regular-text" placeholder="#1976d2 / rgb(...)" />';
                 break;
             case 'number':
-                echo '<input type="number" min="0" name="' . esc_attr($option) . '" value="' . esc_attr($value) . '" class="small-text" />';
+                // A stored 0 is how <= 1.7.1 recorded an empty field. It is
+                // ignored on the frontend now, so show it as empty too rather
+                // than as a 0 that looks like the fix did not apply.
+                $shown = ((int) $value > 0) ? $value : '';
+                echo '<input type="number" min="0" name="' . esc_attr($option) . '" value="' . esc_attr($shown) . '" class="small-text" />';
+                break;
+            case 'url':
+                echo '<input type="url" name="' . esc_attr($option) . '" value="' . esc_url($value) . '" class="regular-text" placeholder="https://" />';
                 break;
             case 'dock':
                 echo '<select name="' . esc_attr($option) . '">';
@@ -290,6 +300,18 @@ class Ethora_Chat_Assistant {
                 echo '<input type="text" name="' . esc_attr($option) . '" value="' . esc_attr($value) . '" class="regular-text" />';
                 break;
         }
+        if (!empty($cfg['desc'])) {
+            echo '<p class="description">' . esc_html($cfg['desc']) . '</p>';
+        }
+    }
+
+    /**
+     * Sanitize a pixel dimension. Empty, zero or negative clears it (the
+     * widget then uses its own adaptive default) instead of storing 0.
+     */
+    public function sanitize_dimension($value) {
+        $value = absint(trim((string) $value));
+        return $value > 0 ? (string) $value : '';
     }
 
     /**
@@ -408,6 +430,13 @@ class Ethora_Chat_Assistant {
         $appearance_js = '';
         foreach ($this->appearance_settings() as $key => $cfg) {
             $val = get_option('ethora_chat_assistant_' . $key, '');
+            // A number field left empty used to be saved as 0 (absint('')),
+            // and data-width="0" opens the chat as a 0x0 panel: the launcher
+            // disappears on click and nothing visible opens. Treat 0 as unset,
+            // which also repairs sites that already saved it.
+            if ($cfg['render'] === 'number' && (int) $val <= 0) {
+                continue;
+            }
             if ($val !== '' && $val !== null) {
                 $appearance_js .= "\n                scriptTag.setAttribute(\"" . esc_js($cfg['attr']) . "\", \"" . esc_js($val) . "\");";
             }
@@ -416,9 +445,17 @@ class Ethora_Chat_Assistant {
         // Add inline script to create the required script tag with bot ID,
         // app ID, the API URL and any appearance overrides. This is how the
         // Ethora assistant expects to be initialized.
+        //
+        // Must run BEFORE the main widget script (hence the 'before' position
+        // below) and must run synchronously, not on DOMContentLoaded: the main
+        // script tag above is enqueued as a plain, non-deferred <script src>,
+        // so it executes the instant the browser parses it and reads its
+        // config off the "chat-content-assistant" tag immediately. Waiting for
+        // DOMContentLoaded to create that tag runs it long after the widget
+        // already checked for it and failed with "missing data-app-id".
         wp_add_inline_script(
             'ethora-chat-assistant',
-            'document.addEventListener("DOMContentLoaded", function() {
+            '(function() {
                 // Create script tag with config for the Ethora assistant to read
                 var scriptTag = document.createElement("script");
                 scriptTag.id = "chat-content-assistant";
@@ -426,7 +463,8 @@ class Ethora_Chat_Assistant {
                 scriptTag.setAttribute("data-bot-id", "' . esc_js($bot_id) . '");
                 scriptTag.setAttribute("data-api-url", "' . esc_js($api_url) . '");' . $appearance_js . '
                 document.head.appendChild(scriptTag);
-            });'
+            })();',
+            'before'
         );
     }
 }
