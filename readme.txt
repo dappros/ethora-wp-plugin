@@ -4,7 +4,7 @@ Tags: ai-chatbot, chatbot, ai-assistant, live-chat, customer-support
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.7.2
+Stable tag: 1.7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -162,6 +162,11 @@ The chat widget bundled with this plugin is built from Ethora's open-source code
 The widget is produced with a standard `npm install` + Vite build from the source repository above; no build step is required to run the plugin.
 
 == Changelog ==
+
+= 1.7.3 =
+* Changed: the chat no longer creates a visitor account and conversation when a page merely loads. It does so the first time someone hovers over or opens the chat launcher, and a returning visitor resumes their earlier conversation. Pages crawled by search engines and link previews no longer leave empty accounts behind.
+* Changed: the conversation records the page it was started on, so operators can see where a visitor was when they wrote.
+* Updated: bundled widget rebuilt from the current Ethora widget source (October 2026); PDF attachments are shown with a viewer shipped under assets/js/pdfjs/.
 
 = 1.7.2 =
 * Tested with WordPress 7.1.
