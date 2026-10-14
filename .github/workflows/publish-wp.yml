@@ -1,0 +1,33 @@
+name: Publish to WordPress.org
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Plugin version to publish, SemVer 1.x.y (must match the Version header and the Stable tag)"
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: wordpress-org
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Subversion and rsync
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y subversion rsync
+
+      - name: Publish to the WordPress.org SVN repository
+        env:
+          VERSION: ${{ inputs.version }}
+          WP_SVN_USERNAME: ${{ secrets.WP_SVN_USERNAME }}
+          WP_SVN_PASSWORD: ${{ secrets.WP_SVN_PASSWORD }}
+        run: scripts/publish-wp.sh "$VERSION" --yes
