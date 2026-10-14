@@ -18,6 +18,7 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 delete_option('ethora_chat_assistant_bot_id');
 delete_option('ethora_chat_assistant_position');
 delete_option('ethora_chat_assistant_api_url');
+delete_option('ethora_chat_assistant_refresh_key');
 
 // Delete any transients that might have been set
 delete_transient('ethora_chat_assistant_cache');

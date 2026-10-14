@@ -3,7 +3,7 @@
  * Plugin Name: Ethora Chat Assistant
  * Plugin URI: https://ethora.com
  * Description: Add the Ethora AI chat assistant to your WordPress site. The widget script is bundled with the plugin and connects at runtime to the Ethora chat service (see readme: External services).
- * Version: 1.7.3
+ * Version: 1.8.0
  * Requires at least: 5.0
  * Tested up to: 7.1
  * Requires PHP: 7.4
@@ -14,7 +14,7 @@
  * Domain Path: /languages
  *
  * @package EthoraChatAssistant
- * @version 1.7.1
+ * @version 1.8.0
  * @author RLDP, Ethora Team
  */
 
@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ETHORA_PLUGIN_VERSION', '1.7.3');
+define('ETHORA_PLUGIN_VERSION', '1.8.0');
 define('ETHORA_DEFAULT_API_URL', 'https://api.chat.ethora.com/v1');
 define('ETHORA_PLUGIN_FILE', __FILE__);
 define('ETHORA_PLUGIN_DIR', plugin_dir_path(__FILE__));
@@ -473,8 +473,10 @@ class Ethora_Chat_Assistant {
  * Initialize the plugin
  */
 function ethora_chat_assistant_init() {
-    global $ethora_chat_assistant;
+    global $ethora_chat_assistant, $ethora_refresh_hook;
     $ethora_chat_assistant = new Ethora_Chat_Assistant();
+    require_once ETHORA_PLUGIN_DIR . 'includes/class-ethora-refresh-hook.php';
+    $ethora_refresh_hook = new Ethora_Refresh_Hook();
 }
 add_action('plugins_loaded', 'ethora_chat_assistant_init');
 

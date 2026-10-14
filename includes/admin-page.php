@@ -41,6 +41,7 @@ if (!current_user_can('manage_options')) {
                 <li><?php esc_html_e('Script positioning (header or footer)', 'ethora-chat-assistant'); ?></li>
                 <li><?php esc_html_e('Ethora assistant served locally from your site', 'ethora-chat-assistant'); ?></li>
                 <li><?php esc_html_e('Chat widget for your site visitors', 'ethora-chat-assistant'); ?></li>
+                <li><?php esc_html_e('Optional refresh key: new and edited pages reach the AI agent\'s knowledge as soon as you publish', 'ethora-chat-assistant'); ?></li>
             </ul>
             
             <div class="ethora-local-info">
