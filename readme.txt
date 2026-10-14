@@ -4,7 +4,7 @@ Tags: ai-chatbot, chatbot, ai-assistant, live-chat, customer-support
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.7.3
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,10 @@ A Bot ID is the unique identifier of your Ethora AI agent / app. Create a free a
 
 Yes. The plugin itself stores only your Bot ID and position setting in WordPress. However, the embedded chat widget connects at runtime to the Ethora chat service (and to Google Sign-In and a link-preview service) in order to deliver live messaging and AI responses. The full list, including what data is sent and the relevant terms and privacy policies, is in the **External services** section below.
 
+= Does the chatbot see new and edited pages? =
+
+Yes. Ethora re-crawls your website on a schedule (weekly by default, daily if you choose). To have a post or page re-indexed the moment it is published, updated or unpublished, create a refresh key in Ethora (agent > Web Index > Kept up to date > Publish hook) and paste it into the plugin settings as "Website refresh key". The settings page then also has a "Refresh website knowledge now" button.
+
 = Can I point the widget at a self-hosted Ethora server? =
 
 Yes. The settings screen has an optional **API URL (advanced)** field. It defaults to Ethora Cloud (https://api.chat.ethora.com/v1). If you run a self-hosted or dedicated Ethora server, enter its API base URL there and the widget will connect to it instead.
@@ -151,6 +155,12 @@ This plugin embeds the Ethora chat / AI assistant. Once you set a Bot ID and a v
 
 Profile images for signed-in users may be displayed directly from Google's user-content servers (lh3.googleusercontent.com).
 
+**Website refresh (optional, only with a refresh key set)**
+- Purpose: tell Ethora which of your pages changed, so the AI agent's knowledge is updated right away.
+- Data sent: the public addresses (permalinks) of posts and pages when they are published, updated, unpublished or trashed, and the refresh key. No post content, user or visitor data is sent; Ethora fetches the public page itself.
+- When: when an editor saves such a change, and when an administrator presses "Refresh website knowledge now".
+- Service endpoint: the Ethora REST API (the configured API URL), path /v2/sources/refresh-hook.
+
 == Source code ==
 
 The chat widget bundled with this plugin is built from Ethora's open-source code.
@@ -162,6 +172,10 @@ The chat widget bundled with this plugin is built from Ethora's open-source code
 The widget is produced with a standard `npm install` + Vite build from the source repository above; no build step is required to run the plugin.
 
 == Changelog ==
+
+= 1.8.0 =
+* New: optional website refresh key. Published, updated, unpublished and trashed posts and pages are re-indexed in the AI agent's knowledge right away instead of at the next scheduled refresh.
+* New: "Refresh website knowledge now" button on the settings page.
 
 = 1.7.3 =
 * Changed: the chat no longer creates a visitor account and conversation when a page merely loads. It does so the first time someone hovers over or opens the chat launcher, and a returning visitor resumes their earlier conversation. Pages crawled by search engines and link previews no longer leave empty accounts behind.
@@ -214,6 +228,9 @@ The widget is produced with a standard `npm install` + Vite build from the sourc
 * Initial release with Bot ID setting and script injection.
 
 == Upgrade Notice ==
+
+= 1.8.0 =
+Optional: keep the chatbot's knowledge of your site current the moment you publish. Paste a refresh key from Ethora into the settings.
 
 = 1.7.2 =
 Fixes an invisible chat panel after saving settings with empty Width/Height, the bot's avatar being used as the chat button, clicking the bot's avatar, and the bot showing under two names. Tested with WordPress 7.1.
