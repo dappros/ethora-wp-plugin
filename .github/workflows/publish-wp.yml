@@ -1,15 +1,73 @@
 name: Publish to WordPress.org
 
+# Publishes the plugin to the WordPress.org SVN repository from GitHub Actions.
+#
+# The widget bundle (assets/js/ethora_assistant.js) comes from the widget's
+# GitHub release when widget_tag is set, so the file that ships is the one the
+# widget release built. Without widget_tag, the bundle committed here is used.
+#
+# Two jobs:
+#   dry-run  always runs. Validates the version and the bundle, reads the
+#            WordPress.org SVN repository and prints the plan. Uploads nothing,
+#            needs no approval.
+#   publish  runs only when publish is true, after the dry run passes. It uses
+#            the wordpress-org environment (add required reviewers there) and
+#            the WP_SVN_USERNAME / WP_SVN_PASSWORD secrets.
+
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Plugin version to publish, SemVer 1.x.y (must match the Version header and the Stable tag)"
+        description: "Plugin version, SemVer 1.x.y (must match the Version header and the Stable tag)"
         required: true
         type: string
+      widget_tag:
+        description: "Widget release tag to take the bundle from, e.g. v26.10.2. Empty = use the bundle committed in this repository."
+        required: false
+        default: ""
+        type: string
+      publish:
+        description: "Upload to WordPress.org. Off = dry run only."
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
 
 jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Subversion and rsync
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y subversion rsync
+
+      - name: Fetch the widget bundle from its release
+        if: inputs.widget_tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WIDGET_TAG: ${{ inputs.widget_tag }}
+        run: |
+          gh release download "$WIDGET_TAG" \
+            -R dappros/ethora-ai-chat-widget \
+            -p ethora_assistant.js \
+            -D assets/js --clobber
+
+      - name: Dry run (validate, read SVN, print the plan)
+        env:
+          VERSION: ${{ inputs.version }}
+        run: scripts/publish-wp.sh "$VERSION"
+
   publish:
+    needs: dry-run
+    if: inputs.publish
     runs-on: ubuntu-latest
     environment: wordpress-org
     permissions:
@@ -24,6 +82,17 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y subversion rsync
+
+      - name: Fetch the widget bundle from its release
+        if: inputs.widget_tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WIDGET_TAG: ${{ inputs.widget_tag }}
+        run: |
+          gh release download "$WIDGET_TAG" \
+            -R dappros/ethora-ai-chat-widget \
+            -p ethora_assistant.js \
+            -D assets/js --clobber
 
       - name: Publish to the WordPress.org SVN repository
         env:
