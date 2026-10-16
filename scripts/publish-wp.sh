@@ -16,8 +16,9 @@
 # What gets published: everything in the repo root except the excludes below,
 # copied to trunk/, then trunk/ is copied to tags/<version>/. The plugin's own
 # assets/ folder (runtime CSS, JS and images) goes to trunk/assets/. The SVN
-# repository root assets/ folder (wordpress.org listing banners and icons) is
-# never touched by this script.
+# repository root assets/ folder (wordpress.org listing banners, icons and
+# screenshots) is synced from wp-assets/ in this repository, so the listing
+# images are versioned with the code.
 #
 # WP_SVN_URL overrides the SVN URL. It exists only so the commit path can be
 # tested against a local repository. Leave it unset for real releases.
@@ -138,6 +139,7 @@ EXCLUDES=(
   --exclude=/.github
   --exclude=/scripts
   --exclude=/build
+  --exclude=/wp-assets
   --exclude=/node_modules
   --exclude=/.gitignore
   --exclude=/.DS_Store
@@ -164,6 +166,34 @@ if [ -z "$CHANGES" ]; then
   echo "    (none)"
 else
   printf '%s\n' "$CHANGES" | sed 's/^/    /'
+fi
+
+# --- Sync the listing assets (banners, icons, screenshots) to assets/ ---------
+# They live in the repository root assets/ folder of SVN, not in trunk. The
+# source is wp-assets/ in this repository. --delete also removes listing images
+# that are no longer in wp-assets/, so the listing never shows a stale screenshot.
+# .svn is protected, as above.
+
+ASSETS_DIR="$SVN_DIR/assets"
+if [ -d "$ROOT/wp-assets" ]; then
+  echo "==> Syncing listing assets from wp-assets/"
+  svn update --quiet --non-interactive --set-depth infinity "$ASSETS_DIR"
+  rsync -a --delete --delete-excluded --filter='P .svn' "$ROOT/wp-assets/" "$ASSETS_DIR/"
+  svn add --quiet --force "$ASSETS_DIR"
+  MISSING_ASSETS="$(svn status "$ASSETS_DIR" | sed -n 's/^![[:space:]]*//p')"
+  while IFS= read -r missing_asset; do
+    [ -n "$missing_asset" ] || continue
+    svn rm --quiet --force "$missing_asset"
+  done <<< "$MISSING_ASSETS"
+  echo "==> Changes to assets/:"
+  ASSET_CHANGES="$(cd "$ASSETS_DIR" && svn status)"
+  if [ -z "$ASSET_CHANGES" ]; then
+    echo "    (none)"
+  else
+    printf '%s\n' "$ASSET_CHANGES" | sed 's/^/    /'
+  fi
+else
+  echo "==> No wp-assets/ folder, listing assets are not touched"
 fi
 
 # --- Copy trunk to tags/<version> ---------------------------------------------
