@@ -1,6 +1,6 @@
 === Ethora AI Chatbot - AI Chat Assistant for Your Website ===
 Contributors: rldp, dmytroberberov, phwizard
-Tags: ai-chatbot, chatbot, ai-assistant, live-chat, customer-support
+Tags: chat, chatbot, ai, live-chat, customer-support
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -8,11 +8,11 @@ Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI chatbot for WordPress that answers visitor questions from your own website pages and documents, in a chat widget styled to match your site.
+AI chatbot and live chat widget for WordPress, trained on your site. A WordPress chat plugin and AI chatbot for WordPress.
 
 == Description ==
 
-**Ethora AI Chatbot** adds an AI chat assistant to your WordPress website. Visitors ask questions in a chat widget and get answers from an AI agent that knows your website content and your documents.
+**Ethora AI Chatbot** is a WordPress chat plugin and AI chatbot for WordPress. It adds a live chat widget to your website that answers visitor questions around the clock, using an AI agent trained on your own pages and documents. When a question needs a person, the conversation can be escalated to a human agent.
 
 You create the AI agent in Ethora (there is a free plan, no credit card needed): add your website so the agent can index your pages, upload documents such as FAQs, price lists or manuals, and write the agent's instructions. Then paste the agent's Bot ID into this plugin and the chatbot appears on your site. No coding is needed.
 
@@ -66,65 +66,49 @@ More about the plugin: https://ethora.com/ai-sdk/wordpress-ai-agent-plugin/
 
 == Frequently Asked Questions ==
 
-= Is the AI chatbot free? =
+= Is the plugin compatible with any WordPress theme? =
 
-The plugin is free. The Ethora service it connects to has a free plan (up to 1,000 monthly active users, no credit card). Paid plans for more users are listed at https://ethora.com/pricing/.
+Yes. It works with most modern WordPress themes and page builders.
 
-= How do I train the chatbot on my website content? =
+= Can I train the AI chatbot on my own data? =
 
-In the Ethora dashboard (https://app.chat.ethora.com), open your AI agent, add your website so its pages are indexed, and upload any documents you want it to know, such as FAQs, price lists or manuals. The agent then answers visitors from that content. The plugin itself only needs the agent's Bot ID.
-
-= Do I need coding skills? =
-
-No. You paste a Bot ID into the settings screen. Colors, fonts, icon and position are set with normal form fields.
+Yes. Add your website and upload your documents, such as a knowledge base, FAQs, price lists or manuals, in the Ethora dashboard at https://app.chat.ethora.com. The agent then answers visitors from that content.
 
 = Does it work with WooCommerce? =
 
-Yes. The chat widget loads on your site's front-end pages, including WooCommerce shop and product pages. Add your product pages or product documents to the agent so it can answer product questions.
+Yes. The chat widget loads on WooCommerce shop and product pages. Add your product pages or product documents to the agent so it can answer product questions.
 
-= Can I change how the chat widget looks? =
+= How secure is user data? =
 
-Yes. Under **Settings > Ethora Chat Assistant > Appearance** you can set colors, message bubble colors, font or Google Font, bot name, bot avatar, chat button icon, left or right position, and the chat window size.
+Ethora handles user data in line with GDPR. If you need full control of your data, run your own Ethora server and point the plugin at it (see the question about a self-hosted server below). The External services section lists exactly what the widget sends and where.
 
-= Which languages does it support? =
+= Does it support multiple languages? =
 
-The chat interface follows your WordPress site language. What language the AI agent answers in is controlled by the agent's instructions in the Ethora dashboard.
+Yes. The chatbot can be trained and configured for multilingual conversations. The chat interface follows your WordPress site language, and the language the agent answers in is set in its instructions in the Ethora dashboard.
 
-= What is a Bot ID and where do I get one? =
+= Can I connect it with my CRM or email tools? =
 
-A Bot ID is the unique identifier of your Ethora AI agent / app. Create a free account and an app at https://app.chat.ethora.com, configure your AI agent, and copy the Bot ID from the app settings.
+Yes. Ethora supports integrations with popular CRM systems and marketing tools. Check the Ethora dashboard for the integrations available on your plan.
 
-= Does the plugin send data to external services? =
+= What happens when the chatbot can't answer a question? =
 
-Yes. The plugin itself stores only your Bot ID and position setting in WordPress. However, the embedded chat widget connects at runtime to the Ethora chat service (and to Google Sign-In and a link-preview service) in order to deliver live messaging and AI responses. The full list, including what data is sent and the relevant terms and privacy policies, is in the **External services** section below.
+The agent is trained to give context-aware answers from your content. When a question needs more information, the conversation can be escalated to a human agent.
 
-= Does the chatbot see new and edited pages? =
+= Can I install this without coding skills? =
 
-Yes. Ethora re-crawls your website on a schedule (weekly by default, daily if you choose). To have a post or page re-indexed the moment it is published, updated or unpublished, create a refresh key in Ethora (agent > Web Index > Kept up to date > Publish hook) and paste it into the plugin settings as "Website refresh key". The settings page then also has a "Refresh website knowledge now" button.
+Yes. Setup is no-code: paste the Bot ID into the settings screen, save, and the chat appears on your site.
 
-= Can I point the widget at a self-hosted Ethora server? =
+= Is the plugin lightweight and fast? =
 
-Yes. The settings screen has an optional **API URL (advanced)** field. It defaults to Ethora Cloud (https://api.chat.ethora.com/v1). If you run a self-hosted or dedicated Ethora server, enter its API base URL there and the widget will connect to it instead.
-
-= Is the widget JavaScript loaded from a remote server? =
-
-No. The widget JavaScript is bundled inside the plugin and served from your own WordPress site. Network requests happen only after a visitor opens the chat, and only to the documented services below.
-
-= Is the chat widget mobile responsive? =
-
-Yes. The Ethora chat widget is responsive and works on all common devices and screen sizes. For the best result on phones, set **Width (px)** under Appearance (for example 400): the chat window never grows wider than the screen, so the same value works on desktop and mobile.
-
-= Can I use this on multiple sites? =
-
-Yes. Install it on as many sites as you like; each site uses its own Bot ID.
+Yes. The widget connects to Ethora only after a visitor opens the chat, so it does not slow down page loading.
 
 == Screenshots ==
 
-1. The AI chatbot answering a visitor's question on a WordPress site.
-2. The same chat on a phone.
-3. The chat button with its "Ask me anything!" prompt, before a visitor opens the chat.
-4. Settings: paste your Bot ID, choose where the script loads, and optionally point to a self-hosted Ethora server.
-5. Appearance settings: bot name, avatar, chat button icon, colors, font, position and size.
+1. The chat button on a WordPress site. Visitors open the chat with one click.
+2. The chat open on a WordPress site, replying to a visitor's question.
+3. The same chat on a phone.
+4. Setup: paste your Ethora Bot ID and choose where the script loads.
+5. Appearance: bot name, colors, icon, font, position and size, with no code.
 
 == External services ==
 
@@ -174,6 +158,7 @@ The widget is produced with a standard `npm install` + Vite build from the sourc
 == Changelog ==
 
 = 1.8.0 =
+* Updated the WordPress.org listing: a clearer description, a new FAQ and screenshots.
 * New: optional website refresh key. Published, updated, unpublished and trashed posts and pages are re-indexed in the AI agent's knowledge right away instead of at the next scheduled refresh.
 * New: "Refresh website knowledge now" button on the settings page.
 
