@@ -184,11 +184,18 @@ fi
 
 # --- Commit -------------------------------------------------------------------
 
+# The listing assets folder is part of the commit when the script synced one
+# (ASSETS_DIR is set by the listing assets step, where that step exists).
+COMMIT_PATHS=("$TRUNK" "$TAG_DIR")
+if [ -n "${ASSETS_DIR:-}" ] && [ -d "$ASSETS_DIR" ]; then
+  COMMIT_PATHS+=("$ASSETS_DIR")
+fi
+
 echo "==> Committing trunk and tags/$VERSION to $SVN_URL"
 svn commit --non-interactive --no-auth-cache \
   -m "Release $VERSION" \
   --username "$WP_SVN_USERNAME" \
   --password "$WP_SVN_PASSWORD" \
-  "$TRUNK" "$TAG_DIR"
+  "${COMMIT_PATHS[@]}"
 
 echo "==> Published $VERSION"
