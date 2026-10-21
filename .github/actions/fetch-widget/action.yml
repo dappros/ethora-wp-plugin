@@ -1,0 +1,42 @@
+name: Fetch the widget release
+description: >
+  Downloads the files of a widget release (the readable bundle, the pdf.js files and the
+  checksums), checks the checksums and copies the files into the plugin tree. Run
+  actions/checkout first. The github.token must be able to read releases of
+  dappros/ethora-ai-chat-widget (it is public).
+
+inputs:
+  widget-tag:
+    description: Widget release tag, for example v26.10.1.
+    required: true
+  github-token:
+    description: Token for the gh CLI.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Download, verify and copy
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        WIDGET_TAG: ${{ inputs.widget-tag }}
+      run: |
+        if ! printf '%s\n' "$WIDGET_TAG" | grep -Eq '^v[0-9]{2}\.[0-9]{1,2}\.[0-9]{1,2}$'; then
+          echo "::error::widget tag '$WIDGET_TAG' does not look like v26.10.1"
+          exit 1
+        fi
+        dir="$RUNNER_TEMP/widget-release"
+        mkdir -p "$dir"
+        gh release download "$WIDGET_TAG" -R dappros/ethora-ai-chat-widget -D "$dir" --clobber \
+          -p ethora_assistant.js -p pdf.min.mjs -p pdf.worker.min.mjs -p SHA256SUMS
+        if [ -f "$dir/SHA256SUMS" ]; then
+          (cd "$dir" && sha256sum -c SHA256SUMS)
+        else
+          echo "::warning::$WIDGET_TAG has no SHA256SUMS, the files are not checksum-verified"
+        fi
+        cp "$dir/ethora_assistant.js" assets/js/ethora_assistant.js
+        if [ -f "$dir/pdf.min.mjs" ] && [ -f "$dir/pdf.worker.min.mjs" ]; then
+          mkdir -p assets/js/pdfjs
+          cp "$dir/pdf.min.mjs" "$dir/pdf.worker.min.mjs" assets/js/pdfjs/
+        fi
