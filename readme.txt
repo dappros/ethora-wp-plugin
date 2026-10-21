@@ -12,7 +12,7 @@ AI chatbot and live chat widget for WordPress, trained on your site. A WordPress
 
 == Description ==
 
-**Ethora AI Chatbot** is a WordPress chat plugin and AI chatbot for WordPress. It adds a live chat widget to your website that answers visitor questions around the clock, using an AI agent trained on your own pages and documents. When a question needs a person, the conversation can be escalated to a human agent.
+Add an AI chatbot and live chat widget to WordPress, trained on your own website and documents. **Ethora AI Chatbot** is a WordPress chat plugin that answers visitor questions around the clock, and when a question needs a person, the conversation can be handed to a human agent. It is an AI chatbot for WordPress that needs no coding.
 
 You create the AI agent in Ethora (there is a free plan, no credit card needed): add your website so the agent can index your pages, upload documents such as FAQs, price lists or manuals, and write the agent's instructions. Then paste the agent's Bot ID into this plugin and the chatbot appears on your site. No coding is needed.
 
@@ -104,11 +104,12 @@ Yes. The widget connects to Ethora only after a visitor opens the chat, so it do
 
 == Screenshots ==
 
-1. The chat button on a WordPress site. Visitors open the chat with one click.
-2. The chat open on a WordPress site, replying to a visitor's question.
-3. The same chat on a phone.
-4. Setup: paste your Ethora Bot ID and choose where the script loads.
-5. Appearance: bot name, colors, icon, font, position and size, with no code.
+1. The chat button on a WordPress page. Visitors open the chat with one click.
+2. The chat open on a WordPress page, answering a visitor's question.
+3. Plugin setup: paste your Ethora Bot ID and choose where the script loads.
+4. Knowledge base crawl: in the Ethora dashboard, the AI agent's Web Index lists the pages of a website that were crawled and indexed, so the agent can answer from them.
+5. Handing over to a person: the Try flow preview in the Ethora dashboard, where a visitor taps "Talk to a person" and the scripted flow replies that the reception team is being connected. This is the scripted preview of the flow, not a live conversation.
+6. Appearance: bot name, colors, icon, font, position and size, with no code.
 
 == External services ==
 
