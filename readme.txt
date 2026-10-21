@@ -159,6 +159,7 @@ The widget is produced with a standard `npm install` + Vite build from the sourc
 == Changelog ==
 
 = 1.8.0 =
+* Updated: bundled widget rebuilt from widget release v26.10.1.
 * Updated the WordPress.org listing: a clearer description, a new FAQ and screenshots.
 * New: optional website refresh key. Published, updated, unpublished and trashed posts and pages are re-indexed in the AI agent's knowledge right away instead of at the next scheduled refresh.
 * New: "Refresh website knowledge now" button on the settings page.
