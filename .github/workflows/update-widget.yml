@@ -1,14 +1,23 @@
 name: Update the bundled widget
 
-# Takes the bundle from a widget release and opens a pull request that updates the
-# plugin: the new bundle, the plugin version, Stable tag and a changelog line. It
-# never publishes. After the pull request is merged, run "Publish to WordPress.org".
+run-name: Update the bundled widget to ${{ inputs.widget_tag }}${{ inputs.dry_run && ' (dry run)' || '' }}
+
+# Takes the files of a widget release (the readable bundle, the pdf.js files and the
+# checksums) and opens a pull request that updates the plugin: the new bundle, the plugin
+# version, Stable tag and a changelog line. It never publishes. When the pull request is
+# merged, "Publish to WordPress.org" takes over (see .github/PUBLISHING.md).
 #
 # Start it by hand (Actions > Update the bundled widget > Run workflow), or let the
 # widget's release workflow start it when its WP_REPO_TOKEN secret is set.
 #
+# Dry run: does everything up to the commit (download, checksum check, readable check,
+# version bump, the publish dry run against the WordPress.org SVN, read only) and prints
+# the diff. It pushes no branch and opens no pull request.
+#
 # Pull requests are created with the built-in token, which needs the repository
-# setting "Allow GitHub Actions to create and approve pull requests".
+# setting "Allow GitHub Actions to create and approve pull requests". A pull request
+# opened with the built-in token does not start other workflows; run the checks by
+# hand or push an empty commit to the branch from a clone.
 on:
   workflow_dispatch:
     inputs:
@@ -16,10 +25,14 @@ on:
         description: "Widget release tag, for example v26.10.1"
         required: true
         type: string
+      dry_run:
+        description: "Run every step except the push and the pull request."
+        required: false
+        default: false
+        type: boolean
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: update-widget
@@ -28,11 +41,20 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Check out main
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: main
+
+      - name: Set up Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '22'
 
       - name: Install Subversion and rsync
         run: |
@@ -54,8 +76,26 @@ jobs:
           VERSION: ${{ steps.update.outputs.version }}
         run: scripts/publish-wp.sh "$VERSION"
 
+      - name: Show the change (dry run)
+        if: ${{ inputs.dry_run && steps.update.outputs.changed == 'true' }}
+        env:
+          VERSION: ${{ steps.update.outputs.version }}
+          WIDGET_TAG: ${{ inputs.widget_tag }}
+        run: |
+          git status --short
+          git diff --stat
+          {
+            echo "### Dry run complete"
+            echo
+            echo "Would open a pull request that bundles widget \`$WIDGET_TAG\` as plugin \`$VERSION\`. Nothing was pushed."
+            echo
+            echo '```'
+            git diff --stat
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Open a pull request
-        if: steps.update.outputs.changed == 'true'
+        if: ${{ !inputs.dry_run && steps.update.outputs.changed == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
           WIDGET_TAG: ${{ inputs.widget_tag }}
@@ -65,7 +105,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$BRANCH"
-          git add assets/js/ethora_assistant.js ethora-assistant-plugin.php readme.txt
+          git add assets/js ethora-assistant-plugin.php readme.txt
           git commit -m "chore(widget): bundle widget $WIDGET_TAG as plugin $VERSION"
           git push --force origin "$BRANCH"
 
@@ -77,12 +117,12 @@ jobs:
           cat > "$RUNNER_TEMP/pr-body.md" <<EOF
           Updates the bundled widget to the release $WIDGET_TAG of dappros/ethora-ai-chat-widget.
 
-          - Bundle: assets/js/ethora_assistant.js, readable (checked).
+          - Bundle: assets/js/ethora_assistant.js, readable (checked). The pdf.js files in assets/js/pdfjs/ come from the same release. The checksums in SHA256SUMS were checked when the release has them.
           - Plugin version: $VERSION, in the plugin header, the version constant and Stable tag.
           - Changelog: one line under $VERSION.
           - The publish dry run passed with these files.
 
-          Nothing is published by this pull request. After it is merged, run the "Publish to WordPress.org" workflow with version $VERSION.
+          Nothing is published by this pull request. Merging it starts "Publish to WordPress.org" for version $VERSION, which waits for approval in the wordpress-org environment.
           EOF
 
           gh pr create --base main --head "$BRANCH" \
