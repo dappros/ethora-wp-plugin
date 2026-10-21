@@ -1,20 +1,32 @@
 name: Publish to WordPress.org
 
-# Publishes the plugin to the WordPress.org SVN repository from GitHub Actions.
-#
-# The widget bundle (assets/js/ethora_assistant.js) comes from the widget's
-# GitHub release when widget_tag is set, so the file that ships is the one the
-# widget release built. Without widget_tag, the bundle committed here is used.
-#
-# Two jobs:
-#   dry-run  always runs. Validates the version and the bundle, reads the
-#            WordPress.org SVN repository and prints the plan. Uploads nothing,
-#            needs no approval.
-#   publish  runs only when publish is true, after the dry run passes. It uses
-#            the wordpress-org environment (add required reviewers there) and
-#            the WP_SVN_USERNAME / WP_SVN_PASSWORD secrets.
+run-name: Publish to WordPress.org (${{ github.event_name == 'push' && github.ref_name || inputs.version }}${{ github.event_name == 'workflow_dispatch' && !inputs.publish && ', dry run' || '' }})
 
+# Publishes the plugin to the WordPress.org SVN repository (trunk, tags/<version> and the
+# listing assets) from GitHub Actions. See .github/PUBLISHING.md.
+#
+# Three ways in:
+#   - Merge to main with a changed "Version:" header in ethora-assistant-plugin.php.
+#     The plugin update pull request (update-widget.yml) is the usual source.
+#   - Push a tag vX.Y.Z (X.Y.Z must equal the Version header and the Stable tag).
+#   - Run it by hand (Actions > Publish to WordPress.org > Run workflow). With publish
+#     off (the default) it is a dry run. widget_tag takes the bundle and the pdf.js
+#     files from a widget release instead of the files committed here.
+#
+# Jobs:
+#   detect   decides the version and whether to publish. Reads the SVN tags (read only).
+#   dry-run  validates the version and the bundle, reads the SVN repository and prints the
+#            plan. Uploads nothing, needs no approval.
+#   publish  runs after the dry run when publishing is wanted. It uses the wordpress-org
+#            environment (add required reviewers there for an approval step) and the
+#            WP_SVN_USERNAME / WP_SVN_PASSWORD secrets.
+#
+# Switch off the automatic publishing (push and tag runs) by setting the repository
+# variable WP_AUTO_PUBLISH to "false". Those runs then stop after the dry run.
 on:
+  push:
+    branches: [main]
+    tags: ['v1.*.*']
   workflow_dispatch:
     inputs:
       version:
@@ -35,12 +47,105 @@ on:
 permissions:
   contents: read
 
+# Runs wait for each other. A second run starts after the first one has finished, so the
+# check for an existing SVN tag sees the result of the first.
+concurrency:
+  group: wp-publish
+  cancel-in-progress: false
+
 jobs:
-  dry-run:
+  detect:
+    name: Decide what to publish
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.decide.outputs.version }}
+      run: ${{ steps.decide.outputs.run }}
+      publish: ${{ steps.decide.outputs.publish }}
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Subversion
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y subversion
+
+      - name: Decide
+        id: decide
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          BEFORE: ${{ github.event.before }}
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+          AUTO_PUBLISH: ${{ vars.WP_AUTO_PUBLISH }}
+        run: |
+          SVN_URL="https://plugins.svn.wordpress.org/ethora-chat-assistant"
+          header_version() { awk '/^[[:space:]]*\*[[:space:]]*Version:/ { sub(/^[^:]*:[[:space:]]*/, ""); sub(/[[:space:]]+$/, ""); print; exit }'; }
+          finish() {
+            echo "version=$1" >> "$GITHUB_OUTPUT"
+            echo "run=$2" >> "$GITHUB_OUTPUT"
+            echo "publish=$3" >> "$GITHUB_OUTPUT"
+            echo "### Publish to WordPress.org" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "$4" >> "$GITHUB_STEP_SUMMARY"
+            echo "$4"
+          }
+
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            finish "$INPUT_VERSION" true "$INPUT_PUBLISH" "Manual run for $INPUT_VERSION, publish=$INPUT_PUBLISH."
+            exit 0
+          fi
+
+          current="$(header_version < ethora-assistant-plugin.php)"
+          if [ -z "$current" ]; then
+            echo "::error::no Version header in ethora-assistant-plugin.php"
+            exit 1
+          fi
+
+          if [ "$REF_TYPE" = "tag" ]; then
+            version="${REF_NAME#v}"
+            if [ "$version" != "$current" ]; then
+              echo "::error::tag $REF_NAME does not match the Version header ($current). Nothing was published."
+              exit 1
+            fi
+          else
+            previous=""
+            if [ -n "$BEFORE" ] && ! printf '%s' "$BEFORE" | grep -Eq '^0+$' && git cat-file -e "$BEFORE:ethora-assistant-plugin.php" 2>/dev/null; then
+              previous="$(git show "$BEFORE:ethora-assistant-plugin.php" | header_version)"
+            fi
+            if [ "$previous" = "$current" ]; then
+              finish "$current" false false "The plugin version is still $current. Nothing to publish."
+              exit 0
+            fi
+            version="$current"
+          fi
+
+          if svn ls --non-interactive "$SVN_URL/tags" | grep -Fqx "$version/"; then
+            finish "$version" false false "tags/$version already exists on WordPress.org. Nothing to publish."
+            exit 0
+          fi
+
+          if [ "$AUTO_PUBLISH" = "false" ]; then
+            finish "$version" true false "Version $version is new, but WP_AUTO_PUBLISH is false: dry run only."
+            exit 0
+          fi
+          finish "$version" true true "Version $version is new on WordPress.org: dry run, then publish after approval."
+
+  dry-run:
+    name: Dry run
+    needs: detect
+    if: ${{ needs.detect.outputs.run == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -49,32 +154,30 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y subversion rsync
 
-      - name: Fetch the widget bundle from its release
-        if: inputs.widget_tag != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          WIDGET_TAG: ${{ inputs.widget_tag }}
-        run: |
-          gh release download "$WIDGET_TAG" \
-            -R dappros/ethora-ai-chat-widget \
-            -p ethora_assistant.js \
-            -D assets/js --clobber
+      - name: Fetch the widget release
+        if: ${{ inputs.widget_tag != '' }}
+        uses: ./.github/actions/fetch-widget
+        with:
+          widget-tag: ${{ inputs.widget_tag }}
+          github-token: ${{ github.token }}
 
       - name: Dry run (validate, read SVN, print the plan)
         env:
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ needs.detect.outputs.version }}
         run: scripts/publish-wp.sh "$VERSION"
 
   publish:
-    needs: dry-run
-    if: inputs.publish
+    name: Publish
+    needs: [detect, dry-run]
+    if: ${{ needs.detect.outputs.publish == 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment: wordpress-org
     permissions:
       contents: read
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -83,20 +186,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y subversion rsync
 
-      - name: Fetch the widget bundle from its release
-        if: inputs.widget_tag != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          WIDGET_TAG: ${{ inputs.widget_tag }}
-        run: |
-          gh release download "$WIDGET_TAG" \
-            -R dappros/ethora-ai-chat-widget \
-            -p ethora_assistant.js \
-            -D assets/js --clobber
+      - name: Fetch the widget release
+        if: ${{ inputs.widget_tag != '' }}
+        uses: ./.github/actions/fetch-widget
+        with:
+          widget-tag: ${{ inputs.widget_tag }}
+          github-token: ${{ github.token }}
 
       - name: Publish to the WordPress.org SVN repository
         env:
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ needs.detect.outputs.version }}
           WP_SVN_USERNAME: ${{ secrets.WP_SVN_USERNAME }}
           WP_SVN_PASSWORD: ${{ secrets.WP_SVN_PASSWORD }}
         run: scripts/publish-wp.sh "$VERSION" --yes
