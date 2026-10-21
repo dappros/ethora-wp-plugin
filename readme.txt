@@ -107,7 +107,7 @@ Yes. The widget connects to Ethora only after a visitor opens the chat, so it do
 1. The chat button on a WordPress page. Visitors open the chat with one click.
 2. The chat open on a WordPress page, answering a visitor's question.
 3. Plugin setup: paste your Ethora Bot ID and choose where the script loads.
-4. In the Ethora dashboard, the AI agent's Web Index lists the pages of your website that were crawled into its knowledge base.
+4. Knowledge base crawl: in the Ethora dashboard, the AI agent's Web Index lists the pages of a website that were crawled and indexed, so the agent can answer from them.
 5. Handing over to a person: the Try flow preview in the Ethora dashboard, where a visitor taps "Talk to a person" and the scripted flow replies that the reception team is being connected. This is the scripted preview of the flow, not a live conversation.
 6. Appearance: bot name, colors, icon, font, position and size, with no code.
 
