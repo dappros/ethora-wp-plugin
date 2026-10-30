@@ -1983,9 +1983,9 @@
                       }
                     }
                   }
-                  var channel = new MessageChannel();
-                  channel.port1.onmessage = callback;
-                  channel.port2.postMessage(void 0);
+                  var channel2 = new MessageChannel();
+                  channel2.port1.onmessage = callback;
+                  channel2.port2.postMessage(void 0);
                 };
               }
             }
@@ -3772,9 +3772,9 @@
               localSetImmediate(performWorkUntilDeadline);
             };
           } else if (typeof MessageChannel !== "undefined") {
-            var channel = new MessageChannel();
-            var port = channel.port2;
-            channel.port1.onmessage = performWorkUntilDeadline;
+            var channel2 = new MessageChannel();
+            var port = channel2.port2;
+            channel2.port1.onmessage = performWorkUntilDeadline;
             schedulePerformWorkUntilDeadline = function() {
               port.postMessage(null);
             };
@@ -37960,11 +37960,11 @@ Example:
       ...options
     });
   }
-  const MAX_DEPTH = DEFAULT_FORM_DATA_MAX_DEPTH;
+  const MAX_DEPTH$1 = DEFAULT_FORM_DATA_MAX_DEPTH;
   function throwIfDepthExceeded(index2) {
-    if (index2 > MAX_DEPTH) {
+    if (index2 > MAX_DEPTH$1) {
       throw new AxiosError$1(
-        "FormData field is too deeply nested (" + index2 + " levels). Max depth: " + MAX_DEPTH,
+        "FormData field is too deeply nested (" + index2 + " levels). Max depth: " + MAX_DEPTH$1,
         AxiosError$1.ERR_FORM_DATA_DEPTH_EXCEEDED
       );
     }
@@ -39077,10 +39077,10 @@ Example:
       },
       env2
     );
-    const { fetch: envFetch, Request, Response } = env2;
+    const { fetch: envFetch, Request, Response: Response2 } = env2;
     const isFetchSupported = envFetch ? isFunction$1(envFetch) : typeof fetch === "function";
     const isRequestSupported = isFunction$1(Request);
-    const isResponseSupported = isFunction$1(Response);
+    const isResponseSupported = isFunction$1(Response2);
     if (!isFetchSupported) {
       return false;
     }
@@ -39102,7 +39102,7 @@ Example:
       }
       return duplexAccessed && !hasContentType;
     });
-    const supportsResponseStream = isResponseSupported && isReadableStreamSupported && test(() => utils$1.isReadableStream(new Response("").body));
+    const supportsResponseStream = isResponseSupported && isReadableStreamSupported && test(() => utils$1.isReadableStream(new Response2("").body));
     const resolvers = {
       stream: supportsResponseStream && ((res) => res.body)
     };
@@ -39371,7 +39371,7 @@ Example:
             }
             onProgress && onProgress(loadedBytes);
           };
-          response = new Response(
+          response = new Response2(
             trackStream(response.body, DEFAULT_CHUNK_SIZE, onChunkProgress, () => {
               flush2 && flush2();
               unsubscribe && unsubscribe();
@@ -39464,8 +39464,8 @@ Example:
   const seedCache = /* @__PURE__ */ new Map();
   const getFetch = (config) => {
     let env2 = config && config.env || {};
-    const { fetch: fetch2, Request, Response } = env2;
-    const seeds = [Request, Response, fetch2];
+    const { fetch: fetch2, Request, Response: Response2 } = env2;
+    const seeds = [Request, Response2, fetch2];
     let len = seeds.length, i2 = len, seed, target, map2 = seedCache;
     while (i2--) {
       seed = seeds[i2];
@@ -41841,11 +41841,11 @@ It is disabled in production builds, so you don't need to worry about that.`);
       };
     }
   }
-  function isPlain(val) {
+  function isPlain$1(val) {
     const type = typeof val;
     return val == null || type === "string" || type === "boolean" || type === "number" || Array.isArray(val) || isPlainObject$2(val);
   }
-  function findNonSerializableValue(value, path2 = "", isSerializable = isPlain, getEntries, ignoredPaths = [], cache2) {
+  function findNonSerializableValue(value, path2 = "", isSerializable = isPlain$1, getEntries, ignoredPaths = [], cache2) {
     let foundNestedSerializable;
     if (!isSerializable(value)) {
       return {
@@ -41901,7 +41901,7 @@ It is disabled in production builds, so you don't need to worry about that.`);
       return () => (next2) => (action) => next2(action);
     } else {
       const {
-        isSerializable = isPlain,
+        isSerializable = isPlain$1,
         getEntries,
         ignoredActions = [],
         ignoredActionPaths = ["meta.arg", "meta.baseQueryMeta"],
@@ -42882,6 +42882,135 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     }
     return "";
   }
+  const COLOR_RE = /^(#?[0-9a-f]{3,8}|(rgb|rgba|hsl|hsla)\([0-9.,%\s/]+\)|[a-z]{3,20})$/i;
+  const FONT_FAMILY_RE = /^[\p{L}\p{N} ,'"_-]{1,120}$/u;
+  const GOOGLE_FAMILY_RE = /^[A-Za-z0-9 +]{1,80}$/;
+  const SIZE_RE = /^(\d+(?:\.\d+)?)(px|rem|em)?$/i;
+  const CONTROL_RE = /[\u0000-\u001f\u007f]/;
+  const asBool = (v2) => {
+    if (typeof v2 === "boolean") return v2;
+    const t2 = String(v2).trim().toLowerCase();
+    if (["true", "1", "yes"].includes(t2)) return true;
+    if (["false", "0", "no"].includes(t2)) return false;
+    return null;
+  };
+  const asColor = (v2) => typeof v2 === "string" && COLOR_RE.test(v2.trim()) ? v2.trim() : null;
+  const asText = (max) => (v2) => typeof v2 === "string" && v2.length <= max && !CONTROL_RE.test(v2) ? v2 : null;
+  const asPattern = (re2) => (v2) => typeof v2 === "string" && re2.test(v2.trim()) ? v2.trim() : null;
+  const asOneOf = (...values) => (v2) => typeof v2 === "string" && values.includes(v2.trim()) ? v2.trim() : null;
+  const asPx = (v2) => {
+    const m2 = SIZE_RE.exec(String(v2).trim());
+    if (!m2) return null;
+    const n2 = parseFloat(m2[1]);
+    const unit = (m2[2] || "px").toLowerCase();
+    const px = unit === "px" ? n2 : n2 * 16;
+    return Number.isFinite(px) && px > 0 && px <= 96 ? Math.round(px * 100) / 100 : null;
+  };
+  const LIVE_CONFIG_KEYS = {
+    // Style
+    colorScheme: asOneOf("light", "dark", "system"),
+    "colors.primary": asColor,
+    "colors.secondary": asColor,
+    "colors.icons": asColor,
+    "colors.iconsBg": asColor,
+    "colors.ownMessageBackground": asColor,
+    "colors.otherMessageBackground": asColor,
+    "colors.inputBackground": asColor,
+    "typography.fontFamily": asPattern(FONT_FAMILY_RE),
+    "typography.fontSize": asPx,
+    "typography.googleFontsFamily": asPattern(GOOGLE_FAMILY_RE),
+    "backgroundChat.color": asColor,
+    // Layout
+    disableHeader: asBool,
+    disableMedia: asBool,
+    disableRooms: asBool,
+    disableRoomMenu: asBool,
+    disableNewChatButton: asBool,
+    disableUserCount: asBool,
+    disableTypingIndicator: asBool,
+    disableProfilesInteractions: asBool,
+    chatHeaderBurgerMenu: asBool,
+    "chatHeaderSettings.hideSearch": asBool,
+    // AI agents
+    blockMessageSendingWhenProcessing: asBool,
+    "customTypingIndicator.enabled": asBool,
+    "customTypingIndicator.text": asText(80),
+    "customTypingIndicator.position": asOneOf("bottom", "top", "overlay", "floating"),
+    "translates.enabled": asBool,
+    // B2B
+    "secondarySendButton.enabled": asBool
+  };
+  const LIVE_FAMILIES = ["colors", "typography", "backgroundChat"];
+  const isLiveConfigPath = (path2) => Object.prototype.hasOwnProperty.call(LIVE_CONFIG_KEYS, path2) || LIVE_FAMILIES.some((f2) => path2 === f2 || path2.startsWith(`${f2}.`));
+  const MAX_DEPTH = 6;
+  const isPlain = (v2) => {
+    if (!v2 || typeof v2 !== "object") return false;
+    if (v2.$$typeof) return false;
+    const proto = Object.getPrototypeOf(v2);
+    return proto === Object.prototype || proto === null;
+  };
+  const flattenConfig = (input, out = /* @__PURE__ */ new Map(), prefix2 = "", depth = 0) => {
+    if (!isPlain(input) && !Array.isArray(input)) {
+      if (prefix2) out.set(prefix2, input);
+      return out;
+    }
+    const entries = Array.isArray(input) ? input.map((v2, i2) => [String(i2), v2]) : Object.entries(input);
+    for (const [k2, v2] of entries) {
+      const path2 = prefix2 ? `${prefix2}.${k2}` : k2;
+      if (depth >= MAX_DEPTH) out.set(path2, v2);
+      else flattenConfig(v2, out, path2, depth + 1);
+    }
+    return out;
+  };
+  const leafEqual = (a2, b2) => {
+    if (Object.is(a2, b2)) return true;
+    if (isPlain(a2) && isPlain(b2)) return !Object.keys(a2).length && !Object.keys(b2).length;
+    if (Array.isArray(a2) && Array.isArray(b2)) return !a2.length && !b2.length;
+    return false;
+  };
+  function classifyConfigChange(prev2, next2) {
+    const a2 = flattenConfig(prev2);
+    const b2 = flattenConfig(next2);
+    const live2 = [];
+    const restart = [];
+    const paths = /* @__PURE__ */ new Set([...a2.keys(), ...b2.keys()]);
+    for (const path2 of paths) {
+      if (leafEqual(a2.get(path2), b2.get(path2))) continue;
+      (isLiveConfigPath(path2) ? live2 : restart).push(path2);
+    }
+    return { live: live2.sort(), restart: restart.sort() };
+  }
+  function parseRemoteConfigRecord(raw) {
+    const out = {};
+    if (!isPlain(raw)) return out;
+    for (const [key, value] of Object.entries(raw)) {
+      const parse2 = Object.prototype.hasOwnProperty.call(LIVE_CONFIG_KEYS, key) ? LIVE_CONFIG_KEYS[key] : void 0;
+      if (!parse2) continue;
+      if (typeof value !== "string" && typeof value !== "boolean" && typeof value !== "number") {
+        continue;
+      }
+      const clean2 = parse2(value);
+      if (clean2 !== null) out[key] = clean2;
+    }
+    return out;
+  }
+  const PROTO_KEYS = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]);
+  function applyRemoteConfigRecord(base, record) {
+    if (!record || !Object.keys(record).length) return base;
+    const out = { ...base || {} };
+    for (const [key, value] of Object.entries(record)) {
+      const parts = key.split(".");
+      if (parts.some((p2) => PROTO_KEYS.has(p2))) continue;
+      let node2 = out;
+      for (const part of parts.slice(0, -1)) {
+        const child = node2[part];
+        node2[part] = isPlain(child) ? { ...child } : {};
+        node2 = node2[part];
+      }
+      node2[parts[parts.length - 1]] = value;
+    }
+    return out;
+  }
   const unpackAndTransform = (input) => {
     return {
       description: "",
@@ -42915,7 +43044,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       isAgreeWithTerms: input?.isAgreeWithTerms || false
     };
   };
-  const initialState$4 = {
+  const initialState$5 = {
     user: {
       description: "",
       token: "",
@@ -42958,7 +43087,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   };
   const chatSlice = createSlice({
     name: "chatSettingStore",
-    initialState: initialState$4,
+    initialState: initialState$5,
     reducers: {
       setUser: (state2, action) => {
         state2.user = unpackAndTransform(action.payload);
@@ -42977,10 +43106,13 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         }
       },
       setConfig: (state2, action) => {
-        state2.config = action.payload;
+        state2.config = state2.remoteConfig ? applyRemoteConfigRecord(action.payload, state2.remoteConfig) : action.payload;
         if (action.payload?.appId) {
           state2.appId = action.payload.appId;
         }
+      },
+      setRemoteConfig: (state2, action) => {
+        state2.remoteConfig = action.payload || null;
       },
       setActiveModal: (state2, action) => {
         state2.activeModal = action.payload;
@@ -43049,6 +43181,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   const {
     setUser,
     setConfig,
+    setRemoteConfig,
     refreshTokens,
     setXmppPassword,
     logout,
@@ -43152,10 +43285,10 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     if (!value) return "";
     return String(value).split("@")[0];
   };
-  const HEX24 = "[0-9a-fA-F]{24}";
+  const HEX24$1 = "[0-9a-fA-F]{24}";
   const UUID = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
   const OPAQUE_XMPP_USER_ID_RE = new RegExp(
-    `^(?:${HEX24}(?:_${HEX24})?|[A-Za-z0-9]+_(?:${HEX24}|${UUID})(?:_[0-9A-Za-z-]+)*)$`
+    `^(?:${HEX24$1}(?:_${HEX24$1})?|[A-Za-z0-9]+_(?:${HEX24$1}|${UUID})(?:_[0-9A-Za-z-]+)*)$`
   );
   const isOpaqueXmppUserId = (value) => {
     const local = toLocalPart(value || "").trim();
@@ -43381,7 +43514,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     };
     return merged.sort((x2, y) => num(x2) - num(y));
   };
-  const initialState$3 = {
+  const initialState$4 = {
     rooms: {},
     activeRoomJID: null,
     isChatUiVisible: false,
@@ -43588,7 +43721,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   };
   const roomsStore = createSlice({
     name: "roomMessages",
-    initialState: initialState$3,
+    initialState: initialState$4,
     reducers: {
       addRoom(state2, action) {
         const { roomData } = action.payload;
@@ -43643,6 +43776,29 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         if (!isSafeKey(jid2)) return;
         if (state2.rooms[jid2]) {
           delete state2.rooms[jid2];
+        }
+        if (state2.presenceByRoom?.[jid2] !== void 0) {
+          delete state2.presenceByRoom[jid2];
+        }
+        if (state2.joiningRoomJID === jid2) state2.joiningRoomJID = null;
+        if (state2.pendingJump?.roomJID === jid2) state2.pendingJump = null;
+        if (state2.archivedMessage?.roomJID === jid2) state2.archivedMessage = null;
+        if (state2.jumpWindow?.roomJID === jid2) state2.jumpWindow = null;
+        if (state2.editAction?.roomJid === jid2) {
+          state2.editAction = {
+            isEdit: false,
+            roomJid: "",
+            messageId: "",
+            text: ""
+          };
+        }
+        if (state2.subscribedRooms?.includes(jid2)) {
+          state2.subscribedRooms = state2.subscribedRooms.filter(
+            (subscribedJid) => subscribedJid !== jid2
+          );
+        }
+        if (state2.pushSubscriptionStatus?.[jid2] !== void 0) {
+          delete state2.pushSubscriptionStatus[jid2];
         }
         if (state2.drafts?.[jid2] !== void 0) {
           if (jid2 === "__proto__" || jid2 === "constructor" || jid2 === "prototype") {
@@ -44578,12 +44734,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     setRoomMuted
   } = roomsStore.actions;
   const roomsSlice = roomsStore.reducer;
-  const initialState$2 = {
+  const initialState$3 = {
     messageHeap: []
   };
   const roomHeapSlice = createSlice({
     name: "roomHeapStore",
-    initialState: initialState$2,
+    initialState: initialState$3,
     reducers: {
       // Enqueue a message to the end of the queue
       addMessageToHeap: (state2, action) => {
@@ -44603,7 +44759,34 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   });
   const { addMessageToHeap, removeMessageFromHeapById, clearHeap } = roomHeapSlice.actions;
   const roomHeapSlice$1 = roomHeapSlice.reducer;
-  const initialState$1 = {
+  const MAX_CALL_NAME_LENGTH = 80;
+  const HEX24 = "[0-9a-fA-F]{24}";
+  const USER_ID = `${HEX24}_${HEX24}(?:@[A-Za-z0-9.]+)?`;
+  const ONE_TO_ONE_ROOM = new RegExp(`^${USER_ID}(?:-${USER_ID})*$`);
+  const GROUP_ROOM = new RegExp(
+    `^${HEX24}_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`
+  );
+  const OPAQUE_ID = /^[0-9a-f_-]{16,}$/i;
+  const looksLikeRawRoomName = (value) => {
+    const text2 = typeof value === "string" ? value.trim() : "";
+    if (!text2) return false;
+    return ONE_TO_ONE_ROOM.test(text2) || GROUP_ROOM.test(text2) || OPAQUE_ID.test(text2);
+  };
+  const UNWANTED_CHARS = /[\u0000-\u001F\u007F-\u009F​-‏‪-‮⁠-⁤⁦-⁩﻿]/g;
+  const sanitizeCallName = (value) => {
+    if (typeof value !== "string") return "";
+    const cleaned = value.replace(UNWANTED_CHARS, " ").replace(/\s+/g, " ").trim();
+    if (!cleaned) return "";
+    const capped = Array.from(cleaned).slice(0, MAX_CALL_NAME_LENGTH).join("").trim();
+    return looksLikeRawRoomName(capped) ? "" : capped;
+  };
+  const safeCallName = (value) => sanitizeCallName(value) || null;
+  const sanitizeXmppUsername = (value) => {
+    const text2 = typeof value === "string" ? value.trim() : "";
+    const local = text2.split("/")[0];
+    return /^[A-Za-z0-9_-]{1,128}(?:@[A-Za-z0-9.-]+)?$/.test(local) ? local : null;
+  };
+  const initialState$2 = {
     phase: "idle",
     direction: null,
     kind: "video",
@@ -44617,19 +44800,34 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     e2eeKeyCallId: null,
     error: null,
     startedAt: null,
-    connectedAt: null
+    connectedAt: null,
+    mode: "livekit",
+    isGroup: false,
+    livekitUrl: null,
+    iceServers: null,
+    callerName: null,
+    callerXmppUsername: null
   };
-  const resetState = () => ({ ...initialState$1 });
+  const resetState = () => ({ ...initialState$2 });
+  const shouldIgnoreIncomingToken = (state2, next2) => {
+    if (state2.phase === "idle" || state2.phase === "error") return false;
+    if (state2.phase !== "ringing-incoming" || state2.direction !== "incoming") {
+      return true;
+    }
+    const nextCallId = next2.callId || null;
+    if (nextCallId || state2.callId) return nextCallId === state2.callId;
+    return (state2.roomJid || "") === (next2.roomJid || "");
+  };
   const callSlice = createSlice({
     name: "call",
-    initialState: initialState$1,
+    initialState: initialState$2,
     reducers: {
       startOutgoingCall(state2, action) {
         state2.phase = "requesting";
         state2.direction = "outgoing";
         state2.kind = action.payload.kind || "video";
         state2.roomJid = action.payload.roomJid;
-        state2.roomName = action.payload.roomName || null;
+        state2.roomName = safeCallName(action.payload.roomName);
         state2.roomBareName = action.payload.roomBareName || (action.payload.roomJid || "").split("@")[0] || null;
         state2.peerXmppUsername = action.payload.peerXmppUsername || null;
         state2.callId = null;
@@ -44639,13 +44837,39 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         state2.error = null;
         state2.startedAt = Date.now();
         state2.connectedAt = null;
+        state2.mode = "livekit";
+        state2.isGroup = action.payload.isGroup === true;
+        state2.livekitUrl = null;
+        state2.iceServers = null;
+        state2.callerName = null;
+        state2.callerXmppUsername = null;
+      },
+      // The create response told the caller how the call is carried. Applied
+      // only to the very call that asked (startedAt must match), so a late
+      // response for a call the user already cancelled cannot leak into the next.
+      setOutgoingCallRoute(state2, action) {
+        if (state2.direction !== "outgoing") return;
+        if (action.payload.startedAt !== state2.startedAt) return;
+        if (state2.phase !== "requesting") {
+          if (state2.phase !== "connecting" || action.payload.mode !== "livekit") {
+            return;
+          }
+        }
+        state2.mode = action.payload.mode;
+        if (action.payload.callId) state2.callId = action.payload.callId;
+        if (typeof action.payload.group === "boolean") {
+          state2.isGroup = action.payload.group;
+        }
+        state2.livekitUrl = action.payload.livekitUrl || null;
+        state2.iceServers = action.payload.mode === "p2p" ? action.payload.iceServers || [] : null;
       },
       setIncomingCallToken(state2, action) {
+        if (shouldIgnoreIncomingToken(state2, action.payload)) return;
         state2.phase = "ringing-incoming";
         state2.direction = "incoming";
         state2.kind = action.payload.kind || "video";
         state2.roomJid = action.payload.roomJid;
-        state2.roomName = action.payload.roomName || null;
+        state2.roomName = safeCallName(action.payload.roomName);
         state2.roomBareName = action.payload.roomBareName || (action.payload.roomJid || "").split("@")[0] || null;
         state2.callId = action.payload.callId || null;
         state2.peerXmppUsername = action.payload.peerXmppUsername || null;
@@ -44653,6 +44877,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         state2.error = null;
         state2.startedAt = Date.now();
         state2.connectedAt = null;
+        state2.mode = action.payload.mode || "livekit";
+        state2.isGroup = action.payload.isGroup === true;
+        state2.livekitUrl = action.payload.livekitUrl || null;
+        state2.iceServers = action.payload.iceServers || null;
+        state2.callerName = safeCallName(action.payload.callerName);
+        state2.callerXmppUsername = action.payload.callerXmppUsername || null;
       },
       setOutgoingCallToken(state2, action) {
         if (state2.direction !== "outgoing") return;
@@ -44662,11 +44892,13 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         state2.roomJid = action.payload.roomJid;
         state2.token = action.payload.token;
         if (action.payload.callId) state2.callId = action.payload.callId;
+        if (action.payload.livekitUrl) state2.livekitUrl = action.payload.livekitUrl;
         state2.error = null;
         state2.startedAt = state2.startedAt || Date.now();
       },
       acceptIncomingCall(state2) {
         if (state2.direction !== "incoming") return;
+        if (state2.phase !== "ringing-incoming") return;
         state2.phase = "connecting";
         state2.error = null;
         state2.startedAt = state2.startedAt || Date.now();
@@ -44716,6 +44948,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     startOutgoingCall,
     setIncomingCallToken,
     setOutgoingCallToken,
+    setOutgoingCallRoute,
     acceptIncomingCall,
     declineIncomingCall,
     endCall,
@@ -44726,6 +44959,103 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     resetCall
   } = callSlice.actions;
   const callSlice$1 = callSlice.reducer;
+  const initialState$1 = {
+    openRequest: null,
+    preJoin: null,
+    scheduleModal: null,
+    cancelModal: null,
+    details: {},
+    openError: null
+  };
+  const scheduledCallSlice = createSlice({
+    name: "scheduledCall",
+    initialState: initialState$1,
+    reducers: {
+      requestOpenScheduledCall(state2, action) {
+        state2.openRequest = { slug: action.payload, requestedAt: Date.now() };
+        state2.openError = null;
+      },
+      clearOpenRequest(state2) {
+        state2.openRequest = null;
+      },
+      setOpenError(state2, action) {
+        state2.openError = action.payload;
+      },
+      openPreJoin(state2, action) {
+        state2.preJoin = action.payload;
+        state2.details[action.payload.scheduledCall.slug] = {
+          status: "ready",
+          data: action.payload
+        };
+      },
+      closePreJoin(state2) {
+        state2.preJoin = null;
+      },
+      openScheduleModal(state2, action) {
+        state2.scheduleModal = {
+          roomJid: action.payload.roomJid,
+          editing: action.payload.editing ?? null
+        };
+      },
+      closeScheduleModal(state2) {
+        state2.scheduleModal = null;
+      },
+      openCancelModal(state2, action) {
+        state2.cancelModal = action.payload;
+      },
+      closeCancelModal(state2) {
+        state2.cancelModal = null;
+      },
+      detailsLoading(state2, action) {
+        const current2 = state2.details[action.payload];
+        state2.details[action.payload] = {
+          status: "loading",
+          data: current2?.data
+        };
+      },
+      detailsLoaded(state2, action) {
+        state2.details[action.payload.scheduledCall.slug] = {
+          status: "ready",
+          data: action.payload
+        };
+        if (state2.preJoin?.scheduledCall.slug === action.payload.scheduledCall.slug) {
+          state2.preJoin = action.payload;
+        }
+      },
+      detailsFailed(state2, action) {
+        state2.details[action.payload.slug] = {
+          status: "error",
+          error: action.payload.reason
+        };
+      },
+      /** Forget the server copy so the next card render fetches it again. */
+      forgetDetails(state2, action) {
+        delete state2.details[action.payload];
+      }
+    },
+    extraReducers: (builder) => {
+      builder.addCase("chatSettingStore/logout", () => ({
+        ...initialState$1,
+        details: {}
+      }));
+    }
+  });
+  const {
+    requestOpenScheduledCall,
+    clearOpenRequest,
+    setOpenError,
+    openPreJoin,
+    closePreJoin,
+    openScheduleModal,
+    closeScheduleModal,
+    openCancelModal,
+    closeCancelModal,
+    detailsLoading,
+    detailsLoaded,
+    detailsFailed,
+    forgetDetails
+  } = scheduledCallSlice.actions;
+  const scheduledCallSlice$1 = scheduledCallSlice.reducer;
   const normalizeXmppUsername = (value) => {
     if (!value) return "";
     let result = String(value).trim();
@@ -48712,8 +49042,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     });
   };
   let state = null;
-  const listeners$2 = /* @__PURE__ */ new Set();
-  const emit = () => listeners$2.forEach((listener) => listener());
+  const listeners$3 = /* @__PURE__ */ new Set();
+  const emit = () => listeners$3.forEach((listener) => listener());
   const getJumpThread = () => state;
   const setJumpThread = (next2) => {
     state = next2;
@@ -48725,9 +49055,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     emit();
   };
   const subscribeJumpThread = (listener) => {
-    listeners$2.add(listener);
+    listeners$3.add(listener);
     return () => {
-      listeners$2.delete(listener);
+      listeners$3.delete(listener);
     };
   };
   const useJumpThread = () => reactExports.useSyncExternalStore(subscribeJumpThread, getJumpThread, getJumpThread);
@@ -48992,6 +49322,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "attachments",
     "langSource",
     "callLog",
+    // The scheduled-call card's facts (a handful of short strings). Without it a
+    // reloaded transcript repaints the invite as its plain-text fallback.
+    "scheduledCall",
     "mentions",
     // The media message's own caption and its spans; without them a reloaded
     // caption message would repaint as a bare media bubble.
@@ -49178,7 +49511,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       "config.refreshTokens",
       "refreshTokens",
       "client",
-      "config"
+      "config",
+      "remoteConfig"
     ],
     transforms: [scrubSensitiveChatStateTransform, encryptor]
   };
@@ -49233,7 +49567,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     ),
     rooms: persistReducer(roomsPersistConfig, roomsSlice),
     roomHeapSlice: roomHeapSlice$1,
-    call: callSlice$1
+    call: callSlice$1,
+    scheduledCall: scheduledCallSlice$1
   });
   const persistedReducer = rootReducer;
   const getActiveRoom = (state2) => {
@@ -49480,15 +49815,15 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     if (typeof navigator === "undefined") {
       return null;
     }
-    const locks = navigator.locks;
-    return typeof locks?.request === "function" ? locks : null;
+    const locks2 = navigator.locks;
+    return typeof locks2?.request === "function" ? locks2 : null;
   };
   const withLock = (callback) => {
-    const locks = getLockManager();
-    if (!locks) {
+    const locks2 = getLockManager();
+    if (!locks2) {
       return callback();
     }
-    return locks.request(LOCK_NAME, callback);
+    return locks2.request(LOCK_NAME, callback);
   };
   let inflight$1 = null;
   function refreshAuthTokens(options) {
@@ -49806,9 +50141,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   const dirFailedAt = /* @__PURE__ */ new Map();
   const dirCoolingDown = (jid2) => Date.now() - (dirFailedAt.get(jid2) ?? -Infinity) < DIRECTORY_RETRY_MS;
   const dirMembers = /* @__PURE__ */ new Map();
-  const listeners$1 = /* @__PURE__ */ new Set();
+  const listeners$2 = /* @__PURE__ */ new Set();
   const notify = () => {
-    listeners$1.forEach((l2) => {
+    listeners$2.forEach((l2) => {
       try {
         l2();
       } catch {
@@ -49816,9 +50151,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     });
   };
   const subscribeUserResolver = (listener) => {
-    listeners$1.add(listener);
+    listeners$2.add(listener);
     return () => {
-      listeners$1.delete(listener);
+      listeners$2.delete(listener);
     };
   };
   let sessionIdentity = "";
@@ -52123,7 +52458,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     return root2;
   }
   function sqrt9mod16(P2) {
-    const Fp_ = Field$1(P2);
+    const Fp_ = Field$2(P2);
     const tn = tonelliShanks(P2);
     const c1 = tn(Fp_, Fp_.neg(Fp_.ONE));
     const c2 = tn(Fp_, c1);
@@ -52156,7 +52491,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       S2++;
     }
     let Z2 = _2n$3;
-    const _Fp = Field$1(P2);
+    const _Fp = Field$2(P2);
     while (FpLegendre(_Fp, Z2) === 1) {
       if (Z2++ > 1e3)
         throw new Error("Cannot find square root: probably non-prime P");
@@ -52423,7 +52758,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       return condition ? b2 : a2;
     }
   }
-  function Field$1(ORDER, opts = {}) {
+  function Field$2(ORDER, opts = {}) {
     Object.freeze(_Field.prototype);
     return new _Field(ORDER, opts);
   }
@@ -52780,7 +53115,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       validateField(field);
       return field;
     } else {
-      return Field$1(order2, { isLE: isLE2 });
+      return Field$2(order2, { isLE: isLE2 });
     }
   }
   function createCurveFields(type, CURVE, curveOpts = {}, FpFnLE) {
@@ -55917,6 +56252,65 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "call.durationSec": "{n} sec",
     "call.durationMin": "{n} min",
     "call.durationMinSec": "{m} min {s} sec",
+    "scheduledCall.action.schedule": "Schedule call",
+    "scheduledCall.default.title": "Call",
+    "scheduledCall.kind.video": "Video call",
+    "scheduledCall.kind.audio": "Audio call",
+    "scheduledCall.duration.min": "{n} min",
+    "scheduledCall.duration.hour": "{n} h",
+    "scheduledCall.duration.hourMin": "{h} h {m} min",
+    "scheduledCall.status.updated": "Updated",
+    "scheduledCall.status.cancelled": "Cancelled",
+    "scheduledCall.status.ended": "Ended",
+    "scheduledCall.status.open": "Open to join",
+    "scheduledCall.joinOpensAt": "You can join from {time}",
+    "scheduledCall.action.join": "Join",
+    "scheduledCall.action.joinCall": "Join call",
+    "scheduledCall.action.edit": "Edit",
+    "scheduledCall.action.cancel": "Cancel call",
+    "scheduledCall.calendar.add": "Add to calendar",
+    "scheduledCall.calendar.google": "Google Calendar",
+    "scheduledCall.calendar.outlook": "Outlook",
+    "scheduledCall.calendar.ics": "Download .ics",
+    "scheduledCall.form.titleCreate": "Schedule a call",
+    "scheduledCall.form.titleEdit": "Edit scheduled call",
+    "scheduledCall.form.title": "Title",
+    "scheduledCall.form.titlePlaceholder": "Call",
+    "scheduledCall.form.description": "Description (optional)",
+    "scheduledCall.form.date": "Date",
+    "scheduledCall.form.time": "Time",
+    "scheduledCall.form.timezone": "Your time zone: {tz}",
+    "scheduledCall.form.duration": "Duration",
+    "scheduledCall.form.type": "Call type",
+    "scheduledCall.form.submitCreate": "Schedule",
+    "scheduledCall.form.submitEdit": "Save changes",
+    "scheduledCall.form.error.title": "The title is too long.",
+    "scheduledCall.form.error.description": "The description is too long.",
+    "scheduledCall.form.error.start": "Pick a valid date and time.",
+    "scheduledCall.form.error.startPast": "Pick a time in the future.",
+    "scheduledCall.form.error.duration": "Pick a duration between 5 minutes and 8 hours.",
+    "scheduledCall.form.error.save": "Could not save the call. Try again.",
+    "scheduledCall.error.forbidden": "Only the person who scheduled the call or the chat owner can change it.",
+    "scheduledCall.cancelConfirm.title": "Cancel this call?",
+    "scheduledCall.cancelConfirm.description": "Everyone in the chat will be told it was cancelled.",
+    "scheduledCall.cancelConfirm.confirm": "Cancel call",
+    "scheduledCall.cancelConfirm.keep": "Keep call",
+    "scheduledCall.prejoin.title": "Scheduled call",
+    "scheduledCall.prejoin.hint": "Nothing is shared until you tap Join.",
+    "scheduledCall.prejoin.chat": "In {chat}",
+    "scheduledCall.prejoin.notOpen": "You can join from {time}.",
+    "scheduledCall.prejoin.ended": "This call has ended.",
+    "scheduledCall.prejoin.cancelled": "This call was cancelled.",
+    "scheduledCall.prejoin.busy": "Another call is already in progress.",
+    "scheduledCall.prejoin.unavailable": "Calls are not available in this chat.",
+    "scheduledCall.error.notFound": "Call not found.",
+    "scheduledCall.error.notMember": "You are not a member of this chat.",
+    "scheduledCall.error.cancelled": "This call was cancelled.",
+    "scheduledCall.error.network": "Could not open the call. Try again.",
+    "scheduledCall.toast.scheduled": "Call scheduled",
+    "scheduledCall.toast.updated": "Call updated",
+    "scheduledCall.toast.cancelled": "Call cancelled",
+    "scheduledCall.toast.cancelFailed": "Could not cancel the call.",
     "action.send": "Send",
     "action.cancel": "Cancel",
     "action.close": "Close",
@@ -55933,6 +56327,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "action.newChat": "New chat",
     "action.addUsers": "Add users",
     "action.addUsersCount": "Add users ({count} selected)",
+    "action.addPhoto": "Add photo",
+    "action.changePhoto": "Change photo",
+    "action.removePhoto": "Remove photo",
     "action.addMoreUsers": "Add more Users",
     "action.add": "Add",
     "action.backToCreation": "Back to creation",
@@ -55954,6 +56351,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.newChat.roomNamePlaceholder": "Enter Room Name",
     "modal.newChat.chatTypePlaceholder": "Select chat type",
     "modal.newChat.typePublic": "Public",
+    "modal.newChat.typeGroup": "Private group",
+    "modal.newChat.publicHint": "Anyone can find and join this chat.",
+    "modal.newChat.groupHint": "Only invited members can join this chat.",
     "modal.newChat.typePrivate": "Private",
     "modal.newChat.selectUsersTitle": "Select users to add to Chat",
     "modal.selectUsers.title": "Select Users (max 20)",
@@ -56011,9 +56411,13 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "toast.failedToCreatePrivateChat": "Failed to create private chat",
     "toast.failedToCreateCall": "Failed to create call",
     "toast.failedToDeleteUser": "Failed to delete user.",
+    "toast.chatInfoUpdated": "Chat details updated.",
+    "toast.failedToUpdateChat": "Could not update chat details. Please try again.",
     "toast.muteFailed": "Failed to mute this chat.",
     "toast.unmuteFailed": "Failed to unmute this chat.",
     "toast.blockFailed": "Failed to block this user.",
+    "toast.reportSent": "Report sent. Thank you.",
+    "toast.reportFailed": "Could not send the report. Please try again.",
     "toast.blockedSuccess": "User blocked. You can unblock them in Settings \u2192 Privacy & Data.",
     "message.blockedUser": "Unblock to see messages.",
     "message.blockedUserName": "Blocked user",
@@ -56063,6 +56467,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.profile.about": "About",
     "modal.profile.noDescription": "No description",
     "modal.chatProfile.title": "Chat Profile",
+    "modal.chatProfile.chatName": "Chat name",
     "modal.chatProfile.description": "Description",
     "modal.chatProfile.chatType": "Chat type",
     "modal.chatProfile.typePublic": "Public",
@@ -56283,6 +56688,65 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "call.durationSec": "{n} s",
     "call.durationMin": "{n} min",
     "call.durationMinSec": "{m} min {s} s",
+    "scheduledCall.action.schedule": "Planifier un appel",
+    "scheduledCall.default.title": "Appel",
+    "scheduledCall.kind.video": "Appel vid\xE9o",
+    "scheduledCall.kind.audio": "Appel audio",
+    "scheduledCall.duration.min": "{n} min",
+    "scheduledCall.duration.hour": "{n} h",
+    "scheduledCall.duration.hourMin": "{h} h {m} min",
+    "scheduledCall.status.updated": "Modifi\xE9",
+    "scheduledCall.status.cancelled": "Annul\xE9",
+    "scheduledCall.status.ended": "Termin\xE9",
+    "scheduledCall.status.open": "Ouvert pour rejoindre",
+    "scheduledCall.joinOpensAt": "Vous pouvez rejoindre \xE0 partir de {time}",
+    "scheduledCall.action.join": "Rejoindre",
+    "scheduledCall.action.joinCall": "Rejoindre l'appel",
+    "scheduledCall.action.edit": "Modifier",
+    "scheduledCall.action.cancel": "Annuler l'appel",
+    "scheduledCall.calendar.add": "Ajouter au calendrier",
+    "scheduledCall.calendar.google": "Google Agenda",
+    "scheduledCall.calendar.outlook": "Outlook",
+    "scheduledCall.calendar.ics": "T\xE9l\xE9charger le .ics",
+    "scheduledCall.form.titleCreate": "Planifier un appel",
+    "scheduledCall.form.titleEdit": "Modifier l'appel planifi\xE9",
+    "scheduledCall.form.title": "Titre",
+    "scheduledCall.form.titlePlaceholder": "Appel",
+    "scheduledCall.form.description": "Description (facultatif)",
+    "scheduledCall.form.date": "Date",
+    "scheduledCall.form.time": "Heure",
+    "scheduledCall.form.timezone": "Votre fuseau horaire : {tz}",
+    "scheduledCall.form.duration": "Dur\xE9e",
+    "scheduledCall.form.type": "Type d'appel",
+    "scheduledCall.form.submitCreate": "Planifier",
+    "scheduledCall.form.submitEdit": "Enregistrer",
+    "scheduledCall.form.error.title": "Le titre est trop long.",
+    "scheduledCall.form.error.description": "La description est trop longue.",
+    "scheduledCall.form.error.start": "Choisissez une date et une heure valides.",
+    "scheduledCall.form.error.startPast": "Choisissez une heure dans le futur.",
+    "scheduledCall.form.error.duration": "Choisissez une dur\xE9e entre 5 minutes et 8 heures.",
+    "scheduledCall.form.error.save": "Impossible d'enregistrer l'appel. R\xE9essayez.",
+    "scheduledCall.error.forbidden": "Seule la personne qui a planifi\xE9 l'appel ou le propri\xE9taire du chat peut le modifier.",
+    "scheduledCall.cancelConfirm.title": "Annuler cet appel ?",
+    "scheduledCall.cancelConfirm.description": "Tous les membres du chat seront inform\xE9s de l'annulation.",
+    "scheduledCall.cancelConfirm.confirm": "Annuler l'appel",
+    "scheduledCall.cancelConfirm.keep": "Garder l'appel",
+    "scheduledCall.prejoin.title": "Appel planifi\xE9",
+    "scheduledCall.prejoin.hint": "Rien n'est partag\xE9 tant que vous n'appuyez pas sur Rejoindre.",
+    "scheduledCall.prejoin.chat": "Dans {chat}",
+    "scheduledCall.prejoin.notOpen": "Vous pouvez rejoindre \xE0 partir de {time}.",
+    "scheduledCall.prejoin.ended": "Cet appel est termin\xE9.",
+    "scheduledCall.prejoin.cancelled": "Cet appel a \xE9t\xE9 annul\xE9.",
+    "scheduledCall.prejoin.busy": "Un autre appel est d\xE9j\xE0 en cours.",
+    "scheduledCall.prejoin.unavailable": "Les appels ne sont pas disponibles dans ce chat.",
+    "scheduledCall.error.notFound": "Appel introuvable.",
+    "scheduledCall.error.notMember": "Vous n'\xEAtes pas membre de ce chat.",
+    "scheduledCall.error.cancelled": "Cet appel a \xE9t\xE9 annul\xE9.",
+    "scheduledCall.error.network": "Impossible d'ouvrir l'appel. R\xE9essayez.",
+    "scheduledCall.toast.scheduled": "Appel planifi\xE9",
+    "scheduledCall.toast.updated": "Appel modifi\xE9",
+    "scheduledCall.toast.cancelled": "Appel annul\xE9",
+    "scheduledCall.toast.cancelFailed": "Impossible d'annuler l'appel.",
     "action.send": "Envoyer",
     "action.cancel": "Annuler",
     "action.close": "Fermer",
@@ -56299,6 +56763,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "action.newChat": "Nouvelle discussion",
     "action.addUsers": "Ajouter des utilisateurs",
     "action.addUsersCount": "Ajouter des utilisateurs ({count} selectionnes)",
+    "action.addPhoto": "Ajouter une photo",
+    "action.changePhoto": "Changer la photo",
+    "action.removePhoto": "Supprimer la photo",
     "action.addMoreUsers": "Ajouter d'autres utilisateurs",
     "action.add": "Ajouter",
     "action.backToCreation": "Retour \xE0 la cr\xE9ation",
@@ -56320,6 +56787,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.newChat.roomNamePlaceholder": "Nom du salon",
     "modal.newChat.chatTypePlaceholder": "Choisir le type de discussion",
     "modal.newChat.typePublic": "Public",
+    "modal.newChat.typeGroup": "Groupe priv\xE9",
+    "modal.newChat.publicHint": "Tout le monde peut trouver et rejoindre cette discussion.",
+    "modal.newChat.groupHint": "Seuls les membres invit\xE9s peuvent rejoindre cette discussion.",
     "modal.newChat.typePrivate": "Priv\xE9",
     "modal.newChat.selectUsersTitle": "S\xE9lectionner des utilisateurs \xE0 ajouter",
     "modal.selectUsers.title": "S\xE9lectionner des utilisateurs (max 20)",
@@ -56377,8 +56847,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "toast.failedToCreatePrivateChat": "\xC9chec de la cr\xE9ation de la discussion priv\xE9e",
     "toast.failedToCreateCall": "\xC9chec de la cr\xE9ation de l'appel",
     "toast.failedToDeleteUser": "\xC9chec de la suppression de l'utilisateur.",
+    "toast.chatInfoUpdated": "D\xE9tails de la discussion mis \xE0 jour.",
+    "toast.failedToUpdateChat": "Impossible de modifier la discussion. R\xE9essayez.",
     "toast.muteFailed": "\xC9chec de la d\xE9sactivation des notifications pour ce salon.",
     "toast.blockFailed": "\xC9chec du blocage de cet utilisateur.",
+    "toast.reportSent": "Signalement envoy\xE9. Merci.",
+    "toast.reportFailed": "Impossible d'envoyer le signalement. Veuillez r\xE9essayer.",
     "toast.blockedSuccess": "Utilisateur bloqu\xE9. Vous pouvez le d\xE9bloquer dans Param\xE8tres \u2192 Confidentialit\xE9 et donn\xE9es.",
     "message.blockedUser": "D\xE9bloquez pour voir les messages.",
     "message.blockedUserName": "Utilisateur bloqu\xE9",
@@ -56429,6 +56903,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.profile.about": "\xC0 propos",
     "modal.profile.noDescription": "Aucune description",
     "modal.chatProfile.title": "Profil de la discussion",
+    "modal.chatProfile.chatName": "Nom de la discussion",
     "modal.chatProfile.description": "Description",
     "modal.chatProfile.chatType": "Type de discussion",
     "modal.chatProfile.typePublic": "Public",
@@ -56649,6 +57124,65 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "call.durationSec": "{n} s",
     "call.durationMin": "{n} min",
     "call.durationMinSec": "{m} min {s} s",
+    "scheduledCall.action.schedule": "Programar llamada",
+    "scheduledCall.default.title": "Llamada",
+    "scheduledCall.kind.video": "Videollamada",
+    "scheduledCall.kind.audio": "Llamada de audio",
+    "scheduledCall.duration.min": "{n} min",
+    "scheduledCall.duration.hour": "{n} h",
+    "scheduledCall.duration.hourMin": "{h} h {m} min",
+    "scheduledCall.status.updated": "Actualizada",
+    "scheduledCall.status.cancelled": "Cancelada",
+    "scheduledCall.status.ended": "Finalizada",
+    "scheduledCall.status.open": "Abierta para unirse",
+    "scheduledCall.joinOpensAt": "Puedes unirte a partir de las {time}",
+    "scheduledCall.action.join": "Unirse",
+    "scheduledCall.action.joinCall": "Unirse a la llamada",
+    "scheduledCall.action.edit": "Editar",
+    "scheduledCall.action.cancel": "Cancelar llamada",
+    "scheduledCall.calendar.add": "A\xF1adir al calendario",
+    "scheduledCall.calendar.google": "Google Calendar",
+    "scheduledCall.calendar.outlook": "Outlook",
+    "scheduledCall.calendar.ics": "Descargar .ics",
+    "scheduledCall.form.titleCreate": "Programar una llamada",
+    "scheduledCall.form.titleEdit": "Editar llamada programada",
+    "scheduledCall.form.title": "T\xEDtulo",
+    "scheduledCall.form.titlePlaceholder": "Llamada",
+    "scheduledCall.form.description": "Descripci\xF3n (opcional)",
+    "scheduledCall.form.date": "Fecha",
+    "scheduledCall.form.time": "Hora",
+    "scheduledCall.form.timezone": "Tu zona horaria: {tz}",
+    "scheduledCall.form.duration": "Duraci\xF3n",
+    "scheduledCall.form.type": "Tipo de llamada",
+    "scheduledCall.form.submitCreate": "Programar",
+    "scheduledCall.form.submitEdit": "Guardar cambios",
+    "scheduledCall.form.error.title": "El t\xEDtulo es demasiado largo.",
+    "scheduledCall.form.error.description": "La descripci\xF3n es demasiado larga.",
+    "scheduledCall.form.error.start": "Elige una fecha y hora v\xE1lidas.",
+    "scheduledCall.form.error.startPast": "Elige una hora en el futuro.",
+    "scheduledCall.form.error.duration": "Elige una duraci\xF3n entre 5 minutos y 8 horas.",
+    "scheduledCall.form.error.save": "No se pudo guardar la llamada. Int\xE9ntalo de nuevo.",
+    "scheduledCall.error.forbidden": "Solo quien program\xF3 la llamada o el propietario del chat puede cambiarla.",
+    "scheduledCall.cancelConfirm.title": "\xBFCancelar esta llamada?",
+    "scheduledCall.cancelConfirm.description": "Se avisar\xE1 a todos los del chat de que se cancel\xF3.",
+    "scheduledCall.cancelConfirm.confirm": "Cancelar llamada",
+    "scheduledCall.cancelConfirm.keep": "Mantener llamada",
+    "scheduledCall.prejoin.title": "Llamada programada",
+    "scheduledCall.prejoin.hint": "No se comparte nada hasta que pulses Unirse.",
+    "scheduledCall.prejoin.chat": "En {chat}",
+    "scheduledCall.prejoin.notOpen": "Puedes unirte a partir de las {time}.",
+    "scheduledCall.prejoin.ended": "Esta llamada ha terminado.",
+    "scheduledCall.prejoin.cancelled": "Esta llamada fue cancelada.",
+    "scheduledCall.prejoin.busy": "Ya hay otra llamada en curso.",
+    "scheduledCall.prejoin.unavailable": "Las llamadas no est\xE1n disponibles en este chat.",
+    "scheduledCall.error.notFound": "Llamada no encontrada.",
+    "scheduledCall.error.notMember": "No eres miembro de este chat.",
+    "scheduledCall.error.cancelled": "Esta llamada fue cancelada.",
+    "scheduledCall.error.network": "No se pudo abrir la llamada. Int\xE9ntalo de nuevo.",
+    "scheduledCall.toast.scheduled": "Llamada programada",
+    "scheduledCall.toast.updated": "Llamada actualizada",
+    "scheduledCall.toast.cancelled": "Llamada cancelada",
+    "scheduledCall.toast.cancelFailed": "No se pudo cancelar la llamada.",
     "action.send": "Enviar",
     "action.cancel": "Cancelar",
     "action.close": "Cerrar",
@@ -56665,6 +57199,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "action.newChat": "Nuevo chat",
     "action.addUsers": "A\xF1adir usuarios",
     "action.addUsersCount": "A\xF1adir usuarios ({count} seleccionados)",
+    "action.addPhoto": "A\xF1adir foto",
+    "action.changePhoto": "Cambiar foto",
+    "action.removePhoto": "Eliminar foto",
     "action.addMoreUsers": "A\xF1adir m\xE1s usuarios",
     "action.add": "A\xF1adir",
     "action.backToCreation": "Volver a la creaci\xF3n",
@@ -56686,6 +57223,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.newChat.roomNamePlaceholder": "Nombre de la sala",
     "modal.newChat.chatTypePlaceholder": "Selecciona el tipo de chat",
     "modal.newChat.typePublic": "P\xFAblico",
+    "modal.newChat.typeGroup": "Grupo privado",
+    "modal.newChat.publicHint": "Cualquiera puede encontrar y unirse a este chat.",
+    "modal.newChat.groupHint": "Solo pueden unirse las personas invitadas.",
     "modal.newChat.typePrivate": "Privado",
     "modal.newChat.selectUsersTitle": "Selecciona usuarios para a\xF1adir al chat",
     "modal.filePreview.unsupported": "No se puede abrir el documento cargado. El formato del archivo no es compatible con el sistema. Cargue un archivo en un formato compatible. A\xFAn puede descargar este archivo.",
@@ -56743,8 +57283,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "toast.failedToCreatePrivateChat": "No se pudo crear el chat privado",
     "toast.failedToCreateCall": "No se pudo crear la llamada",
     "toast.failedToDeleteUser": "No se pudo eliminar el usuario.",
+    "toast.chatInfoUpdated": "Detalles del chat actualizados.",
+    "toast.failedToUpdateChat": "No se pudo actualizar el chat. Int\xE9ntalo de nuevo.",
     "toast.muteFailed": "No se pudo silenciar este chat.",
     "toast.blockFailed": "No se pudo bloquear a este usuario.",
+    "toast.reportSent": "Reporte enviado. Gracias.",
+    "toast.reportFailed": "No se pudo enviar el reporte. Int\xE9ntalo de nuevo.",
     "toast.blockedSuccess": "Usuario bloqueado. Puedes desbloquearlo en Ajustes \u2192 Privacidad y datos.",
     "message.blockedUser": "Desbloquea para ver los mensajes.",
     "message.blockedUserName": "Usuario bloqueado",
@@ -56795,6 +57339,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.profile.about": "Acerca de",
     "modal.profile.noDescription": "Sin descripci\xF3n",
     "modal.chatProfile.title": "Perfil del chat",
+    "modal.chatProfile.chatName": "Nombre del chat",
     "modal.chatProfile.description": "Descripci\xF3n",
     "modal.chatProfile.chatType": "Tipo de chat",
     "modal.chatProfile.typePublic": "P\xFAblico",
@@ -57015,6 +57560,65 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "call.durationSec": "{n} s",
     "call.durationMin": "{n} min",
     "call.durationMinSec": "{m} min {s} s",
+    "scheduledCall.action.schedule": "Agendar chamada",
+    "scheduledCall.default.title": "Chamada",
+    "scheduledCall.kind.video": "Chamada de v\xEDdeo",
+    "scheduledCall.kind.audio": "Chamada de \xE1udio",
+    "scheduledCall.duration.min": "{n} min",
+    "scheduledCall.duration.hour": "{n} h",
+    "scheduledCall.duration.hourMin": "{h} h {m} min",
+    "scheduledCall.status.updated": "Atualizada",
+    "scheduledCall.status.cancelled": "Cancelada",
+    "scheduledCall.status.ended": "Encerrada",
+    "scheduledCall.status.open": "Aberta para entrar",
+    "scheduledCall.joinOpensAt": "Voc\xEA pode entrar a partir das {time}",
+    "scheduledCall.action.join": "Entrar",
+    "scheduledCall.action.joinCall": "Entrar na chamada",
+    "scheduledCall.action.edit": "Editar",
+    "scheduledCall.action.cancel": "Cancelar chamada",
+    "scheduledCall.calendar.add": "Adicionar ao calend\xE1rio",
+    "scheduledCall.calendar.google": "Google Agenda",
+    "scheduledCall.calendar.outlook": "Outlook",
+    "scheduledCall.calendar.ics": "Baixar .ics",
+    "scheduledCall.form.titleCreate": "Agendar uma chamada",
+    "scheduledCall.form.titleEdit": "Editar chamada agendada",
+    "scheduledCall.form.title": "T\xEDtulo",
+    "scheduledCall.form.titlePlaceholder": "Chamada",
+    "scheduledCall.form.description": "Descri\xE7\xE3o (opcional)",
+    "scheduledCall.form.date": "Data",
+    "scheduledCall.form.time": "Hora",
+    "scheduledCall.form.timezone": "Seu fuso hor\xE1rio: {tz}",
+    "scheduledCall.form.duration": "Dura\xE7\xE3o",
+    "scheduledCall.form.type": "Tipo de chamada",
+    "scheduledCall.form.submitCreate": "Agendar",
+    "scheduledCall.form.submitEdit": "Salvar altera\xE7\xF5es",
+    "scheduledCall.form.error.title": "O t\xEDtulo \xE9 muito longo.",
+    "scheduledCall.form.error.description": "A descri\xE7\xE3o \xE9 muito longa.",
+    "scheduledCall.form.error.start": "Escolha uma data e hora v\xE1lidas.",
+    "scheduledCall.form.error.startPast": "Escolha um hor\xE1rio no futuro.",
+    "scheduledCall.form.error.duration": "Escolha uma dura\xE7\xE3o entre 5 minutos e 8 horas.",
+    "scheduledCall.form.error.save": "N\xE3o foi poss\xEDvel salvar a chamada. Tente novamente.",
+    "scheduledCall.error.forbidden": "Somente quem agendou a chamada ou o propriet\xE1rio da conversa pode alter\xE1-la.",
+    "scheduledCall.cancelConfirm.title": "Cancelar esta chamada?",
+    "scheduledCall.cancelConfirm.description": "Todos na conversa ser\xE3o avisados do cancelamento.",
+    "scheduledCall.cancelConfirm.confirm": "Cancelar chamada",
+    "scheduledCall.cancelConfirm.keep": "Manter chamada",
+    "scheduledCall.prejoin.title": "Chamada agendada",
+    "scheduledCall.prejoin.hint": "Nada \xE9 compartilhado at\xE9 voc\xEA tocar em Entrar.",
+    "scheduledCall.prejoin.chat": "Em {chat}",
+    "scheduledCall.prejoin.notOpen": "Voc\xEA pode entrar a partir das {time}.",
+    "scheduledCall.prejoin.ended": "Esta chamada foi encerrada.",
+    "scheduledCall.prejoin.cancelled": "Esta chamada foi cancelada.",
+    "scheduledCall.prejoin.busy": "J\xE1 existe outra chamada em andamento.",
+    "scheduledCall.prejoin.unavailable": "As chamadas n\xE3o est\xE3o dispon\xEDveis nesta conversa.",
+    "scheduledCall.error.notFound": "Chamada n\xE3o encontrada.",
+    "scheduledCall.error.notMember": "Voc\xEA n\xE3o \xE9 membro desta conversa.",
+    "scheduledCall.error.cancelled": "Esta chamada foi cancelada.",
+    "scheduledCall.error.network": "N\xE3o foi poss\xEDvel abrir a chamada. Tente novamente.",
+    "scheduledCall.toast.scheduled": "Chamada agendada",
+    "scheduledCall.toast.updated": "Chamada atualizada",
+    "scheduledCall.toast.cancelled": "Chamada cancelada",
+    "scheduledCall.toast.cancelFailed": "N\xE3o foi poss\xEDvel cancelar a chamada.",
     "action.send": "Enviar",
     "action.cancel": "Cancelar",
     "action.close": "Fechar",
@@ -57031,6 +57635,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "action.newChat": "Novo chat",
     "action.addUsers": "Adicionar utilizadores",
     "action.addUsersCount": "Adicionar utilizadores ({count} selecionados)",
+    "action.addPhoto": "Adicionar foto",
+    "action.changePhoto": "Alterar foto",
+    "action.removePhoto": "Remover foto",
     "action.addMoreUsers": "Adicionar mais utilizadores",
     "action.add": "Adicionar",
     "action.backToCreation": "Voltar \xE0 cria\xE7\xE3o",
@@ -57053,6 +57660,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.newChat.roomNamePlaceholder": "Nome da sala",
     "modal.newChat.chatTypePlaceholder": "Selecione o tipo de chat",
     "modal.newChat.typePublic": "P\xFAblico",
+    "modal.newChat.typeGroup": "Grupo privado",
+    "modal.newChat.publicHint": "Qualquer pessoa pode encontrar e entrar neste chat.",
+    "modal.newChat.groupHint": "S\xF3 pessoas convidadas podem entrar neste chat.",
     "modal.newChat.typePrivate": "Privado",
     "modal.newChat.selectUsersTitle": "Selecione utilizadores para adicionar ao chat",
     "modal.selectUsers.title": "Selecionar utilizadores (m\xE1x. 20)",
@@ -57109,8 +57719,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "toast.failedToCreatePrivateChat": "Falha ao criar o chat privado",
     "toast.failedToCreateCall": "Falha ao criar a chamada",
     "toast.failedToDeleteUser": "Falha ao eliminar o utilizador.",
+    "toast.chatInfoUpdated": "Detalhes do chat atualizados.",
+    "toast.failedToUpdateChat": "N\xE3o foi poss\xEDvel atualizar o chat. Tente novamente.",
     "toast.muteFailed": "Falha ao silenciar esta conversa.",
     "toast.blockFailed": "Falha ao bloquear este usu\xE1rio.",
+    "toast.reportSent": "Den\xFAncia enviada. Obrigado.",
+    "toast.reportFailed": "N\xE3o foi poss\xEDvel enviar a den\xFAncia. Tente novamente.",
     "toast.blockedSuccess": "Usu\xE1rio bloqueado. Voc\xEA pode desbloque\xE1-lo em Configura\xE7\xF5es \u2192 Privacidade e dados.",
     "message.blockedUser": "Desbloqueie para ver as mensagens.",
     "message.blockedUserName": "Usu\xE1rio bloqueado",
@@ -57161,6 +57775,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.profile.about": "Sobre",
     "modal.profile.noDescription": "Sem descri\xE7\xE3o",
     "modal.chatProfile.title": "Perfil do chat",
+    "modal.chatProfile.chatName": "Nome do chat",
     "modal.chatProfile.description": "Descri\xE7\xE3o",
     "modal.chatProfile.chatType": "Tipo de chat",
     "modal.chatProfile.typePublic": "P\xFAblico",
@@ -57381,6 +57996,65 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "call.durationSec": "{n} segond",
     "call.durationMin": "{n} minit",
     "call.durationMinSec": "{m} minit {s} segond",
+    "scheduledCall.action.schedule": "Pwograme yon ap\xE8l",
+    "scheduledCall.default.title": "Ap\xE8l",
+    "scheduledCall.kind.video": "Ap\xE8l videyo",
+    "scheduledCall.kind.audio": "Ap\xE8l odyo",
+    "scheduledCall.duration.min": "{n} min",
+    "scheduledCall.duration.hour": "{n} \xE8",
+    "scheduledCall.duration.hourMin": "{h} \xE8 {m} min",
+    "scheduledCall.status.updated": "Mete ajou",
+    "scheduledCall.status.cancelled": "Anile",
+    "scheduledCall.status.ended": "Fini",
+    "scheduledCall.status.open": "Louvri pou rantre",
+    "scheduledCall.joinOpensAt": "Ou ka rantre apati {time}",
+    "scheduledCall.action.join": "Rantre",
+    "scheduledCall.action.joinCall": "Rantre nan ap\xE8l la",
+    "scheduledCall.action.edit": "Modifye",
+    "scheduledCall.action.cancel": "Anile ap\xE8l la",
+    "scheduledCall.calendar.add": "Ajoute nan kalandriye",
+    "scheduledCall.calendar.google": "Google Calendar",
+    "scheduledCall.calendar.outlook": "Outlook",
+    "scheduledCall.calendar.ics": "Telechaje .ics",
+    "scheduledCall.form.titleCreate": "Pwograme yon ap\xE8l",
+    "scheduledCall.form.titleEdit": "Modifye ap\xE8l pwograme a",
+    "scheduledCall.form.title": "Tit",
+    "scheduledCall.form.titlePlaceholder": "Ap\xE8l",
+    "scheduledCall.form.description": "Deskripsyon (si ou vle)",
+    "scheduledCall.form.date": "Dat",
+    "scheduledCall.form.time": "L\xE8",
+    "scheduledCall.form.timezone": "Fizo or\xE8 ou: {tz}",
+    "scheduledCall.form.duration": "Dire",
+    "scheduledCall.form.type": "Kalite ap\xE8l",
+    "scheduledCall.form.submitCreate": "Pwograme",
+    "scheduledCall.form.submitEdit": "Anrejistre chanjman yo",
+    "scheduledCall.form.error.title": "Tit la two long.",
+    "scheduledCall.form.error.description": "Deskripsyon an two long.",
+    "scheduledCall.form.error.start": "Chwazi yon dat ak yon l\xE8 ki valid.",
+    "scheduledCall.form.error.startPast": "Chwazi yon l\xE8 nan lavni.",
+    "scheduledCall.form.error.duration": "Chwazi yon dire ant 5 minit ak 8 \xE8dtan.",
+    "scheduledCall.form.error.save": "Nou pa t kapab anrejistre ap\xE8l la. Eseye ank\xF2.",
+    "scheduledCall.error.forbidden": "Se s\xE8lman moun ki pwograme ap\xE8l la oswa pwopriyet\xE8 chat la ki ka chanje l.",
+    "scheduledCall.cancelConfirm.title": "Anile ap\xE8l sa a?",
+    "scheduledCall.cancelConfirm.description": "Y ap di tout moun nan chat la ke yo anile l.",
+    "scheduledCall.cancelConfirm.confirm": "Anile ap\xE8l la",
+    "scheduledCall.cancelConfirm.keep": "Kenbe ap\xE8l la",
+    "scheduledCall.prejoin.title": "Ap\xE8l pwograme",
+    "scheduledCall.prejoin.hint": "Anyen pa pataje jiskaske ou peze Rantre.",
+    "scheduledCall.prejoin.chat": "Nan {chat}",
+    "scheduledCall.prejoin.notOpen": "Ou ka rantre apati {time}.",
+    "scheduledCall.prejoin.ended": "Ap\xE8l sa a fini.",
+    "scheduledCall.prejoin.cancelled": "Yo anile ap\xE8l sa a.",
+    "scheduledCall.prejoin.busy": "Gen yon l\xF2t ap\xE8l k ap f\xE8t deja.",
+    "scheduledCall.prejoin.unavailable": "Ap\xE8l pa disponib nan chat sa a.",
+    "scheduledCall.error.notFound": "Pa jwenn ap\xE8l la.",
+    "scheduledCall.error.notMember": "Ou pa manm chat sa a.",
+    "scheduledCall.error.cancelled": "Yo anile ap\xE8l sa a.",
+    "scheduledCall.error.network": "Nou pa t kapab louvri ap\xE8l la. Eseye ank\xF2.",
+    "scheduledCall.toast.scheduled": "Ap\xE8l pwograme",
+    "scheduledCall.toast.updated": "Ap\xE8l mete ajou",
+    "scheduledCall.toast.cancelled": "Ap\xE8l anile",
+    "scheduledCall.toast.cancelFailed": "Nou pa t kapab anile ap\xE8l la.",
     "action.send": "Voye",
     "action.cancel": "Anile",
     "action.close": "F\xE8men",
@@ -57397,6 +58071,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "action.newChat": "Nouvo chat",
     "action.addUsers": "Ajoute itilizat\xE8",
     "action.addUsersCount": "Ajoute itilizat\xE8 ({count} chwazi)",
+    "action.addPhoto": "Ajoute foto",
+    "action.changePhoto": "Chanje foto",
+    "action.removePhoto": "Retire foto",
     "action.addMoreUsers": "Ajoute plis itilizat\xE8",
     "action.add": "Ajoute",
     "action.backToCreation": "Retounen nan kreyasyon",
@@ -57419,6 +58096,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.newChat.roomNamePlaceholder": "Antre non sal la",
     "modal.newChat.chatTypePlaceholder": "Chwazi tip chat la",
     "modal.newChat.typePublic": "Piblik",
+    "modal.newChat.typeGroup": "Gwoup prive",
+    "modal.newChat.publicHint": "Nenp\xF2t moun ka jwenn epi antre nan chat sa a.",
+    "modal.newChat.groupHint": "Se s\xE8lman moun ou envite ki ka antre nan chat sa a.",
     "modal.newChat.typePrivate": "Prive",
     "modal.newChat.selectUsersTitle": "Chwazi itilizat\xE8 pou ajoute nan chat la",
     "modal.selectUsers.title": "Chwazi itilizat\xE8 (maksim\xF2m 20)",
@@ -57475,8 +58155,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "toast.failedToCreatePrivateChat": "Ech\xE8k pou kreye chat prive a",
     "toast.failedToCreateCall": "Ech\xE8k pou kreye ap\xE8l la",
     "toast.failedToDeleteUser": "Ech\xE8k pou efase itilizat\xE8 a.",
+    "toast.chatInfoUpdated": "Detay chat la mete ajou.",
+    "toast.failedToUpdateChat": "Pa t kapab mete detay chat la ajou. Eseye ank\xF2.",
     "toast.muteFailed": "Ech\xE8k pou mete chat sa a an silans.",
     "toast.blockFailed": "Ech\xE8k pou bloke itilizat\xE8 sa a.",
+    "toast.reportSent": "Rap\xF2 a voye. M\xE8si.",
+    "toast.reportFailed": "Nou pa t kapab voye rap\xF2 a. Tanpri eseye ank\xF2.",
     "toast.blockedSuccess": "Itilizat\xE8 bloke. Ou ka debloke li nan Param\xE8t \u2192 Konfidansyalite ak done.",
     "message.blockedUser": "Debloke pou w\xE8 mesaj yo.",
     "message.blockedUserName": "Itilizat\xE8 bloke",
@@ -57527,6 +58211,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.profile.about": "Kons\xE8nan",
     "modal.profile.noDescription": "Pa gen deskripsyon",
     "modal.chatProfile.title": "Pwofil chat la",
+    "modal.chatProfile.chatName": "Non chat la",
     "modal.chatProfile.description": "Deskripsyon",
     "modal.chatProfile.chatType": "Tip chat",
     "modal.chatProfile.typePublic": "Piblik",
@@ -57747,6 +58432,65 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "call.durationSec": "{n} \u79D2",
     "call.durationMin": "{n} \u5206\u949F",
     "call.durationMinSec": "{m} \u5206 {s} \u79D2",
+    "scheduledCall.action.schedule": "\u9884\u7EA6\u901A\u8BDD",
+    "scheduledCall.default.title": "\u901A\u8BDD",
+    "scheduledCall.kind.video": "\u89C6\u9891\u901A\u8BDD",
+    "scheduledCall.kind.audio": "\u8BED\u97F3\u901A\u8BDD",
+    "scheduledCall.duration.min": "{n} \u5206\u949F",
+    "scheduledCall.duration.hour": "{n} \u5C0F\u65F6",
+    "scheduledCall.duration.hourMin": "{h} \u5C0F\u65F6 {m} \u5206\u949F",
+    "scheduledCall.status.updated": "\u5DF2\u66F4\u65B0",
+    "scheduledCall.status.cancelled": "\u5DF2\u53D6\u6D88",
+    "scheduledCall.status.ended": "\u5DF2\u7ED3\u675F",
+    "scheduledCall.status.open": "\u53EF\u52A0\u5165",
+    "scheduledCall.joinOpensAt": "\u60A8\u53EF\u4ECE {time} \u8D77\u52A0\u5165",
+    "scheduledCall.action.join": "\u52A0\u5165",
+    "scheduledCall.action.joinCall": "\u52A0\u5165\u901A\u8BDD",
+    "scheduledCall.action.edit": "\u7F16\u8F91",
+    "scheduledCall.action.cancel": "\u53D6\u6D88\u901A\u8BDD",
+    "scheduledCall.calendar.add": "\u6DFB\u52A0\u5230\u65E5\u5386",
+    "scheduledCall.calendar.google": "Google \u65E5\u5386",
+    "scheduledCall.calendar.outlook": "Outlook",
+    "scheduledCall.calendar.ics": "\u4E0B\u8F7D .ics",
+    "scheduledCall.form.titleCreate": "\u9884\u7EA6\u901A\u8BDD",
+    "scheduledCall.form.titleEdit": "\u7F16\u8F91\u9884\u7EA6\u901A\u8BDD",
+    "scheduledCall.form.title": "\u6807\u9898",
+    "scheduledCall.form.titlePlaceholder": "\u901A\u8BDD",
+    "scheduledCall.form.description": "\u8BF4\u660E\uFF08\u53EF\u9009\uFF09",
+    "scheduledCall.form.date": "\u65E5\u671F",
+    "scheduledCall.form.time": "\u65F6\u95F4",
+    "scheduledCall.form.timezone": "\u60A8\u7684\u65F6\u533A\uFF1A{tz}",
+    "scheduledCall.form.duration": "\u65F6\u957F",
+    "scheduledCall.form.type": "\u901A\u8BDD\u7C7B\u578B",
+    "scheduledCall.form.submitCreate": "\u9884\u7EA6",
+    "scheduledCall.form.submitEdit": "\u4FDD\u5B58\u66F4\u6539",
+    "scheduledCall.form.error.title": "\u6807\u9898\u592A\u957F\u3002",
+    "scheduledCall.form.error.description": "\u8BF4\u660E\u592A\u957F\u3002",
+    "scheduledCall.form.error.start": "\u8BF7\u9009\u62E9\u6709\u6548\u7684\u65E5\u671F\u548C\u65F6\u95F4\u3002",
+    "scheduledCall.form.error.startPast": "\u8BF7\u9009\u62E9\u672A\u6765\u7684\u65F6\u95F4\u3002",
+    "scheduledCall.form.error.duration": "\u8BF7\u9009\u62E9 5 \u5206\u949F\u5230 8 \u5C0F\u65F6\u4E4B\u95F4\u7684\u65F6\u957F\u3002",
+    "scheduledCall.form.error.save": "\u65E0\u6CD5\u4FDD\u5B58\u901A\u8BDD\uFF0C\u8BF7\u91CD\u8BD5\u3002",
+    "scheduledCall.error.forbidden": "\u53EA\u6709\u9884\u7EA6\u901A\u8BDD\u7684\u4EBA\u6216\u804A\u5929\u6240\u6709\u8005\u53EF\u4EE5\u4FEE\u6539\u3002",
+    "scheduledCall.cancelConfirm.title": "\u53D6\u6D88\u6B64\u901A\u8BDD\uFF1F",
+    "scheduledCall.cancelConfirm.description": "\u804A\u5929\u4E2D\u7684\u6240\u6709\u4EBA\u90FD\u4F1A\u6536\u5230\u53D6\u6D88\u901A\u77E5\u3002",
+    "scheduledCall.cancelConfirm.confirm": "\u53D6\u6D88\u901A\u8BDD",
+    "scheduledCall.cancelConfirm.keep": "\u4FDD\u7559\u901A\u8BDD",
+    "scheduledCall.prejoin.title": "\u9884\u7EA6\u901A\u8BDD",
+    "scheduledCall.prejoin.hint": "\u70B9\u51FB\u201C\u52A0\u5165\u201D\u4E4B\u524D\u4E0D\u4F1A\u5171\u4EAB\u4EFB\u4F55\u5185\u5BB9\u3002",
+    "scheduledCall.prejoin.chat": "\u4F4D\u4E8E {chat}",
+    "scheduledCall.prejoin.notOpen": "\u60A8\u53EF\u4ECE {time} \u8D77\u52A0\u5165\u3002",
+    "scheduledCall.prejoin.ended": "\u6B64\u901A\u8BDD\u5DF2\u7ED3\u675F\u3002",
+    "scheduledCall.prejoin.cancelled": "\u6B64\u901A\u8BDD\u5DF2\u88AB\u53D6\u6D88\u3002",
+    "scheduledCall.prejoin.busy": "\u5DF2\u6709\u53E6\u4E00\u901A\u8BDD\u6B63\u5728\u8FDB\u884C\u3002",
+    "scheduledCall.prejoin.unavailable": "\u6B64\u804A\u5929\u4E0D\u652F\u6301\u901A\u8BDD\u3002",
+    "scheduledCall.error.notFound": "\u627E\u4E0D\u5230\u8BE5\u901A\u8BDD\u3002",
+    "scheduledCall.error.notMember": "\u60A8\u4E0D\u662F\u6B64\u804A\u5929\u7684\u6210\u5458\u3002",
+    "scheduledCall.error.cancelled": "\u6B64\u901A\u8BDD\u5DF2\u88AB\u53D6\u6D88\u3002",
+    "scheduledCall.error.network": "\u65E0\u6CD5\u6253\u5F00\u901A\u8BDD\uFF0C\u8BF7\u91CD\u8BD5\u3002",
+    "scheduledCall.toast.scheduled": "\u901A\u8BDD\u5DF2\u9884\u7EA6",
+    "scheduledCall.toast.updated": "\u901A\u8BDD\u5DF2\u66F4\u65B0",
+    "scheduledCall.toast.cancelled": "\u901A\u8BDD\u5DF2\u53D6\u6D88",
+    "scheduledCall.toast.cancelFailed": "\u65E0\u6CD5\u53D6\u6D88\u901A\u8BDD\u3002",
     "action.send": "\u53D1\u9001",
     "action.cancel": "\u53D6\u6D88",
     "action.close": "\u5173\u95ED",
@@ -57763,6 +58507,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "action.newChat": "\u65B0\u5EFA\u804A\u5929",
     "action.addUsers": "\u6DFB\u52A0\u7528\u6237",
     "action.addUsersCount": "\u6DFB\u52A0\u7528\u6237\uFF08\u5DF2\u9009 {count} \u4EBA\uFF09",
+    "action.addPhoto": "\u6DFB\u52A0\u7167\u7247",
+    "action.changePhoto": "\u66F4\u6362\u7167\u7247",
+    "action.removePhoto": "\u79FB\u9664\u7167\u7247",
     "action.addMoreUsers": "\u6DFB\u52A0\u66F4\u591A\u7528\u6237",
     "action.add": "\u6DFB\u52A0",
     "action.backToCreation": "\u8FD4\u56DE\u521B\u5EFA",
@@ -57785,6 +58532,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.newChat.roomNamePlaceholder": "\u8F93\u5165\u804A\u5929\u5BA4\u540D\u79F0",
     "modal.newChat.chatTypePlaceholder": "\u9009\u62E9\u804A\u5929\u7C7B\u578B",
     "modal.newChat.typePublic": "\u516C\u5F00",
+    "modal.newChat.typeGroup": "\u79C1\u4EBA\u7FA4\u7EC4",
+    "modal.newChat.publicHint": "\u4EFB\u4F55\u4EBA\u90FD\u53EF\u4EE5\u627E\u5230\u5E76\u52A0\u5165\u6B64\u804A\u5929\u3002",
+    "modal.newChat.groupHint": "\u53EA\u6709\u53D7\u9080\u6210\u5458\u624D\u80FD\u52A0\u5165\u6B64\u804A\u5929\u3002",
     "modal.newChat.typePrivate": "\u79C1\u5BC6",
     "modal.newChat.selectUsersTitle": "\u9009\u62E9\u8981\u6DFB\u52A0\u5230\u804A\u5929\u7684\u7528\u6237",
     "modal.selectUsers.title": "\u9009\u62E9\u7528\u6237\uFF08\u6700\u591A 20 \u4E2A\uFF09",
@@ -57841,8 +58591,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "toast.failedToCreatePrivateChat": "\u521B\u5EFA\u79C1\u804A\u5931\u8D25",
     "toast.failedToCreateCall": "\u521B\u5EFA\u901A\u8BDD\u5931\u8D25",
     "toast.failedToDeleteUser": "\u5220\u9664\u7528\u6237\u5931\u8D25\u3002",
+    "toast.chatInfoUpdated": "\u804A\u5929\u4FE1\u606F\u5DF2\u66F4\u65B0\u3002",
+    "toast.failedToUpdateChat": "\u65E0\u6CD5\u66F4\u65B0\u804A\u5929\u4FE1\u606F\uFF0C\u8BF7\u91CD\u8BD5\u3002",
     "toast.muteFailed": "\u9759\u97F3\u6B64\u804A\u5929\u5931\u8D25\u3002",
     "toast.blockFailed": "\u5C4F\u853D\u8BE5\u7528\u6237\u5931\u8D25\u3002",
+    "toast.reportSent": "\u4E3E\u62A5\u5DF2\u53D1\u9001\uFF0C\u8C22\u8C22\u3002",
+    "toast.reportFailed": "\u65E0\u6CD5\u53D1\u9001\u4E3E\u62A5\uFF0C\u8BF7\u91CD\u8BD5\u3002",
     "toast.blockedSuccess": '\u5DF2\u5C4F\u853D\u8BE5\u7528\u6237\u3002\u53EF\u5728"\u8BBE\u7F6E \u2192 \u9690\u79C1\u4E0E\u6570\u636E"\u4E2D\u89E3\u9664\u5C4F\u853D\u3002',
     "message.blockedUser": "\u89E3\u9664\u5C4F\u853D\u4EE5\u67E5\u770B\u6D88\u606F\u3002",
     "message.blockedUserName": "\u5DF2\u5C4F\u853D\u7528\u6237",
@@ -57893,6 +58647,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "modal.profile.about": "\u7B80\u4ECB",
     "modal.profile.noDescription": "\u6682\u65E0\u7B80\u4ECB",
     "modal.chatProfile.title": "\u804A\u5929\u8D44\u6599",
+    "modal.chatProfile.chatName": "\u804A\u5929\u540D\u79F0",
     "modal.chatProfile.description": "\u63CF\u8FF0",
     "modal.chatProfile.chatType": "\u804A\u5929\u7C7B\u578B",
     "modal.chatProfile.typePublic": "\u516C\u5F00",
@@ -58284,6 +59039,26 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     );
     client2.send(message);
   };
+  const NS_DISCO_INFO = "http://jabber.org/protocol/disco#info";
+  const getRoomAccess = async (roomJID, client2, timeoutMs = 5e3) => {
+    try {
+      const res = await client2.iqCaller.request(
+        browserExports.xml("iq", { type: "get", to: roomJID }, browserExports.xml("query", { xmlns: NS_DISCO_INFO })),
+        timeoutMs
+      );
+      const features = (res.getChild("query", NS_DISCO_INFO)?.getChildren("feature") || []).map(
+        (feature) => feature.attrs.var
+      );
+      if (features.includes("muc_membersonly")) return "membersOnly";
+      if (features.includes("muc_open")) return "open";
+      return "unknown";
+    } catch (error2) {
+      const condition = error2?.condition;
+      if (condition === "item-not-found") return "notFound";
+      if (condition === "forbidden" || condition === "registration-required") return "membersOnly";
+      return "unknown";
+    }
+  };
   const leaveTheRoom = (roomJID, client2) => {
     if (!client2.jid) {
       throw new Error(
@@ -58365,6 +59140,195 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       return null;
     }
   };
+  const JOIN_LEAD_MINUTES = 15;
+  const MIN_DURATION_MINUTES = 5;
+  const MAX_DURATION_MINUTES = 480;
+  const DEFAULT_DURATION_MINUTES = 30;
+  const MAX_TITLE_LENGTH = 200;
+  const MAX_DESCRIPTION_LENGTH = 2e3;
+  const START_SKEW_MS = 2 * 60 * 1e3;
+  const DURATION_PRESETS = [15, 30, 45, 60, 90, 120];
+  const MINUTE_MS = 60 * 1e3;
+  const toEpochMs = (iso) => iso ? new Date(iso).getTime() : NaN;
+  const getScheduledCallEndMs = (call) => toEpochMs(call.startAt) + call.durationMinutes * MINUTE_MS;
+  const getJoinOpensAtMs = (call) => toEpochMs(call.startAt) - JOIN_LEAD_MINUTES * MINUTE_MS;
+  const getScheduledCallPhase = (call, now = Date.now()) => {
+    if (call.status === "cancelled") return "cancelled";
+    const start = toEpochMs(call.startAt);
+    if (!Number.isFinite(start)) return "ended";
+    const duration = Number.isFinite(call.durationMinutes) ? call.durationMinutes : DEFAULT_DURATION_MINUTES;
+    if (now >= start + duration * MINUTE_MS) return "ended";
+    if (now >= start - JOIN_LEAD_MINUTES * MINUTE_MS) return "joinable";
+    return "upcoming";
+  };
+  const pad2 = (n2) => String(n2).padStart(2, "0");
+  const toLocalDateInput = (date) => `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+  const toLocalTimeInput = (date) => `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+  const combineLocalDateTime = (dateValue, timeValue) => {
+    const d2 = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateValue || "");
+    const t2 = /^(\d{2}):(\d{2})$/.exec(timeValue || "");
+    if (!d2 || !t2) return null;
+    const [year, month, day] = [Number(d2[1]), Number(d2[2]), Number(d2[3])];
+    const [hours, minutes] = [Number(t2[1]), Number(t2[2])];
+    const out = new Date(year, month - 1, day, hours, minutes, 0, 0);
+    if (out.getFullYear() !== year || out.getMonth() !== month - 1 || out.getDate() !== day || out.getHours() !== hours || out.getMinutes() !== minutes) {
+      return null;
+    }
+    return out;
+  };
+  const defaultScheduleStart = (now = /* @__PURE__ */ new Date()) => {
+    const ms = now.getTime() + 15 * MINUTE_MS;
+    const quarter = 15 * MINUTE_MS;
+    return new Date(Math.ceil(ms / quarter) * quarter);
+  };
+  const validateScheduleForm = (values, now = Date.now(), options) => {
+    const errors2 = {};
+    if (values.title.trim().length > MAX_TITLE_LENGTH) errors2.title = true;
+    if (values.description.length > MAX_DESCRIPTION_LENGTH) {
+      errors2.description = true;
+    }
+    const start = combineLocalDateTime(values.date, values.time);
+    if (!start) {
+      errors2.start = true;
+    } else if (!options?.skipPastCheck && start.getTime() < now - START_SKEW_MS) {
+      errors2.startPast = true;
+    }
+    const duration = values.durationMinutes;
+    if (!Number.isInteger(duration) || duration < MIN_DURATION_MINUTES || duration > MAX_DURATION_MINUTES) {
+      errors2.duration = true;
+    }
+    return errors2;
+  };
+  const durationOptions = (current2) => {
+    const options = [...DURATION_PRESETS];
+    if (typeof current2 === "number" && Number.isInteger(current2) && current2 >= MIN_DURATION_MINUTES && current2 <= MAX_DURATION_MINUTES && !options.includes(current2)) {
+      options.push(current2);
+      options.sort((a2, b2) => a2 - b2);
+    }
+    return options;
+  };
+  const localTimeZone = () => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || void 0;
+    } catch {
+      return void 0;
+    }
+  };
+  const SLUG_RE = /^[A-Za-z0-9_-]{16,128}$/;
+  const isValidScheduledCallSlug = (value) => typeof value === "string" && SLUG_RE.test(value);
+  const CALENDAR_HOSTS = {
+    google: ["calendar.google.com", "www.google.com"],
+    outlook: [
+      "outlook.live.com",
+      "outlook.office.com",
+      "outlook.office365.com"
+    ]
+  };
+  const parseHttpUrl = (value) => {
+    if (typeof value !== "string" || !value.trim()) return null;
+    try {
+      const url = new URL(value.trim());
+      return url.protocol === "https:" || url.protocol === "http:" ? url : null;
+    } catch {
+      return null;
+    }
+  };
+  const safeCalendarLink = (kind, value, context) => {
+    const url = parseHttpUrl(value);
+    if (!url) return null;
+    if (kind === "google" || kind === "outlook") {
+      const hosts = CALENDAR_HOSTS[kind];
+      return url.protocol === "https:" && hosts.includes(url.hostname) ? url.toString() : null;
+    }
+    if (!url.pathname.endsWith(`/calls/scheduled/${context.slug}.ics`)) {
+      return null;
+    }
+    const api = parseHttpUrl(context.apiBaseUrl);
+    if (api && api.origin !== url.origin) return null;
+    return url.toString();
+  };
+  const httpLinkOrNull = (value) => parseHttpUrl(value)?.toString() ?? null;
+  const displayCallTitle = (title, defaultTitle) => {
+    const value = String(title ?? "").trim();
+    return !value || value === "Call" ? defaultTitle : value;
+  };
+  const SCHEDULED_CALL_MESSAGE_TYPE = "scheduledCall";
+  const asString = (value) => typeof value === "string" ? value.trim() : "";
+  const STATUSES = [
+    "scheduled",
+    "updated",
+    "cancelled"
+  ];
+  const parseScheduledCallMeta = (message, apiBaseUrl) => {
+    const raw = message;
+    if (!raw || typeof raw !== "object") return null;
+    if (asString(raw.type) !== SCHEDULED_CALL_MESSAGE_TYPE) return null;
+    const slug = asString(raw.scheduledCallSlug);
+    if (!isValidScheduledCallSlug(slug)) return null;
+    const startAt = asString(raw.scheduledCallStartAt);
+    if (!Number.isFinite(toEpochMs(startAt))) return null;
+    const duration = Math.round(Number(raw.scheduledCallDurationMinutes));
+    const statusRaw = asString(raw.scheduledCallStatus).toLowerCase();
+    const status = STATUSES.includes(statusRaw) ? statusRaw : "scheduled";
+    const kind = asString(raw.scheduledCallKind).toLowerCase() === "audio" ? "audio" : "video";
+    const context = { slug, apiBaseUrl };
+    const meta = {
+      slug,
+      title: asString(raw.scheduledCallTitle),
+      startAt: new Date(startAt).toISOString(),
+      durationMinutes: Number.isFinite(duration) && duration > 0 ? duration : DEFAULT_DURATION_MINUTES,
+      kind,
+      status
+    };
+    const createdBy = asString(raw.scheduledCallCreatedBy);
+    if (createdBy) meta.createdBy = createdBy;
+    const joinUrl2 = asString(raw.scheduledCallJoinUrl);
+    if (joinUrl2) meta.joinUrl = joinUrl2;
+    const ics = safeCalendarLink("ics", raw.scheduledCallIcsUrl, context);
+    if (ics) meta.icsUrl = ics;
+    const google = safeCalendarLink("google", raw.scheduledCallGoogleUrl, context);
+    if (google) meta.googleUrl = google;
+    const outlook = safeCalendarLink(
+      "outlook",
+      raw.scheduledCallOutlookUrl,
+      context
+    );
+    if (outlook) meta.outlookUrl = outlook;
+    return meta;
+  };
+  const attachScheduledCallMeta = (message, apiBaseUrl) => {
+    const meta = parseScheduledCallMeta(message, apiBaseUrl);
+    return meta ? { ...message, scheduledCall: meta } : message;
+  };
+  const messageTime = (message) => {
+    const ms = Number(message.messageTimestampMs);
+    if (Number.isFinite(ms) && ms > 0) return ms;
+    const parsed = new Date(message.date).getTime();
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  const collapseScheduledCallMessages = (messages) => {
+    let seenAny = false;
+    const newest = /* @__PURE__ */ new Map();
+    let hasDuplicate = false;
+    for (let i2 = 0; i2 < messages.length; i2++) {
+      const slug = messages[i2]?.scheduledCall?.slug;
+      if (!slug) continue;
+      seenAny = true;
+      const time = messageTime(messages[i2]);
+      const current2 = newest.get(slug);
+      if (!current2) {
+        newest.set(slug, { index: i2, time });
+        continue;
+      }
+      hasDuplicate = true;
+      if (time >= current2.time) newest.set(slug, { index: i2, time });
+    }
+    if (!seenAny || !hasDuplicate) return messages;
+    return messages.filter((message, index2) => {
+      const slug = message?.scheduledCall?.slug;
+      return !slug || newest.get(slug)?.index === index2;
+    });
+  };
   const createMessageFromXml = async (data) => {
     if (!data?.body) ;
     if (!data) {
@@ -58381,7 +59345,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       // instead of the stale body.
       isDeleted: !!data?.deleted || !!data?.isDeleted
     };
-    return message;
+    return attachScheduledCallMeta(message);
   };
   const isCallLogMessage = (message) => {
     const type = String(message?.type || "").toLowerCase();
@@ -58693,6 +59657,107 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     const num = Number(value.trim());
     return isNaN(num) ? null : num;
   }
+  const ICE_URL_RE = /^(stun|stuns|turn|turns):/i;
+  const normalizeIceServers = (raw) => {
+    let value = raw;
+    if (typeof value === "string") {
+      const text2 = value.trim();
+      if (!text2) return [];
+      try {
+        value = JSON.parse(text2);
+      } catch {
+        return [];
+      }
+    }
+    if (value && !Array.isArray(value) && typeof value === "object" && Array.isArray(value.iceServers)) {
+      value = value.iceServers;
+    }
+    if (!Array.isArray(value)) return [];
+    const out = [];
+    for (const entry of value) {
+      if (!entry || typeof entry !== "object") continue;
+      const e2 = entry;
+      const rawUrls = e2.urls ?? e2.url;
+      const candidates = Array.isArray(rawUrls) ? rawUrls : [rawUrls];
+      const list2 = candidates.filter((u2) => typeof u2 === "string").map((u2) => u2.trim()).filter((u2) => ICE_URL_RE.test(u2));
+      if (list2.length === 0) continue;
+      const server = {
+        urls: typeof rawUrls === "string" ? list2[0] : list2
+      };
+      if (typeof e2.username === "string" && e2.username) {
+        server.username = e2.username;
+      }
+      if (typeof e2.credential === "string" && e2.credential) {
+        server.credential = e2.credential;
+      }
+      out.push(server);
+    }
+    return out;
+  };
+  const normalizeLivekitUrl = (raw) => {
+    const text2 = typeof raw === "string" ? raw.trim() : "";
+    return /^(wss?|https?):\/\/[^\s]+$/i.test(text2) ? text2 : null;
+  };
+  const isTrueish = (value) => {
+    const text2 = String(value ?? "").trim().toLowerCase();
+    return text2 === "true" || text2 === "1";
+  };
+  const parseCallTokenAttrs = (attrs) => {
+    const a2 = attrs || {};
+    const kindRaw = String(a2.kind || "").trim().toLowerCase();
+    const mode2 = String(a2.mode || "").trim().toLowerCase() === "p2p" ? "p2p" : "livekit";
+    const iceList = mode2 === "p2p" ? normalizeIceServers(a2.ice) : [];
+    return {
+      token: String(a2.token || "").trim(),
+      room: String(a2.room || "").trim(),
+      callId: String(a2.callId || a2.callid || "").trim() || null,
+      kind: kindRaw === "audio" || kindRaw === "video" ? kindRaw : null,
+      mode: mode2,
+      // A p2p call is 1:1 by construction; never let a stray attribute flip it.
+      group: mode2 === "livekit" && isTrueish(a2.group),
+      iceServers: mode2 === "p2p" && iceList.length > 0 ? iceList : null,
+      livekitUrl: mode2 === "livekit" ? normalizeLivekitUrl(a2.livekitUrl) : null,
+      callerName: sanitizeCallName(a2.callerName),
+      caller: sanitizeXmppUsername(a2.caller)
+    };
+  };
+  const parseCallCreateResponse = (data, fallbackKind) => {
+    const root2 = data && typeof data === "object" ? data : {};
+    const d2 = root2.result && typeof root2.result === "object" && !root2.mode ? root2.result : root2;
+    const mode2 = String(d2.mode || "").trim().toLowerCase() === "p2p" ? "p2p" : "livekit";
+    const kindRaw = String(d2.kind || "").trim().toLowerCase();
+    const callId = String(d2.callId || d2.callid || "").trim() || null;
+    if (mode2 === "p2p" && !callId) {
+      throw new Error("Call response is missing callId");
+    }
+    const ttl = Number(d2.ttlSeconds);
+    const livekitUrl = normalizeLivekitUrl(d2.livekitUrl);
+    return {
+      callId,
+      mode: mode2,
+      kind: kindRaw === "audio" || kindRaw === "video" ? kindRaw : fallbackKind,
+      group: typeof d2.group === "boolean" ? d2.group : null,
+      livekitUrl,
+      iceServers: mode2 === "p2p" ? normalizeIceServers(d2.iceServers) : [],
+      ttlSeconds: Number.isFinite(ttl) && ttl > 0 ? ttl : null
+    };
+  };
+  const DEFAULT_CALL_ROOM_TYPES = ["private", "group"];
+  const isCallRoomTypeAllowed = (roomType, allowedRoomTypes) => {
+    if (roomType !== "private" && roomType !== "group") return false;
+    const allowed = allowedRoomTypes || DEFAULT_CALL_ROOM_TYPES;
+    return allowed.includes(roomType);
+  };
+  const decideIncomingWhileBusy = (current2, incoming) => {
+    if (current2.phase === "idle") return "accept";
+    if (incoming.callId && current2.callId === incoming.callId) return "duplicate";
+    if (current2.mode !== "p2p" && incoming.mode !== "p2p") return "replace";
+    const sameRoom = !!incoming.roomBareName && current2.roomBareName === incoming.roomBareName;
+    if (sameRoom && current2.direction === "outgoing" && current2.phase === "requesting" && incoming.mode === "p2p" && current2.mode === "p2p" && current2.callId && incoming.callId) {
+      return incoming.callId < current2.callId ? "glare-yield" : "glare-keep";
+    }
+    return "busy";
+  };
   const createSharedRequest = (start) => {
     const controller = new AbortController();
     let activeSubscribers = 0;
@@ -58951,7 +60016,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       );
       return response.data.result;
     } catch (error2) {
-      throw new Error("Error updating profile");
+      throw new Error("Error reporting chat");
     }
   }
   async function postAddRoomMember(data) {
@@ -59004,11 +60069,25 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       throw new Error("Error deleting room");
     }
   }
+  async function declineChatCall(callId) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    if (!callId || !token2) return false;
+    try {
+      await http.post(
+        `/v1/chats/call/state/decline/${encodeURIComponent(callId)}`,
+        void 0,
+        { headers: { Authorization: token2 } }
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
   async function createChatCall(chatName, options) {
     const token2 = store.getState().chatSettingStore.user.token || "";
     const kind = options?.kind || "video";
     try {
-      await http.post(
+      const response = await http.post(
         `/v1/chats/call/create/${chatName}`,
         { kind },
         {
@@ -59017,6 +60096,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
           }
         }
       );
+      return parseCallCreateResponse(response?.data, kind);
     } catch (error2) {
       throw new Error("Error creating chat call");
     }
@@ -59025,6 +60105,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     __proto__: null,
     blockUser,
     createChatCall,
+    declineChatCall,
     deleteRoom,
     deleteRoomMember,
     getBlockedUsers,
@@ -59164,9 +60245,25 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     const current2 = getRoomUserCount(room);
     return Math.max(nextMembersLength, current2 + delta, 0);
   };
+  const listeners$1 = /* @__PURE__ */ new Set();
+  const subscribeChatComponentConfigUpdated = (listener) => {
+    listeners$1.add(listener);
+    return () => {
+      listeners$1.delete(listener);
+    };
+  };
+  const publishChatComponentConfigUpdated = (event) => {
+    for (const listener of Array.from(listeners$1)) {
+      try {
+        listener(event);
+      } catch {
+      }
+    }
+  };
   const ETHORA_EVENT_XMLNS = "urn:ethora:events:1";
   const ETHORA_EVENT_USER_PROFILE = "user-profile-updated";
   const ETHORA_EVENT_CHAT_META = "chat-meta-updated";
+  const ETHORA_EVENT_CHAT_COMPONENT_CONFIG = "chat-component-config-updated";
   const MUCSUB_EVENT_NS = "http://jabber.org/protocol/pubsub#event";
   const ROOM_DEBOUNCE_MS = 500;
   const MAX_KEY_LENGTH = 128;
@@ -59174,10 +60271,17 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   const ROOM_BACKOFF_MS = [5e3, 3e4, 12e4];
   const lower = (v2) => String(v2 ?? "").trim().toLowerCase();
   const sessionDomain = (xmppWs) => lower(xmppWs?.client?.jid?.getDomain?.()) || lower(xmppWs?.host);
-  const isTrustedEventSender = (stanza, xmppWs) => {
+  const isTrustedEventSender = (stanza, xmppWs, allowServerDomain = false) => {
     const from2 = String(stanza?.attrs?.from ?? "").trim();
     if (!from2 || from2.includes("/")) return false;
     const at2 = from2.indexOf("@");
+    if (allowServerDomain && at2 === -1) {
+      const domainOnly = lower(from2);
+      const ownDomain = sessionDomain(xmppWs);
+      if (!ownDomain || domainOnly !== ownDomain) return false;
+      const pins = store.getState().chatSettingStore?.config?.trustedEventSenders;
+      return !(Array.isArray(pins) && pins.length) || pins.some((entry) => lower(entry) === domainOnly);
+    }
     if (at2 <= 0 || from2.indexOf("@", at2 + 1) !== -1) return false;
     const local = lower(from2.slice(0, at2));
     const domain2 = lower(from2.slice(at2 + 1));
@@ -59237,8 +60341,6 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       );
       if (!fresh) return;
       const updates = {
-        title: fresh.title,
-        name: fresh.name,
         description: fresh.description,
         picture: fresh.picture,
         icon: fresh.icon,
@@ -59248,6 +60350,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
           getRoomUserCount(current2)
         )
       };
+      if (String(fresh.title || "").trim()) updates.title = fresh.title;
+      if (String(fresh.name || "").trim()) updates.name = fresh.name;
       if (apiRoom.type === "public" || apiRoom.type === "group" || apiRoom.type === "private") {
         updates.type = apiRoom.type;
       }
@@ -59278,6 +60382,42 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       }, ROOM_DEBOUNCE_MS)
     );
   };
+  const CONFIG_EVENT_DEBOUNCE_MS = 300;
+  const VERSION_SHAPE = /^[A-Za-z0-9._-]{1,40}$/;
+  const APP_SHAPE = /^[A-Za-z0-9_-]{1,64}$/;
+  const configTimers = /* @__PURE__ */ new Map();
+  const configSeen = /* @__PURE__ */ new Map();
+  const ownAppIds = () => {
+    const cfg = store.getState().chatSettingStore?.config;
+    return [sessionAppId(), String(cfg?.remoteAppearance?.appId ?? "").trim()].filter(
+      Boolean
+    );
+  };
+  const handleConfigUpdated = (event) => {
+    const appId = String(event?.attrs?.appId ?? "").trim();
+    const version = String(event?.attrs?.version ?? "").trim();
+    if (!APP_SHAPE.test(appId) || !VERSION_SHAPE.test(version)) return;
+    if (!ownAppIds().includes(appId)) return;
+    if (configSeen.get(appId) === version) return;
+    const prior = configTimers.get(appId);
+    if (prior) clearTimeout(prior);
+    configTimers.set(
+      appId,
+      setTimeout(() => {
+        configTimers.delete(appId);
+        if (configSeen.get(appId) === version) return;
+        configSeen.set(appId, version);
+        const payload = { appId, version };
+        try {
+          const cb = store.getState().chatSettingStore?.config?.eventHandlers?.onChatComponentConfigUpdated;
+          if (typeof cb === "function") cb(payload);
+        } catch (error2) {
+          ethoraLogger.log("[EthoraEvent] onChatComponentConfigUpdated threw", error2);
+        }
+        publishChatComponentConfigUpdated(payload);
+      }, CONFIG_EVENT_DEBOUNCE_MS)
+    );
+  };
   const findCarrier = (stanza) => {
     const candidates = [stanza];
     const inner = stanza?.getChild?.("event", MUCSUB_EVENT_NS)?.getChild?.("items")?.getChild?.("item")?.getChild?.("message");
@@ -59290,12 +60430,20 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     try {
       const carrier = findCarrier(stanza);
       if (!carrier) return false;
+      const event = carrier.getChild("ethora-event", ETHORA_EVENT_XMLNS);
+      const type = String(event?.attrs?.type ?? "");
+      if (type === ETHORA_EVENT_CHAT_COMPONENT_CONFIG) {
+        if (!isTrustedEventSender(carrier, xmppWs, true)) {
+          ethoraLogger.log("[EthoraEvent] ignored: untrusted sender");
+          return true;
+        }
+        handleConfigUpdated(event);
+        return true;
+      }
       if (!isTrustedEventSender(carrier, xmppWs)) {
         ethoraLogger.log("[EthoraEvent] ignored: untrusted sender");
         return true;
       }
-      const event = carrier.getChild("ethora-event", ETHORA_EVENT_XMLNS);
-      const type = String(event?.attrs?.type ?? "");
       const appIdAttr = event?.attrs?.appId;
       const appId = sessionAppId();
       if (appIdAttr !== void 0 && appId && String(appIdAttr) !== appId) {
@@ -59346,6 +60494,40 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     if (usersSet[xmppUsername]) return;
     requestUsers([xmppUsername]);
     return null;
+  };
+  const isLikelyMucJid = (jid2) => {
+    if (typeof jid2 !== "string" || !jid2) return false;
+    const at2 = jid2.indexOf("@");
+    if (at2 <= 0) return false;
+    const domain2 = jid2.slice(at2 + 1).split("/")[0];
+    return domain2.includes(".") && domain2.startsWith("conference.");
+  };
+  const ROOMS_SLICE_ROOT_KEYS = /* @__PURE__ */ new Set([
+    "rooms",
+    "activeRoomJID",
+    "isChatUiVisible",
+    "isLoading",
+    "editAction",
+    "usersSet",
+    "presenceByRoom",
+    "reportRoom",
+    "subscribedRooms",
+    "pushSubscriptionStatus",
+    "loadingText"
+  ]);
+  const isLikelyRoomLocalpart = (value) => {
+    if (typeof value !== "string") return false;
+    const v2 = value.trim();
+    if (!v2 || v2.includes("@")) return false;
+    if (ROOMS_SLICE_ROOT_KEYS.has(v2)) return false;
+    return v2.includes("_");
+  };
+  const toRoomJid = (chatJID, conference) => {
+    if (typeof chatJID !== "string" || !chatJID) return null;
+    if (chatJID.includes("@")) return chatJID;
+    if (!conference) return null;
+    if (!isLikelyRoomLocalpart(chatJID)) return null;
+    return `${chatJID}@${conference}`;
   };
   const ACK_CATCHUP_DELAY_MS = 2500;
   const hasEchoLanded = (roomJID, messageId) => {
@@ -59996,12 +61178,15 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         store.dispatch(setMemberOnline({ roomJID, xmppUsername: nickname }));
       }
     }
-    const myXmppUsername = state2.chatSettingStore.user?.xmppUsername || "";
-    const isOwn = !!myXmppUsername && nickname === myXmppUsername;
     const xChildren = typeof stanza.getChildren === "function" && stanza.getChildren("x") || [];
     const mucUserX = xChildren.find(
       (e2) => e2.attrs?.xmlns === "http://jabber.org/protocol/muc#user"
     );
+    const ownStatus = mucUserX?.getChildren("status").some((status) => status.attrs?.code === "110");
+    const myXmppUsername = String(
+      state2.chatSettingStore.user?.xmppUsername || ""
+    ).split("@")[0].toLowerCase();
+    const isOwn = ownStatus || !!myXmppUsername && nickname.toLowerCase() === myXmppUsername;
     const item = typeof mucUserX?.getChild === "function" ? mucUserX.getChild("item") : null;
     if (isOwn) {
       const stanzaId = stanza?.attrs?.id;
@@ -60294,17 +61479,55 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     });
   };
   const onRoomKicked = async (stanza) => {
-    if (stanza.is("presence") && stanza.attrs.type === "unavailable") {
-      const xElement = stanza.getChild("x");
-      if (!xElement) return;
-      const statusElements = xElement.getChildren("status");
-      if (!statusElements || statusElements.length === 0) return;
-      const statusCodes = statusElements.map((s2) => s2.attrs.code);
-      if (statusCodes.includes("110") && statusCodes.includes("321")) {
-        const roomJid = stanza.attrs.from.split("/")[0];
-        store.dispatch(deleteRoom$1({ jid: roomJid }));
-        await getRooms();
-      }
+    if (!stanza?.is?.("presence") || stanza.attrs?.type !== "unavailable") return;
+    const from2 = typeof stanza.attrs?.from === "string" ? stanza.attrs.from : "";
+    const slashIndex = from2.indexOf("/");
+    if (slashIndex <= 0 || slashIndex === from2.length - 1) return;
+    const roomJid = from2.slice(0, slashIndex);
+    if (!isLikelyMucJid(roomJid)) return;
+    const mucUser = stanza.getChildren("x").find(
+      (x2) => x2.attrs?.xmlns === "http://jabber.org/protocol/muc#user"
+    );
+    if (!mucUser) return;
+    const statusCodes = mucUser.getChildren("status").map((status) => status.attrs?.code);
+    const resource = from2.slice(slashIndex + 1);
+    const currentXmppUsername = String(
+      store.getState().chatSettingStore.user?.xmppUsername || ""
+    ).split("@")[0].toLowerCase();
+    const isOwnPresence = statusCodes.includes("110") || !!currentXmppUsername && resource.toLowerCase() === currentXmppUsername;
+    const affiliationChanged = statusCodes.includes("321");
+    const roomDestroyed = !!mucUser.getChild("destroy");
+    const item = mucUser.getChild("item");
+    const affiliation = item?.attrs?.affiliation;
+    const affiliationRemoved = affiliation === "none" && affiliationChanged || affiliation === "outcast";
+    if (!roomDestroyed && (!isOwnPresence || !affiliationChanged && !affiliationRemoved)) {
+      return;
+    }
+    const roomState = store.getState().rooms;
+    if (!roomState.rooms[roomJid]) return;
+    store.dispatch(deleteRoom$1({ jid: roomJid }));
+    if (roomState.activeRoomJID === roomJid) {
+      const nextRoomJid = Object.keys(roomState.rooms).find((jid2) => jid2 !== roomJid) || null;
+      store.dispatch(setCurrentRoom({ roomJID: nextRoomJid }));
+    }
+    invalidateRoomsCache();
+    try {
+      const response = await getRooms();
+      if (response?.failed || !Array.isArray(response?.items)) return;
+      const conference = roomJid.slice(roomJid.indexOf("@") + 1);
+      const syncedRooms = response.items.map((apiRoom) => ({
+        apiRoom,
+        room: createRoomFromApi(apiRoom, conference)
+      })).filter(({ room }) => room && room.jid !== roomJid);
+      syncedRooms.forEach(({ room }) => {
+        store.dispatch(addRoom({ roomData: room }));
+      });
+      store.dispatch(
+        updateUsersSet({
+          rooms: syncedRooms.map(({ apiRoom }) => apiRoom)
+        })
+      );
+    } catch {
     }
   };
   const onMessageError = async (stanza, client2) => {
@@ -60507,6 +61730,433 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       console.error("[ChatUpdate] Error processing stanza:", error2);
     }
   };
+  const SYSTEM_ACCOUNT_LOCAL = /^([0-9a-fA-F]{24})_\1$/;
+  const isSystemAccountSender = (fromJid, expectedDomain) => {
+    const from2 = typeof fromJid === "string" ? fromJid.trim() : "";
+    if (!from2) return false;
+    const bare2 = from2.split("/")[0];
+    const at2 = bare2.indexOf("@");
+    if (at2 <= 0 || bare2.indexOf("@", at2 + 1) !== -1) return false;
+    const local = bare2.slice(0, at2);
+    const domain2 = bare2.slice(at2 + 1).toLowerCase();
+    if (!domain2) return false;
+    if (!SYSTEM_ACCOUNT_LOCAL.test(local)) return false;
+    const expected = String(expectedDomain || "").trim().toLowerCase();
+    return !expected || domain2 === expected;
+  };
+  const P2P_SIGNAL_TYPE = "call-p2p";
+  const MAX_SDP_LENGTH = 64 * 1024;
+  const MAX_REASON_LENGTH = 64;
+  const MAX_P2P_SIGNAL_AGE_MS = 15e3;
+  const SIGNAL_NAMES = /* @__PURE__ */ new Set([
+    "offer",
+    "answer",
+    "candidate",
+    "end"
+  ]);
+  const validatePayload = (signal, raw) => {
+    if (!raw || typeof raw !== "object") return null;
+    const p2 = raw;
+    if (signal === "offer" || signal === "answer") {
+      if (p2.type !== signal) return null;
+      if (typeof p2.sdp !== "string" || !p2.sdp || p2.sdp.length > MAX_SDP_LENGTH) {
+        return null;
+      }
+      return { type: signal, sdp: p2.sdp };
+    }
+    if (signal === "candidate") {
+      if (typeof p2.candidate !== "string" || p2.candidate.length > 2048) {
+        return null;
+      }
+      return {
+        candidate: p2.candidate,
+        sdpMid: typeof p2.sdpMid === "string" ? p2.sdpMid : null,
+        sdpMLineIndex: typeof p2.sdpMLineIndex === "number" ? p2.sdpMLineIndex : null,
+        usernameFragment: typeof p2.usernameFragment === "string" ? p2.usernameFragment : null
+      };
+    }
+    return {
+      reason: typeof p2.reason === "string" ? p2.reason.slice(0, MAX_REASON_LENGTH) : void 0
+    };
+  };
+  const stanzaAgeMs = (stanza, now) => {
+    const id2 = String(stanza.getChild("stanza-id")?.attrs?.id || "").trim();
+    if (!id2) return null;
+    const match2 = id2.match(/\d{13,}/)?.[0];
+    if (!match2) return null;
+    const ts = Number(match2.slice(0, 13));
+    return Number.isFinite(ts) && ts > 0 ? Math.abs(now - ts) : null;
+  };
+  const parseP2PSignalStanza = (stanza, now = Date.now()) => {
+    const data = stanza?.getChild?.("data");
+    if (!data || String(data.attrs?.type || "").toLowerCase() !== P2P_SIGNAL_TYPE) {
+      return null;
+    }
+    const callId = String(data.attrs?.callId || data.attrs?.callid || "").trim();
+    const signal = String(data.attrs?.signal || "").trim().toLowerCase();
+    if (!callId || !SIGNAL_NAMES.has(signal)) return null;
+    let parsed;
+    try {
+      parsed = JSON.parse(String(data.attrs?.payload || "{}"));
+    } catch {
+      return null;
+    }
+    const payload = validatePayload(signal, parsed);
+    if (!payload) return null;
+    const fromBare = String(stanza.attrs?.from || "").split("/")[0].trim().toLowerCase();
+    return {
+      callId,
+      signal,
+      payload,
+      fromBare,
+      fromLocal: fromBare.split("@")[0],
+      ageMs: stanzaAgeMs(stanza, now),
+      delayed: !!stanza.getChild?.("delay")
+    };
+  };
+  const isP2PSignalFresh = (signal) => {
+    if (signal.delayed) return false;
+    if (signal.signal === "end") return true;
+    return signal.ageMs === null || signal.ageMs <= MAX_P2P_SIGNAL_AGE_MS;
+  };
+  const authHeaders$1 = () => ({
+    headers: { Authorization: store.getState().chatSettingStore.user?.token || "" }
+  });
+  const postCallState = (report, callId) => {
+    const id2 = String(callId || "").trim();
+    if (!id2) return;
+    try {
+      void Promise.resolve(
+        http.post(
+          `/v1/chats/call/state/${report}/${encodeURIComponent(id2)}`,
+          void 0,
+          authHeaders$1()
+        )
+      ).catch(
+        (err) => ethoraLogger.log(`[call] state/${report} report failed`, err)
+      );
+    } catch (err) {
+      ethoraLogger.log(`[call] state/${report} report failed`, err);
+    }
+  };
+  const reportCallDeclined = (callId) => postCallState("decline", callId);
+  const reportCallEnded = (callId) => postCallState("end", callId);
+  const CLOSED_MEMORY = 16;
+  class P2PSignalInbox {
+    ttlMs;
+    maxPendingCalls;
+    maxPerCall;
+    now;
+    pending = /* @__PURE__ */ new Map();
+    handlers = /* @__PURE__ */ new Map();
+    // Calls that already ended: late stragglers for them are dropped instead of
+    // being buffered for a controller that will never come.
+    closed = [];
+    constructor(options = {}) {
+      this.ttlMs = options.ttlMs ?? 2e4;
+      this.maxPendingCalls = options.maxPendingCalls ?? 8;
+      this.maxPerCall = options.maxPerCall ?? 96;
+      this.now = options.now ?? Date.now;
+    }
+    sweep() {
+      const cutoff = this.now() - this.ttlMs;
+      for (const [callId, entry] of this.pending) {
+        if (entry.firstAt < cutoff) this.pending.delete(callId);
+      }
+    }
+    receive(signal) {
+      const handler = this.handlers.get(signal.callId);
+      if (handler) {
+        handler(signal);
+        return "delivered";
+      }
+      if (this.closed.includes(signal.callId)) return "dropped";
+      this.sweep();
+      let entry = this.pending.get(signal.callId);
+      if (!entry) {
+        if (this.pending.size >= this.maxPendingCalls) {
+          const oldest = this.pending.keys().next().value;
+          if (oldest !== void 0) this.pending.delete(oldest);
+        }
+        entry = { firstAt: this.now(), signals: [] };
+        this.pending.set(signal.callId, entry);
+      }
+      if (entry.signals.length >= this.maxPerCall) return "dropped";
+      entry.signals.push(signal);
+      return "buffered";
+    }
+    /**
+     * Starts delivering a call's signals to `handler`, replaying anything held
+     * for it first (in arrival order). Returns a detach function that also
+     * marks the call closed.
+     */
+    attach(callId, handler) {
+      const idx = this.closed.indexOf(callId);
+      if (idx >= 0) this.closed.splice(idx, 1);
+      this.sweep();
+      const held = this.pending.get(callId);
+      this.pending.delete(callId);
+      this.handlers.set(callId, handler);
+      if (held) {
+        for (const signal of held.signals) handler(signal);
+      }
+      return () => {
+        if (this.handlers.get(callId) === handler) this.handlers.delete(callId);
+        this.close(callId);
+      };
+    }
+    /** The call is over: forget held signals and drop future stragglers. */
+    close(callId) {
+      this.pending.delete(callId);
+      if (!this.closed.includes(callId)) {
+        this.closed.push(callId);
+        if (this.closed.length > CLOSED_MEMORY) this.closed.shift();
+      }
+    }
+    clear() {
+      this.pending.clear();
+      this.handlers.clear();
+      this.closed.length = 0;
+    }
+  }
+  const p2pInbox = new P2PSignalInbox();
+  const handleP2PSignalStanza = (inner) => {
+    const signal = parseP2PSignalStanza(inner);
+    if (!signal || !signal.fromLocal) return;
+    if (!isP2PSignalFresh(signal)) return;
+    const self2 = String(store.getState().chatSettingStore.user?.xmppUsername || "").split("@")[0].toLowerCase();
+    if (signal.fromLocal === self2) return;
+    p2pInbox.receive(signal);
+  };
+  const pick = (data, keys2) => {
+    for (const k2 of keys2) {
+      const v2 = data?.[k2];
+      if (v2 !== void 0 && v2 !== null && String(v2).trim() !== "") {
+        return String(v2).trim();
+      }
+    }
+    return "";
+  };
+  const isCallPush = (data) => {
+    if (!data) return false;
+    const marker = pick(data, [
+      "type",
+      "pushType",
+      "category",
+      "messageType",
+      "event"
+    ]).toLowerCase();
+    if (marker === "call" || marker === "incoming-call" || marker === "call-token" || marker === "call-invite") {
+      return true;
+    }
+    const callId = pick(data, ["callId", "callid", "callID"]);
+    const hasCallField = !!pick(data, ["callToken", "livekitToken"]) || !!pick(data, ["callKind"]) || pick(data, ["kind"]).toLowerCase() === "audio" || pick(data, ["kind"]).toLowerCase() === "video";
+    return !!callId && hasCallField;
+  };
+  const parseCallPush = (data) => {
+    const d2 = data || {};
+    const roomRef = pick(d2, ["callRoom", "room", "roomJid", "jid", "chatId"]) || null;
+    const roomBareName = roomRef ? roomRef.split("@")[0] || roomRef : null;
+    const kindRaw = pick(d2, ["callKind", "kind"]).toLowerCase();
+    return {
+      callId: pick(d2, ["callId", "callid", "callID"]) || null,
+      token: pick(d2, ["callToken", "livekitToken", "token"]) || null,
+      // The server defaults a push without `kind` to audio, so the client does
+      // too; anything but an explicit "video" is an audio call.
+      kind: kindRaw === "video" ? "video" : "audio",
+      roomBareName,
+      roomRef,
+      callerName: pick(d2, ["callerName", "callerDisplayName", "senderName", "title"]) || null,
+      callerXmppUsername: pick(d2, ["callerXmppUsername", "callerUsername", "userJid", "senderJid"]).split("@")[0] || null,
+      isGroup: ["true", "1"].includes(pick(d2, ["group", "isGroup"]).toLowerCase())
+    };
+  };
+  const decodeJwtPayload = (token2) => {
+    if (!token2 || typeof token2 !== "string") return null;
+    const parts = token2.split(".");
+    if (parts.length < 2) return null;
+    try {
+      const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+      const padded = b64 + "=".repeat((4 - b64.length % 4) % 4);
+      const decoded = typeof atob === "function" ? atob(padded) : Buffer.from(padded, "base64").toString("binary");
+      const parsed = JSON.parse(decoded);
+      return parsed && typeof parsed === "object" ? parsed : null;
+    } catch {
+      return null;
+    }
+  };
+  const jwtExpiresAtMs = (token2) => {
+    const exp = Number(decodeJwtPayload(token2)?.exp);
+    return Number.isFinite(exp) && exp > 0 ? exp * 1e3 : null;
+  };
+  const CALL_TOKEN_MIN_REMAINING_MS = 3e3;
+  const getCallPushFreshness = (data, now = Date.now()) => {
+    const expiresAt = jwtExpiresAtMs(parseCallPush(data).token);
+    if (expiresAt === null) return { fresh: true, expiresAt: null };
+    return { fresh: expiresAt - now >= CALL_TOKEN_MIN_REMAINING_MS, expiresAt };
+  };
+  const HANDLED_CALLS_TTL_MS = 2 * 6e4;
+  const HANDLED_CALLS_STORAGE_KEY = "@ethora/chat-component:handledCalls";
+  const memory = /* @__PURE__ */ new Map();
+  const trackable = (key) => !!key && !key.startsWith("room:") && key !== "incoming-call";
+  const readStored = () => {
+    try {
+      if (typeof window === "undefined" || !window.localStorage) return {};
+      const raw = window.localStorage.getItem(HANDLED_CALLS_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  };
+  const writeStored = (entries) => {
+    try {
+      if (typeof window === "undefined" || !window.localStorage) return;
+      window.localStorage.setItem(
+        HANDLED_CALLS_STORAGE_KEY,
+        JSON.stringify(entries)
+      );
+    } catch {
+    }
+  };
+  const markCallHandled = (key, now = Date.now()) => {
+    if (!trackable(key)) return;
+    memory.set(key, now);
+    const entries = readStored();
+    Object.keys(entries).forEach((k2) => {
+      if (!(now - Number(entries[k2]) <= HANDLED_CALLS_TTL_MS)) delete entries[k2];
+    });
+    entries[key] = now;
+    writeStored(entries);
+  };
+  const isCallHandled = (key, now = Date.now()) => {
+    if (!trackable(key)) return false;
+    const local = memory.get(key);
+    if (local !== void 0) {
+      if (now - local <= HANDLED_CALLS_TTL_MS) return true;
+      memory.delete(key);
+    }
+    const ts = Number(readStored()[key]);
+    return Number.isFinite(ts) && now - ts <= HANDLED_CALLS_TTL_MS;
+  };
+  const resetHandledCalls = () => {
+    memory.clear();
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage?.removeItem(HANDLED_CALLS_STORAGE_KEY);
+      }
+    } catch {
+    }
+  };
+  async function postToPushServiceWorker(message, readyTimeoutMs = 3e3) {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return false;
+    const container = navigator.serviceWorker;
+    try {
+      let target = container.controller;
+      if (!target && container.ready) {
+        const registration = await Promise.race([
+          container.ready,
+          new Promise((resolve2) => setTimeout(() => resolve2(null), readyTimeoutMs))
+        ]);
+        target = registration?.active;
+      }
+      if (!target) return false;
+      target.postMessage(message);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  const CALL_AUTH_CACHE = "ethora-push-auth-v1";
+  const callAuthKey = () => `${window.location.origin}/__ethora_call_auth__`;
+  async function deleteMirroredCallAuth() {
+    if (typeof window === "undefined" || typeof caches === "undefined") return;
+    try {
+      const cache2 = await caches.open(CALL_AUTH_CACHE);
+      await cache2.delete(callAuthKey());
+    } catch {
+    }
+  }
+  const PENDING_CLICK_CACHE = "ethora-push-pending-v1";
+  const pendingClickKey = () => `${window.location.origin}/__ethora_pending_push_click__`;
+  async function deletePendingPushClick() {
+    if (typeof window === "undefined" || typeof caches === "undefined") return;
+    try {
+      const cache2 = await caches.open(PENDING_CLICK_CACHE);
+      await cache2.delete(pendingClickKey());
+    } catch {
+    }
+  }
+  function announceCallClient(ready) {
+    void postToPushServiceWorker({ type: "CALL_CLIENT_READY", ready });
+  }
+  const locks = () => {
+    try {
+      if (typeof navigator === "undefined") return null;
+      const manager = navigator.locks;
+      return manager && typeof manager.request === "function" ? manager : null;
+    } catch {
+      return null;
+    }
+  };
+  function claimOnce(name2, holdMs = 3e3) {
+    const manager = locks();
+    if (!manager) return true;
+    return new Promise((resolve2) => {
+      try {
+        manager.request(name2, { ifAvailable: true }, (lock) => {
+          if (!lock) {
+            resolve2(false);
+            return void 0;
+          }
+          resolve2(true);
+          return new Promise((release) => setTimeout(release, holdMs));
+        }).catch(() => resolve2(true));
+      } catch {
+        resolve2(true);
+      }
+    });
+  }
+  const CALL_TAG_PREFIX = "call:";
+  const MISSED_TAG_PREFIX = "missed-call:";
+  const callNotificationKey = (callId, roomRef) => {
+    if (callId) return callId;
+    const bare2 = String(roomRef || "").split("@")[0].trim();
+    return bare2 ? `room:${bare2}` : "incoming-call";
+  };
+  const pageNotifications = /* @__PURE__ */ new Map();
+  const getRegistration = async (scope) => {
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
+      return null;
+    }
+    try {
+      return await navigator.serviceWorker.getRegistration(scope) || null;
+    } catch {
+      return null;
+    }
+  };
+  async function closeAllCallNotifications(scope = "/") {
+    pageNotifications.forEach((notif, tag) => {
+      if (tag.startsWith(CALL_TAG_PREFIX) || tag.startsWith(MISSED_TAG_PREFIX)) {
+        try {
+          notif.close();
+        } catch {
+        }
+      }
+    });
+    pageNotifications.clear();
+    const registration = await getRegistration(scope);
+    if (!registration?.getNotifications) return;
+    try {
+      const open = await registration.getNotifications();
+      open.forEach((n2) => {
+        if (n2.tag.startsWith(CALL_TAG_PREFIX) || n2.tag.startsWith(MISSED_TAG_PREFIX)) {
+          n2.close();
+        }
+      });
+    } catch {
+    }
+  }
   const KIND_HINT_TTL_MS = 6e4;
   const kindHints = /* @__PURE__ */ new Map();
   const stashKindHint = (key, kind) => {
@@ -60530,18 +62180,20 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     return null;
   };
   const MAX_CALL_TOKEN_AGE_MS = 5e3;
-  const decodeJwtPayload = (token2) => {
-    if (!token2 || typeof token2 !== "string") return null;
-    const parts = token2.split(".");
-    if (parts.length < 2) return null;
-    try {
-      const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-      const padded = b64 + "=".repeat((4 - b64.length % 4) % 4);
-      const decoded = typeof atob === "function" ? atob(padded) : Buffer.from(padded, "base64").toString("binary");
-      return JSON.parse(decoded);
-    } catch {
-      return null;
-    }
+  const sessionXmppDomain = () => {
+    const client2 = getGlobalXmppClient();
+    return String(client2?.client?.jid?.getDomain?.() || client2?.host || "");
+  };
+  const isTrueishAttr = (value) => {
+    const text2 = String(value ?? "").trim().toLowerCase();
+    return text2 === "true" || text2 === "1";
+  };
+  const lookupUserName = (xmppUsername) => {
+    if (!xmppUsername) return "";
+    const usersSet = store.getState().rooms.usersSet || {};
+    const user = usersSet[xmppUsername] || usersSet[xmppUsername.split("@")[0]];
+    if (!user) return "";
+    return `${user.firstName || ""} ${user.lastName || ""}`.trim() || String(user.name || "").trim();
   };
   const extractCallId = (data, jwtPayload) => {
     const fromAttr = String(data.attrs?.callId || data.attrs?.callid || "").trim();
@@ -60641,10 +62293,10 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     if (currentCall.phase === "idle") return;
     const roomMatches = !!stanzaRoomAttr && (currentCall.roomJid === stanzaRoomAttr || currentCall.roomName === stanzaRoomAttr || currentCall.roomBareName === stanzaRoomAttr || (currentCall.roomJid || "").split("@")[0] === stanzaRoomAttr);
     const callIdMatches = !!stanzaCallId && !!currentCall.callId && currentCall.callId === stanzaCallId;
-    if (stanzaCallId && currentCall.callId && !callIdMatches) return;
+    const callIdConflicts = !!stanzaCallId && !!currentCall.callId && currentCall.callId !== stanzaCallId;
     const isTerminalState = state2 === "ended" || state2 === "declined" || state2 === "cancelled" || state2 === "canceled" || state2 === "timeout" || state2 === "rejected";
     const isServerCallLog = !state2 && callStateHasLogData(data.attrs || {});
-    if ((roomMatches || callIdMatches) && (isTerminalState || isServerCallLog)) {
+    if ((callIdMatches || roomMatches && !callIdConflicts) && (isTerminalState || isServerCallLog)) {
       store.dispatch(endCall());
     }
   };
@@ -60668,16 +62320,13 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         } catch {
         }
         const fromRoom = String(stanza.attrs?.from || "").split("/")[0].split("@")[0].trim();
-        handleCallStateData(data, fromRoom);
+        const declinedInGroup = String(data.attrs?.state || "").toLowerCase() === "declined" && isTrueishAttr(data.attrs?.group);
+        if (!declinedInGroup) {
+          handleCallStateData(data, fromRoom);
+        }
         if (callStateHasLogData(data.attrs || {})) {
           return false;
         }
-        return true;
-      }
-      if (dataType === "call-state-declined") {
-        handleCallStateData(
-          { attrs: { ...data.attrs, state: "declined" } }
-        );
         return true;
       }
       if (dataType === "call-invite") {
@@ -60694,6 +62343,29 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         }
         return true;
       }
+      if (dataType === P2P_SIGNAL_TYPE) {
+        if (store.getState().chatSettingStore.config?.videoCalls?.enabled === true) {
+          handleP2PSignalStanza(inner);
+        }
+        return true;
+      }
+      if (dataType === "call-state-declined") {
+        if (isTrueishAttr(data.attrs?.group)) {
+          ethoraLogger.log("[call] group member declined", {
+            by: data.attrs?.by,
+            callId: data.attrs?.callId
+          });
+          return true;
+        }
+        const fromRoom = String(stanza.attrs?.from || "").split("/")[0].split("@")[0].trim();
+        handleCallStateData(
+          {
+            attrs: { ...data.attrs || {}, state: "declined" }
+          },
+          fromRoom
+        );
+        return true;
+      }
       if (dataType === "call-token") {
         const videoCallsConfig = store.getState().chatSettingStore.config?.videoCalls;
         if (videoCallsConfig?.enabled !== true) {
@@ -60702,47 +62374,108 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         if (!isFreshCallToken(inner)) {
           return true;
         }
-        const token2 = String(data.attrs?.token || "").trim();
-        const stanzaRoom = String(data.attrs?.room || "").trim();
-        const stanzaKind = String(data.attrs?.kind || "").toLowerCase();
-        const stanzaCallId = String(data.attrs?.callId || data.attrs?.callid || "").trim() || null;
+        const attrs = parseCallTokenAttrs(data.attrs);
+        if ((attrs.livekitUrl || attrs.iceServers || attrs.callerName || attrs.caller) && !isSystemAccountSender(inner.attrs?.from, sessionXmppDomain())) {
+          ethoraLogger.log(
+            "[call] ignoring livekitUrl/ice/callerName/caller on a call-token not sent by the system account",
+            { from: inner.attrs?.from }
+          );
+          attrs.livekitUrl = null;
+          attrs.iceServers = null;
+          attrs.callerName = "";
+          attrs.caller = null;
+        }
+        const { token: token2, mode: mode2, group, room: stanzaRoom } = attrs;
+        const isP2P = mode2 === "p2p";
+        const stanzaCallId = attrs.callId;
         const hintedKind = consumeKindHint([stanzaRoom, stanzaCallId]);
-        const kind = hintedKind || (stanzaKind === "audio" ? "audio" : "video");
-        if (!token2 || !stanzaRoom) {
+        const kind = hintedKind || (attrs.kind === "audio" ? "audio" : "video");
+        if (!stanzaRoom || (isP2P ? !stanzaCallId : !token2)) {
           return true;
         }
         const resolvedRoom = resolveRoomByStanzaRoom(stanzaRoom);
-        const allowedRoomTypes = videoCallsConfig.allowedRoomTypes || ["private"];
         const usersCnt = Number(resolvedRoom?.usersCnt || 0);
         const isOneToOneLikeRoom = usersCnt > 0 && usersCnt <= 2;
-        const isPrivateAllowed = allowedRoomTypes.includes("private");
-        if (resolvedRoom?.type && resolvedRoom.type !== "private" && !isOneToOneLikeRoom) {
-          return true;
-        }
-        if (resolvedRoom?.type === "private" && !isPrivateAllowed) {
-          return true;
-        }
-        if (!resolvedRoom?.type && !stanzaRoom.includes("@") && !isOneToOneLikeRoom) {
-          return true;
+        const allowedRoomTypes = videoCallsConfig.allowedRoomTypes;
+        if (group) {
+          if (!isCallRoomTypeAllowed("group", allowedRoomTypes)) return true;
+          if (resolvedRoom?.type === "private") return true;
+        } else {
+          const isPrivateAllowed = isCallRoomTypeAllowed(
+            "private",
+            allowedRoomTypes
+          );
+          if (resolvedRoom?.type && resolvedRoom.type !== "private" && !isOneToOneLikeRoom) {
+            return true;
+          }
+          if (resolvedRoom?.type === "private" && !isPrivateAllowed) {
+            return true;
+          }
+          if (!resolvedRoom?.type && !stanzaRoom.includes("@") && !isOneToOneLikeRoom) {
+            return true;
+          }
         }
         const roomJid = resolvedRoom?.jid || (stanzaRoom.includes("@") ? stanzaRoom : "");
-        const jwtPayload = decodeJwtPayload(token2);
-        const callerName = extractCallerDisplayName(jwtPayload);
+        const jwtPayload = isP2P ? null : decodeJwtPayload(token2);
+        const jwtName = group ? "" : safeCallName(extractCallerDisplayName(jwtPayload)) || "";
         const resolvedTitle = String(resolvedRoom?.name || "").trim();
         const titleLooksBad = !resolvedTitle || ["deleted", "deleted user", "unknown", "null"].includes(
           resolvedTitle.toLowerCase()
-        );
-        const incomingRoomName = (callerName && titleLooksBad ? callerName : resolvedTitle) || callerName || stanzaRoom;
+        ) || looksLikeRawRoomName(resolvedTitle);
+        const selfXmpp = store.getState().chatSettingStore.user?.xmppUsername || "";
+        const peerXmppUsername = group ? null : derivePeerXmppUsername(stanzaRoom, selfXmpp) || attrs.caller;
+        const peerName = titleLooksBad ? lookupUserName(peerXmppUsername) : "";
+        const incomingRoomName = group ? (titleLooksBad ? "" : resolvedTitle) || safeCallName(stanzaRoom) || "" : attrs.callerName || jwtName || (titleLooksBad ? "" : resolvedTitle) || safeCallName(peerName) || safeCallName(stanzaRoom) || "";
         if (!roomJid) return true;
         const callId = extractCallId(data, jwtPayload);
-        const selfXmpp = store.getState().chatSettingStore.user?.xmppUsername || "";
-        const peerXmppUsername = derivePeerXmppUsername(stanzaRoom, selfXmpp);
+        if (isP2P && !callId) return true;
+        if (isP2P && isCallHandled(callNotificationKey(callId, stanzaRoom))) {
+          return true;
+        }
         const callState = store.getState().call;
-        const isOutgoingRoomMatch = callState.direction === "outgoing" && (callState.roomJid === roomJid || callState.roomName === incomingRoomName || callState.roomBareName === stanzaRoom);
+        if (isP2P || callState.mode === "p2p") {
+          if (isP2P && typeof RTCPeerConnection === "undefined") {
+            reportCallDeclined(callId);
+            return true;
+          }
+          const decision = decideIncomingWhileBusy(callState, {
+            mode: mode2,
+            callId,
+            roomBareName: stanzaRoom
+          });
+          if (decision === "duplicate" || decision === "glare-keep") return true;
+          if (decision === "busy") {
+            if (isP2P) {
+              reportCallDeclined(callId);
+              if (peerXmppUsername) {
+                sendCallStateSignal("declined", {
+                  peerXmppUsername,
+                  callId,
+                  roomBareName: stanzaRoom
+                });
+              }
+            }
+            return true;
+          }
+          if (decision === "glare-yield") {
+            sendCallStateSignal("cancelled");
+            reportCallEnded(callState.callId);
+            store.dispatch(endCall());
+          }
+        }
+        const isOutgoingRoomMatch = !isP2P && callState.direction === "outgoing" && (callState.roomJid === roomJid || callState.roomName === incomingRoomName || callState.roomBareName === stanzaRoom);
         if (isOutgoingRoomMatch) {
           store.dispatch(
-            setOutgoingCallToken({ roomJid, token: token2, callId: callId || null })
+            setOutgoingCallToken({
+              roomJid,
+              token: token2,
+              callId: callId || null,
+              livekitUrl: attrs.livekitUrl
+            })
           );
+          return true;
+        }
+        if (callId && isCallHandled(callNotificationKey(callId, stanzaRoom))) {
           return true;
         }
         store.dispatch(
@@ -60753,7 +62486,13 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
             token: token2,
             kind,
             callId: callId || null,
-            peerXmppUsername: peerXmppUsername || null
+            peerXmppUsername: peerXmppUsername || null,
+            mode: mode2,
+            isGroup: group,
+            iceServers: attrs.iceServers,
+            livekitUrl: attrs.livekitUrl,
+            callerName: attrs.callerName || null,
+            callerXmppUsername: attrs.caller
           })
         );
         return true;
@@ -60773,6 +62512,35 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       return true;
     }
     return false;
+  };
+  const sendCallStateSignal = (state2, options) => {
+    const xmppClient = getGlobalXmppClient();
+    if (!xmppClient) return;
+    const callState = store.getState().call;
+    const peer = (options?.peerXmppUsername || callState.peerXmppUsername || "").trim();
+    if (!peer) return;
+    const host = xmppClient.host || "";
+    if (!host) return;
+    const callId = options?.callId || callState.callId || "";
+    const room = options?.roomBareName || callState.roomBareName || (callState.roomJid || "").split("@")[0] || "";
+    try {
+      const stanza = browserExports.xml(
+        "message",
+        {
+          to: peer.includes("@") ? peer : `${peer}@${host}`,
+          type: "chat",
+          id: `call-state-${Date.now()}`
+        },
+        browserExports.xml("data", {
+          type: "call-state",
+          state: state2,
+          callId,
+          room
+        })
+      );
+      xmppClient.client?.send?.(stanza);
+    } catch {
+    }
   };
   const sendCallInviteSignal = (kind, options) => {
     const xmppClient = getGlobalXmppClient();
@@ -60883,6 +62651,27 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         break;
       default:
         ethoraLogger.log("Unhandled stanza type:", stanza.name);
+    }
+  }
+  function notifyXmppEvent(stanza) {
+    if (!stanza?.is?.("message")) return;
+    const callback = store.getState().chatSettingStore.config?.eventHandlers?.onXmppEvent;
+    if (typeof callback !== "function") return;
+    try {
+      const result = callback({
+        stanza: stanza.toString(),
+        from: stanza.attrs?.from,
+        to: stanza.attrs?.to,
+        id: stanza.attrs?.id,
+        type: stanza.attrs?.type
+      });
+      if (result && typeof result.then === "function") {
+        void result.catch(
+          (error2) => ethoraLogger.log("[XMPP event] host callback rejected:", error2)
+        );
+      }
+    } catch (error2) {
+      ethoraLogger.log("[XMPP event] host callback threw:", error2);
     }
   }
   function setVcard(fullname, client2) {
@@ -61209,40 +62998,6 @@ ${messageId}`;
         reject(err);
       });
     });
-  };
-  const isLikelyMucJid = (jid2) => {
-    if (typeof jid2 !== "string" || !jid2) return false;
-    const at2 = jid2.indexOf("@");
-    if (at2 <= 0) return false;
-    const domain2 = jid2.slice(at2 + 1).split("/")[0];
-    return domain2.includes(".") && domain2.startsWith("conference.");
-  };
-  const ROOMS_SLICE_ROOT_KEYS = /* @__PURE__ */ new Set([
-    "rooms",
-    "activeRoomJID",
-    "isChatUiVisible",
-    "isLoading",
-    "editAction",
-    "usersSet",
-    "presenceByRoom",
-    "reportRoom",
-    "subscribedRooms",
-    "pushSubscriptionStatus",
-    "loadingText"
-  ]);
-  const isLikelyRoomLocalpart = (value) => {
-    if (typeof value !== "string") return false;
-    const v2 = value.trim();
-    if (!v2 || v2.includes("@")) return false;
-    if (ROOMS_SLICE_ROOT_KEYS.has(v2)) return false;
-    return v2.includes("_");
-  };
-  const toRoomJid = (chatJID, conference) => {
-    if (typeof chatJID !== "string" || !chatJID) return null;
-    if (chatJID.includes("@")) return chatJID;
-    if (!conference) return null;
-    if (!isLikelyRoomLocalpart(chatJID)) return null;
-    return `${chatJID}@${conference}`;
   };
   async function allRoomPresences(client2, join2, options = {}) {
     const concurrency = Math.max(1, Math.floor(options.concurrency || 5));
@@ -62044,6 +63799,7 @@ ${messageId}`;
       });
       this.client.on("stanza", (stanza) => {
         this.lastActivityTs = Date.now();
+        notifyXmppEvent(stanza);
         try {
           if (this.lastPingId && isPong(stanza, this.lastPingId)) {
             this.handlePong();
@@ -63581,6 +65337,9 @@ ${messageId}`;
       }).catch(() => {
       });
     };
+    getRoomAccessStanza = (roomJID, timeoutMs) => this.wrapWithConnectionCheck(() => getRoomAccess(roomJID, this.client, timeoutMs)).catch(
+      () => "unknown"
+    );
     getRoomMembersStanza = (roomJID) => {
       this.wrapWithConnectionCheck(async () => {
         getRoomMembers(roomJID, this.client);
@@ -64153,6 +65912,7 @@ ${messageId}`;
     const serviceWorkerScope = options.serviceWorkerScope || "/";
     const customIconPath = options.iconPath?.trim() || "";
     const customBadgePath = options.badgePath?.trim() || "";
+    const customClickPath = options.clickPath?.trim() || "";
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
       return null;
     }
@@ -64173,6 +65933,9 @@ ${messageId}`;
     }
     if (customBadgePath) {
       serviceWorkerUrl.searchParams.set("badgePath", customBadgePath);
+    }
+    if (customClickPath) {
+      serviceWorkerUrl.searchParams.set("clickPath", customClickPath);
     }
     const serviceWorkerPath = serviceWorkerUrl.toString();
     try {
@@ -64200,6 +65963,9 @@ ${messageId}`;
       }
       if (customBadgePath) {
         expectedManagedParams.set("badgePath", customBadgePath);
+      }
+      if (customClickPath) {
+        expectedManagedParams.set("clickPath", customClickPath);
       }
       const hasMatchingManagedParams = (scriptURL) => {
         if (!expectedManagedParams.size) return true;
@@ -64313,7 +66079,29 @@ ${messageId}`;
       unsubscribe?.();
     };
   }
+  async function requestPendingPushClick(readyTimeoutMs = 3e3, { discard = false } = {}) {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return false;
+    const container = navigator.serviceWorker;
+    try {
+      let target = container.controller;
+      if (!target && container.ready) {
+        const registration = await Promise.race([
+          container.ready,
+          new Promise((resolve2) => setTimeout(() => resolve2(null), readyTimeoutMs))
+        ]);
+        target = registration?.active;
+      }
+      if (!target) return false;
+      target.postMessage(
+        discard ? { type: "GET_PENDING_PUSH_CLICK", discard: true } : { type: "GET_PENDING_PUSH_CLICK" }
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
   async function disablePushNotifications(_authToken) {
+    await deleteMirroredCallAuth();
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
       return;
     }
@@ -64358,27 +66146,45 @@ ${messageId}`;
     );
     setStoredFcmToken("");
   }
+  const resolvePushLanguage = (state2) => {
+    const settings = state2.chatSettingStore;
+    return String(
+      settings.config?.translates?.readerLocale || settings.config?.i18n?.locale || settings.langSource || ""
+    ).trim();
+  };
+  const isUnknownLanguageError = (err) => err?.response?.status === 422 && /language/i.test(String(err?.response?.data?.error ?? "")) && /not allowed/i.test(String(err?.response?.data?.error ?? ""));
   async function registerPushToken(registrationToken) {
     const state2 = store.getState();
     const token2 = state2.chatSettingStore.user.token || "";
     const appId = state2.chatSettingStore.appId;
+    const language = resolvePushLanguage(state2);
     if (!appId) {
       throw new Error("[PushNotifications] Cannot register push token: No app ID found in store.");
     }
     const payload = {
       registrationToken,
-      deviceType: "web"
+      deviceType: "web",
+      ...language ? { language } : {}
     };
     ethoraLogger.log("[PushNotifications] Registering FCM token with backend:", {
       appId,
-      tokenLength: registrationToken.length
+      tokenLength: registrationToken.length,
+      language
+    });
+    const post2 = (body) => http.post(`/v1/push/subscription/${appId}`, body, {
+      headers: {
+        Authorization: token2
+      }
     });
     try {
-      const response = await http.post(`/v1/push/subscription/${appId}`, payload, {
-        headers: {
-          Authorization: token2
-        }
-      });
+      let response;
+      try {
+        response = await post2(payload);
+      } catch (err) {
+        if (!(payload.language && isUnknownLanguageError(err))) throw err;
+        const { language: _unsupported, ...withoutLanguage } = payload;
+        response = await post2(withoutLanguage);
+      }
       return response?.data ?? null;
     } catch (err) {
       const status = err?.response?.status;
@@ -64549,46 +66355,292 @@ ${messageId}`;
     const poolSize = Math.max(1, Math.min(concurrency, roomJIDs.length));
     await Promise.all(Array.from({ length: poolSize }, () => worker()));
   };
-  const pick = (data, keys2) => {
-    for (const k2 of keys2) {
-      const v2 = data?.[k2];
-      if (v2 !== void 0 && v2 !== null && String(v2).trim() !== "") {
-        return String(v2).trim();
+  const CHANNEL_NAME = "ethora-call";
+  const CALL_OUTCOME_STORAGE_KEY = "@ethora/chat-component:callOutcome";
+  const senderId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  let channel;
+  const getChannel = () => {
+    if (channel !== void 0) return channel;
+    try {
+      channel = typeof BroadcastChannel === "function" ? new BroadcastChannel(CHANNEL_NAME) : null;
+      channel?.unref?.();
+    } catch {
+      channel = null;
+    }
+    return channel;
+  };
+  const storageFallback = () => {
+    try {
+      return typeof window !== "undefined" && window.localStorage ? window.localStorage : null;
+    } catch {
+      return null;
+    }
+  };
+  let sendSeq = 0;
+  const broadcastCallOutcome = (key, outcome) => {
+    if (!key) return;
+    markCallHandled(key);
+    const message = { key, outcome, from: senderId, at: Date.now(), n: sendSeq += 1 };
+    try {
+      getChannel()?.postMessage(message);
+    } catch {
+    }
+    try {
+      storageFallback()?.setItem(CALL_OUTCOME_STORAGE_KEY, JSON.stringify(message));
+    } catch {
+    }
+  };
+  const WON_TTL_MS = 2 * 6e4;
+  const won = /* @__PURE__ */ new Map();
+  const prune$1 = (now) => {
+    won.forEach((ts, key) => {
+      if (now - ts > WON_TTL_MS) won.delete(key);
+    });
+  };
+  const rememberCallDecision = (key) => {
+    if (!key) return;
+    const now = Date.now();
+    prune$1(now);
+    won.set(key, now);
+  };
+  const resetCallClaims = () => won.clear();
+  const claimCallDecision = (key) => {
+    const claim = claimOnce(`ethora-call-decision:${key}`);
+    if (typeof claim === "boolean") {
+      if (claim) rememberCallDecision(key);
+      return claim;
+    }
+    return claim.then((ok2) => {
+      if (ok2) rememberCallDecision(key);
+      return ok2;
+    });
+  };
+  const RING_TIMEOUT_MS = 45e3;
+  const RECENT_TTL_MS = 5 * 6e4;
+  const DECLINE_DEDUPE_MS = 1e4;
+  const raisedFromPush = /* @__PURE__ */ new Map();
+  const prune = (map2, ttl, now) => {
+    map2.forEach((ts, key) => {
+      if (now - ts > ttl) map2.delete(key);
+    });
+  };
+  const markCallRaisedFromPush = (key) => {
+    if (!key) return;
+    const now = Date.now();
+    prune(raisedFromPush, RECENT_TTL_MS, now);
+    raisedFromPush.set(key, now);
+  };
+  const unmarkCallRaisedFromPush = (key) => {
+    if (key) raisedFromPush.delete(key);
+  };
+  let pendingCallPush = null;
+  const holdCallPush = (data, answer, swShows = false) => {
+    pendingCallPush = { data, answer, heldAt: Date.now(), swShows };
+  };
+  const takePendingCallPush = (now = Date.now()) => {
+    const held = pendingCallPush;
+    pendingCallPush = null;
+    if (!held) return null;
+    const { fresh, expiresAt } = getCallPushFreshness(held.data, now);
+    if (!fresh) return null;
+    if (expiresAt === null && now - held.heldAt > RING_TIMEOUT_MS) return null;
+    return held;
+  };
+  const dropPendingCallPush = (callId) => {
+    if (!pendingCallPush) return;
+    if (!callId || parseCallPush(pendingCallPush.data).callId === callId) {
+      pendingCallPush = null;
+    }
+  };
+  const resetCallPushState = () => {
+    pendingCallPush = null;
+    raisedFromPush.clear();
+    recentDeclines.clear();
+    resetHandledCalls();
+    resetCallClaims();
+  };
+  const clearCallPushSession = async (scope = "/") => {
+    resetCallPushState();
+    await Promise.all([deletePendingPushClick(), closeAllCallNotifications(scope)]);
+  };
+  const claimCallAction = (action, key) => claimOnce(`ethora-call-${action}:${key}`);
+  const isReady = (state2) => state2?.chatSettingStore?.config?.videoCalls?.enabled === true && !!state2?.chatSettingStore?.user?.token;
+  const isSameCall = (call, parsed, roomJid) => {
+    if (!call || call.phase === "idle") return false;
+    if (parsed.callId || call.callId) return (call.callId || null) === parsed.callId;
+    return !!roomJid && (call.roomJid || "") === roomJid;
+  };
+  const derivePeer = (parsed, selfLocal) => {
+    if (parsed.isGroup) return null;
+    if (parsed.callerXmppUsername) return parsed.callerXmppUsername;
+    if (parsed.roomBareName && parsed.roomBareName.includes("-")) {
+      const parts = parsed.roomBareName.split("-");
+      if (parts.length !== 2) return null;
+      return parts.find((p2) => p2 && p2 !== selfLocal) || null;
+    }
+    return null;
+  };
+  const selfLocalOf = (state2) => String(state2?.chatSettingStore?.user?.xmppUsername || "").split("@")[0].trim();
+  const raiseIncomingCallFromPush = (ctx, data, options = {}) => {
+    const parsed = parseCallPush(data);
+    const answer = options.answer === true;
+    if (!getCallPushFreshness(data).fresh) return "expired";
+    if (!parsed.token) return "no-token";
+    const callKey = callNotificationKey(parsed.callId, parsed.roomRef);
+    if (isCallHandled(callKey)) {
+      const current2 = ctx.getState()?.call;
+      const same = isSameCall(
+        current2,
+        parsed,
+        ctx.normalizeRoomJid(parsed.roomRef || "") || parsed.roomRef || ""
+      );
+      if (same && current2.phase !== "ringing-incoming") return "active";
+      if (!same || answer) return "handled";
+    }
+    if (!isReady(ctx.getState())) {
+      holdCallPush(data, answer, options.swShows === true);
+      return "held";
+    }
+    const roomJid = ctx.normalizeRoomJid(parsed.roomRef || "");
+    ctx.dispatch(
+      setIncomingCallToken({
+        roomJid: roomJid || parsed.roomRef || "",
+        // callerName is untrusted push text: sanitised, and never a raw chat
+        // name (the call slice also refuses those for roomName).
+        roomName: safeCallName(parsed.callerName) || parsed.roomBareName,
+        roomBareName: parsed.roomBareName,
+        token: parsed.token,
+        kind: parsed.kind,
+        callId: parsed.callId,
+        peerXmppUsername: derivePeer(parsed, selfLocalOf(ctx.getState())),
+        isGroup: parsed.isGroup
+      })
+    );
+    const call = ctx.getState().call;
+    if (!isSameCall(call, parsed, roomJid || parsed.roomRef || "")) return "busy";
+    if (call.phase !== "ringing-incoming") return "active";
+    if (options.swShows === true) {
+      markCallRaisedFromPush(callKey);
+    }
+    if (answer) {
+      ctx.dispatch(acceptIncomingCall());
+      rememberCallDecision(callKey);
+      broadcastCallOutcome(callKey, "accepted");
+      return "accepted";
+    }
+    return "ringing";
+  };
+  const flushPendingCallPush = (ctx) => {
+    if (!isReady(ctx.getState())) return null;
+    const held = takePendingCallPush();
+    if (!held) return null;
+    return raiseIncomingCallFromPush(ctx, held.data, {
+      answer: held.answer,
+      swShows: held.swShows
+    });
+  };
+  const handleCallPushFromWorker = (ctx, data) => {
+    const visible = typeof document !== "undefined" && document.visibilityState === "visible";
+    const mayAck = visible && isReady(ctx.getState());
+    const outcome = raiseIncomingCallFromPush(ctx, data, { swShows: !mayAck });
+    const callId = parseCallPush(data).callId || "";
+    if (outcome === "active") {
+      void postToPushServiceWorker({ type: "CALL_PUSH_ACK", callId });
+    } else if (outcome === "handled") {
+      void postToPushServiceWorker({ type: "CALL_PUSH_ACK", callId });
+    } else if (outcome === "busy") {
+      void postToPushServiceWorker({ type: "CALL_PUSH_ACK", callId, busy: true });
+    } else if ((outcome === "ringing" || outcome === "accepted") && mayAck) {
+      void postToPushServiceWorker({ type: "CALL_PUSH_ACK", callId });
+    }
+    return outcome;
+  };
+  const recentDeclines = /* @__PURE__ */ new Map();
+  const declineIncomingCallFromPush = async (ctx, data) => {
+    const parsed = parseCallPush(data);
+    const roomJid = ctx.normalizeRoomJid(parsed.roomRef || "");
+    const now = Date.now();
+    const dedupeKey = parsed.callId || roomJid;
+    prune(recentDeclines, DECLINE_DEDUPE_MS, now);
+    if (dedupeKey) {
+      if (recentDeclines.has(dedupeKey)) return;
+      recentDeclines.set(dedupeKey, now);
+    }
+    const callKey = callNotificationKey(parsed.callId, parsed.roomRef);
+    if (isCallHandled(callKey)) {
+      dropPendingCallPush(parsed.callId);
+      void postToPushServiceWorker({
+        type: "CALL_PUSH_DECLINE_ACK",
+        callId: parsed.callId || ""
+      });
+      return;
+    }
+    const takesCalls = ctx.getState()?.chatSettingStore?.config?.videoCalls?.enabled === true;
+    if (takesCalls) {
+      const claim = claimCallDecision(callKey);
+      if ((typeof claim === "boolean" ? claim : await claim) === false) return;
+    }
+    const state2 = ctx.getState();
+    dropPendingCallPush(parsed.callId);
+    let handled = false;
+    if (state2?.chatSettingStore?.config?.videoCalls?.enabled === true) {
+      const call = state2?.call;
+      const sameCall = isSameCall(call, parsed, roomJid);
+      if (sameCall && call.phase !== "ringing-incoming") {
+        void postToPushServiceWorker({
+          type: "CALL_PUSH_DECLINE_ACK",
+          callId: parsed.callId || ""
+        });
+        return;
       }
+      const peer = derivePeer(parsed, selfLocalOf(state2));
+      if (peer) {
+        sendCallStateSignal("declined", {
+          peerXmppUsername: peer,
+          callId: parsed.callId,
+          roomBareName: parsed.roomBareName
+        });
+      } else if (sameCall) {
+        sendCallStateSignal("declined");
+      }
+      if (sameCall) ctx.dispatch(declineIncomingCall());
+      handled = true;
+      broadcastCallOutcome(callKey, "declined");
     }
-    return "";
-  };
-  const isCallPush = (data) => {
-    if (!data) return false;
-    const marker = pick(data, [
-      "type",
-      "pushType",
-      "category",
-      "messageType",
-      "event"
-    ]).toLowerCase();
-    if (marker === "call" || marker === "incoming-call" || marker === "call-token" || marker === "call-invite") {
-      return true;
+    const ack = () => void postToPushServiceWorker({
+      type: "CALL_PUSH_DECLINE_ACK",
+      callId: parsed.callId || ""
+    });
+    if (handled) {
+      ack();
+      if (parsed.callId) await declineChatCall(parsed.callId);
+      return;
     }
-    const callId = pick(data, ["callId", "callid", "callID"]);
-    const hasCallField = !!pick(data, ["callToken", "livekitToken"]) || !!pick(data, ["callKind"]) || pick(data, ["kind"]).toLowerCase() === "audio" || pick(data, ["kind"]).toLowerCase() === "video";
-    return !!callId && hasCallField;
+    if (parsed.callId && await declineChatCall(parsed.callId)) {
+      ack();
+      broadcastCallOutcome(callKey, "declined");
+    }
   };
-  const parseCallPush = (data) => {
-    const d2 = data || {};
-    const roomRef = pick(d2, ["callRoom", "room", "roomJid", "jid", "chatId"]) || null;
-    const roomBareName = roomRef ? roomRef.split("@")[0] || roomRef : null;
-    const kindRaw = pick(d2, ["callKind", "kind"]).toLowerCase();
-    return {
-      callId: pick(d2, ["callId", "callid", "callID"]) || null,
-      token: pick(d2, ["callToken", "livekitToken", "token"]) || null,
-      kind: kindRaw === "audio" ? "audio" : "video",
-      roomBareName,
-      roomRef,
-      callerName: pick(d2, ["callerName", "callerDisplayName", "senderName", "title"]) || null,
-      callerXmppUsername: pick(d2, ["callerXmppUsername", "callerUsername", "userJid", "senderJid"]).split("@")[0] || null
-    };
-  };
+  let lastMirrored = null;
+  async function mirrorCallAuthToWorker(token2) {
+    if (typeof window === "undefined" || typeof caches === "undefined") return;
+    const apiBaseUrl = String(http.defaults.baseURL || "").trim();
+    const snapshot = token2 && apiBaseUrl ? JSON.stringify({ apiBaseUrl, token: token2 }) : "";
+    if (snapshot === lastMirrored) return;
+    lastMirrored = snapshot;
+    if (!snapshot) {
+      await deleteMirroredCallAuth();
+      return;
+    }
+    try {
+      const cache2 = await caches.open(CALL_AUTH_CACHE);
+      await cache2.put(
+        callAuthKey(),
+        new Response(snapshot, { headers: { "Content-Type": "application/json" } })
+      );
+    } catch {
+    }
+  }
   const getMediaLabel = (message, t2) => {
     const attachments = getMessageAttachments(message);
     if (attachments.length === 0) return "";
@@ -64695,11 +66747,43 @@ ${messageId}`;
     const ids = collectMessageIds(...messageIds);
     if (ids.length > 0) dispatch(requestJumpToMessage({ roomJID, ids }));
   };
+  const claimRoomForPush = (roomJid) => {
+    const chatId = String(roomJid || "").split("@")[0].trim();
+    if (!chatId) return;
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        if (url.searchParams.has("chatId") || url.searchParams.has("qrChatId")) {
+          url.searchParams.set("chatId", chatId);
+          url.searchParams.delete("qrChatId");
+          window.history.replaceState(
+            window.history.state,
+            "",
+            `${url.pathname}${url.search}${url.hash}`
+          );
+        }
+      } catch {
+      }
+    }
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem(localStorageConstants.ETHORA_QR_CHAT_ID);
+      }
+    } catch {
+    }
+  };
   const __vite_import_meta_env__ = {};
+  const localPart$2 = (jid2) => String(jid2 ?? "").split("@")[0].trim().toLowerCase();
+  const isForUser = (recipient, currentUser) => {
+    const target = localPart$2(recipient);
+    const me2 = localPart$2(currentUser);
+    return !target || !me2 || me2 === target;
+  };
   let _subscriptionRegistered = false;
   let _subscriptionRegistrationPromise = null;
   let _foregroundHandlers = /* @__PURE__ */ new Set();
   let _foregroundUnsubscribe = null;
+  let _callListeners = 0;
   const usePushNotifications = (options = {}) => {
     const { softAsk = false, enabled: enabled2 = false } = options;
     const vapidPublicKey = options.vapidPublicKey || typeof { url: _documentCurrentScript && _documentCurrentScript.tagName.toUpperCase() === "SCRIPT" && _documentCurrentScript.src || new URL("ethora_assistant.js", document.baseURI).href } !== "undefined" && __vite_import_meta_env__?.VITE_VAPID_PUBLIC_KEY || "";
@@ -64712,7 +66796,14 @@ ${messageId}`;
     const pushSubscriptionStatus = useSelector(
       (state2) => state2.rooms.pushSubscriptionStatus
     );
+    const pushLanguage = useSelector(resolvePushLanguage);
     const dispatch = useDispatch();
+    const registeredLanguageRef = reactExports.useRef(null);
+    const landedFromPushRef = reactExports.useRef(
+      typeof window !== "undefined" && new URL(window.location.href).searchParams.get("fromPush") === "1"
+    );
+    const userXmppUsernameRef = reactExports.useRef(userXmppUsername);
+    userXmppUsernameRef.current = userXmppUsername;
     const hasRanRef = reactExports.useRef(false);
     const fcmTokenRef = reactExports.useRef(null);
     const [fcmTokenReady, setFcmTokenReady] = reactExports.useState(null);
@@ -64747,33 +66838,22 @@ ${messageId}`;
       },
       []
     );
+    const reduxStore = useStore();
+    const callPushCtx = reactExports.useMemo(
+      () => ({
+        dispatch,
+        getState: reduxStore.getState,
+        normalizeRoomJid
+      }),
+      [dispatch, reduxStore, normalizeRoomJid]
+    );
     const handleIncomingCallPush = reactExports.useCallback(
-      (data) => {
-        if (config?.videoCalls?.enabled !== true) return;
+      (data, answer = false) => {
+        const outcome = raiseIncomingCallFromPush(callPushCtx, data, { answer });
+        if (outcome !== "no-token") return outcome;
         const parsed = parseCallPush(data);
         const roomJid = normalizeRoomJid(parsed.roomRef || "");
-        const selfLocal = String(
-          store.getState().chatSettingStore.user?.xmppUsername || ""
-        ).split("@")[0].trim();
-        let peer = parsed.callerXmppUsername;
-        if (!peer && parsed.roomBareName && parsed.roomBareName.includes("-")) {
-          const parts = parsed.roomBareName.split("-");
-          peer = parts.find((p2) => p2 && p2 !== selfLocal) || null;
-        }
-        if (parsed.token) {
-          dispatch(
-            setIncomingCallToken({
-              roomJid: roomJid || parsed.roomRef || "",
-              roomName: parsed.callerName || parsed.roomBareName,
-              roomBareName: parsed.roomBareName,
-              token: parsed.token,
-              kind: parsed.kind,
-              callId: parsed.callId,
-              peerXmppUsername: peer || null
-            })
-          );
-          return;
-        }
+        if (config?.videoCalls?.enabled !== true) return outcome;
         if (roomJid) {
           dispatch(setCurrentRoom({ roomJID: roomJid }));
         }
@@ -64781,8 +66861,9 @@ ${messageId}`;
           "[PushNotifications] incoming call push without LiveKit token; awaiting XMPP call-token",
           { callId: parsed.callId, roomJid }
         );
+        return outcome;
       },
-      [config?.videoCalls?.enabled, dispatch, normalizeRoomJid]
+      [callPushCtx, config?.videoCalls?.enabled, dispatch, normalizeRoomJid]
     );
     const handlePushClick = reactExports.useCallback(
       async (payload, source) => {
@@ -64799,19 +66880,51 @@ ${messageId}`;
           payload?.msgID
         );
         const url = data.url || payload?.url;
+        const isCall = isCallPush(data);
+        if (!isCall && !isForUser(data.userJid, userXmppUsernameRef.current)) return;
+        if (isCallPush(data)) {
+          const tapped = parseCallPush(data);
+          const callKey = callNotificationKey(tapped.callId, tapped.roomRef);
+          const takesCalls = config?.videoCalls?.enabled === true;
+          if (takesCalls) {
+            const claim = claimCallAction("click", callKey);
+            if ((typeof claim === "boolean" ? claim : await claim) === false) return;
+          }
+          if (takesCalls && payload?.action === "answer") {
+            const decision = claimCallDecision(callKey);
+            if ((typeof decision === "boolean" ? decision : await decision) === false) {
+              void postToPushServiceWorker({
+                type: "CALL_PUSH_ANSWER_ACK",
+                callId: tapped.callId || ""
+              });
+              return;
+            }
+          }
+          unmarkCallRaisedFromPush(callKey);
+          const outcome = handleIncomingCallPush(data, payload?.action === "answer");
+          if (takesCalls && outcome !== "held") {
+            void postToPushServiceWorker({
+              type: "CALL_PUSH_ANSWER_ACK",
+              callId: tapped.callId || ""
+            });
+          }
+          if (outcome !== "expired") return;
+          const callRoom = normalizeRoomJid(parseCallPush(data).roomRef || "");
+          if (callRoom) {
+            openRoomAtMessage(dispatch, callRoom);
+            fetchRecentHistory(callRoom);
+          }
+          return;
+        }
         try {
           if (typeof window !== "undefined" && window.localStorage) {
-            const dedupeKey = `@ethora/chat-component:pushClick:${roomJid || ""}:${messageId || ""}:${url || ""}`;
+            const dedupeKey = `@ethora/chat-component:pushClick:${roomJid || ""}:${messageId || ""}${roomJid || messageId ? "" : `:${url || ""}`}`;
             const lastTs = Number(window.localStorage.getItem(dedupeKey) || "0");
             const now = Date.now();
             if (lastTs && now - lastTs < 5e3) return;
             window.localStorage.setItem(dedupeKey, String(now));
           }
         } catch (_2) {
-        }
-        if (isCallPush(data)) {
-          handleIncomingCallPush(data);
-          return;
         }
         const customOnClick = options.onClick || config?.pushNotifications?.onClick;
         if (customOnClick) {
@@ -64830,11 +66943,12 @@ ${messageId}`;
           return;
         }
         if (roomJid) {
+          claimRoomForPush(roomJid);
           openRoomAtMessage(dispatch, roomJid, ...messageIds);
           fetchRecentHistory(roomJid);
         }
       },
-      [config?.pushNotifications?.onClick, dispatch, fetchRecentHistory, normalizeRoomJid, options.onClick, handleIncomingCallPush]
+      [config?.pushNotifications?.onClick, config?.videoCalls?.enabled, dispatch, fetchRecentHistory, normalizeRoomJid, options.onClick, handleIncomingCallPush]
     );
     const runPushFlow = reactExports.useCallback(async () => {
       if (!enabled2) return;
@@ -64859,6 +66973,7 @@ ${messageId}`;
             serviceWorkerScope: options.serviceWorkerScope,
             iconPath: options.iconPath || config?.pushNotifications?.iconPath,
             badgePath: options.badgePath || config?.pushNotifications?.badgePath,
+            clickPath: options.clickPath || config?.pushNotifications?.clickPath,
             firebaseConfig: options.firebaseConfig || config?.pushNotifications?.firebaseConfig,
             debug: config?.useStoreConsoleEnabled
           });
@@ -64872,6 +66987,7 @@ ${messageId}`;
             ethoraLogger.log("[PushNotifications] Registering FCM token with Ethora backend (API)\u2026");
           }
           await registerPushToken(fcmToken);
+          registeredLanguageRef.current = resolvePushLanguage(store.getState());
           _subscriptionRegistered = true;
           fcmTokenRef.current = fcmToken;
           setFcmTokenReady(fcmToken);
@@ -64907,6 +67023,8 @@ ${messageId}`;
       options.badgePath,
       config?.pushNotifications?.iconPath,
       config?.pushNotifications?.badgePath,
+      options.clickPath,
+      config?.pushNotifications?.clickPath,
       config?.pushNotifications?.firebaseConfig,
       config?.useStoreConsoleEnabled,
       userXmppUsername,
@@ -64927,12 +67045,12 @@ ${messageId}`;
         const title = payload.notification?.title || data.title || "New message";
         const body = payload.notification?.body || data.body || "You have a new message.";
         const roomJid = normalizeRoomJid(data.jid || "");
-        const senderId = data.userJid || "";
+        const senderId2 = data.userJid || "";
         const messageId = payload.messageId || data.msgID || String(Date.now());
         const isSystemMessage = isSystemPayload(payload);
         const isTabVisible = document.visibilityState === "visible";
         const now = Date.now();
-        const dedupeKey = payload.messageId || data.msgID || `${roomJid}|${senderId}|${title}|${body}`;
+        const dedupeKey = payload.messageId || data.msgID || `${roomJid}|${senderId2}|${title}|${body}`;
         const lastSeen = recentPushToastsRef.current.get(dedupeKey);
         const existingMessageId = payload.messageId || data.msgID;
         const alreadyInStore = hasMessageInRooms(roomsMap, existingMessageId);
@@ -64953,9 +67071,9 @@ ${messageId}`;
         const message = {
           id: messageId,
           user: {
-            id: senderId || "unknown",
+            id: senderId2 || "unknown",
             name: "",
-            userJID: senderId || null
+            userJID: senderId2 || null
           },
           date: (/* @__PURE__ */ new Date()).toISOString(),
           body,
@@ -65018,18 +67136,70 @@ ${messageId}`;
             {
               data: data.data || {},
               notification: data.notification || {},
+              action: data.action,
               messageId: data?.data?.messageId || data?.data?.msgID,
               url: data?.data?.url
             },
             "service_worker"
           );
+          return;
+        }
+        if (data.type === "CALL_PUSH" && data.data) {
+          if (_callListeners > 0) announceCallClient(true);
+          handleCallPushFromWorker(callPushCtx, data.data);
+          return;
+        }
+        if (data.type === "CALL_CLIENT_PROBE") {
+          if (_callListeners > 0) announceCallClient(true);
+          return;
+        }
+        if (data.type === "CALL_PUSH_DECLINE" && data.data) {
+          declineIncomingCallFromPush(callPushCtx, data.data);
         }
       };
       navigator.serviceWorker.addEventListener("message", onServiceWorkerMessage);
       return () => {
         navigator.serviceWorker.removeEventListener("message", onServiceWorkerMessage);
       };
-    }, [enabled2, handlePushClick]);
+    }, [enabled2, handlePushClick, callPushCtx]);
+    const takesCallPushes = enabled2 && config?.videoCalls?.enabled === true;
+    reactExports.useEffect(() => {
+      if (!takesCallPushes) return;
+      _callListeners += 1;
+      announceCallClient(true);
+      return () => {
+        _callListeners = Math.max(0, _callListeners - 1);
+        if (_callListeners === 0) announceCallClient(false);
+      };
+    }, [takesCallPushes]);
+    const sessionRef = reactExports.useRef({ token: userToken, user: userXmppUsername });
+    reactExports.useEffect(() => {
+      const before = sessionRef.current;
+      sessionRef.current = { token: userToken, user: userXmppUsername };
+      const loggedOut = !!before.token && !userToken;
+      const switched = !!before.token && !!userToken && !!before.user && !!userXmppUsername && before.user !== userXmppUsername;
+      if (loggedOut || switched) {
+        void clearCallPushSession(config?.pushNotifications?.serviceWorkerScope || "/");
+      }
+    }, [userToken, userXmppUsername, config?.pushNotifications?.serviceWorkerScope]);
+    const callPushReady = config?.videoCalls?.enabled === true && !!userToken;
+    reactExports.useEffect(() => {
+      if (!enabled2 || !callPushReady) return;
+      flushPendingCallPush(callPushCtx);
+    }, [enabled2, callPushReady, callPushCtx]);
+    reactExports.useEffect(() => {
+      if (!enabled2) return;
+      void mirrorCallAuthToWorker(
+        config?.videoCalls?.enabled === true ? userToken : null
+      );
+    }, [enabled2, userToken, config?.videoCalls?.enabled]);
+    reactExports.useEffect(() => {
+      if (!enabled2 || !userToken) return;
+      void requestPendingPushClick(void 0, {
+        discard: landedFromPushRef.current
+      });
+      landedFromPushRef.current = false;
+    }, [enabled2, userToken, handlePushClick]);
     reactExports.useEffect(() => {
       if (!enabled2) return;
       if (typeof window === "undefined") return;
@@ -65093,6 +67263,14 @@ ${messageId}`;
         document.removeEventListener("visibilitychange", tryReRegister);
       };
     }, [enabled2, softAsk, userToken, runPushFlow]);
+    reactExports.useEffect(() => {
+      if (!enabled2 || !userToken) return;
+      const fcmToken = fcmTokenRef.current;
+      if (!fcmToken || registeredLanguageRef.current === null) return;
+      if (registeredLanguageRef.current === pushLanguage) return;
+      registeredLanguageRef.current = pushLanguage;
+      void registerPushToken(fcmToken);
+    }, [enabled2, userToken, pushLanguage, fcmTokenReady]);
     reactExports.useEffect(() => {
       if (!enabled2) return;
       if (!fcmTokenReady) return;
@@ -67272,6 +69450,7 @@ ${messageId}`;
       serviceWorkerScope: pushNotifications?.serviceWorkerScope,
       iconPath: pushNotifications?.iconPath,
       badgePath: pushNotifications?.badgePath,
+      clickPath: pushNotifications?.clickPath,
       softAsk: pushNotifications?.softAsk,
       onClick: pushNotifications?.onClick
     });
@@ -67911,7 +70090,8 @@ ${messageId}`;
   background-image: var(--ethora-chat-bg-image, none);
   background-size: cover;
   background-position: center;
-  padding: 0px 16px;
+  /* Host-tunable (e.g. a compact phone layout); the default is unchanged. */
+  padding: 0px var(--ethora-message-list-padding-x, 16px);
 
   transition: height 0.3s ease-in-out; /* Smooth height transition */
 
@@ -68029,17 +70209,18 @@ ${messageId}`;
   align-items: flex-end;
   /* No top margin: the gap to a message is the one below the previous row. */
   margin: 0;
-  padding: 0 ${MESSAGE_ROW_GUTTER_PX}px;
-  gap: 5px;
+  padding: 0 var(--ethora-message-row-gutter, ${MESSAGE_ROW_GUTTER_PX}px);
+  gap: var(--ethora-message-avatar-gap, 5px);
   position: relative;
   /* A row with chips paints above the rows after it, so the next bubble and
      its tail never cover the chips that hang into the gap. */
   ${(props) => props.$reaction ? "z-index: 1;" : ""}
   margin-bottom: ${(props) => {
     const gap = props.$reply ? 40 : props.$lastInGroup === false ? RUN_GAP_PX : SENDER_GAP_PX;
-    if (!props.$reaction) return `${gap}px`;
+    const gapCss = props.$reply ? `${gap}px` : props.$lastInGroup === false ? `var(--ethora-message-run-gap, ${RUN_GAP_PX}px)` : `var(--ethora-message-sender-gap, ${SENDER_GAP_PX}px)`;
+    if (!props.$reaction) return gapCss;
     const hang = props.$reactionHang ?? REACTION_HANG_PX;
-    return `${Math.max(gap, hang + REACTION_CLEAR_PX)}px`;
+    return `max(${gapCss}, ${hang + REACTION_CLEAR_PX}px)`;
   }};
 `;
   const MEDIA_BUBBLE_INSET_PX = 6;
@@ -68128,7 +70309,7 @@ ${messageId}`;
   `;
   };
   const CustomMessageBubble = gt.div`
-  max-width: ${(props) => props.$media ? `min(${MEDIA_WIDTH_CSS}, calc(82% - ${2 * MEDIA_BUBBLE_INSET_PX + 2}px))` : "70%"};
+  max-width: ${(props) => props.$media ? `min(${MEDIA_WIDTH_CSS}, calc(82% - ${2 * MEDIA_BUBBLE_INSET_PX + 2}px))` : "var(--ethora-message-bubble-max-width, 70%)"};
   /* Room for the glass time pill over a media-only bubble. */
   min-width: ${(props) => props.$media ? "120px" : "15%"};
   ${(props) => props.$media && props.$solo ? "width: fit-content;" : ""}
@@ -68294,7 +70475,7 @@ ${messageId}`;
     bottom: -24px;
   }
 `;
-  const Line = gt.div`
+  const Line$1 = gt.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68703,7 +70884,7 @@ ${messageId}`;
 `;
   const TreadLabel = ({ reply, colors }) => {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container$7, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Line, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Line$1, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         StyledDateLabel$1,
         {
@@ -68716,7 +70897,7 @@ ${messageId}`;
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Line, {})
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Line$1, {})
     ] });
   };
   const Container$6 = gt.div`
@@ -68726,6 +70907,8 @@ ${messageId}`;
   width: 100%;
   background-color: transparent;
   gap: 16px;
+  /* Host-tunable breathing room above and below the day separator (default none). */
+  margin: var(--ethora-date-label-margin-y, 0px) 0;
 `;
   const StyledDateLabel = gt.div`
   margin: 0;
@@ -68760,9 +70943,9 @@ ${messageId}`;
       label = date.toLocaleDateString(locale, options);
     }
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container$6, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Line, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Line$1, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsx(StyledDateLabel, { $primary: colors?.primary, children: label }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Line, {})
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Line$1, {})
     ] });
   };
   const CustomSystemMessageText = gt.div`
@@ -68854,8 +71037,10 @@ ${messageId}`;
     };
   }
   const AvatarCircle$1 = gt.div`
-  width: 40px;
-  height: 40px;
+  /* Host-tunable message avatar size; the default is unchanged. Callers that
+     pass an explicit width/height (reply avatars) are not affected. */
+  width: var(--ethora-message-avatar-size, 40px);
+  height: var(--ethora-message-avatar-size, 40px);
   border-radius: 50%;
   background-color: ${({ $bgColor }) => $bgColor};
   ${({ $textColor }) => $textColor ? `color: ${$textColor};` : `[data-ethora-color-scheme='dark'] & { color: #141414; }`}
@@ -69074,32 +71259,42 @@ ${messageId}`;
     const showImage = !!image2.src && image2.status !== "failed";
     const loaded2 = image2.status === "loaded";
     if (!showImage) return /* @__PURE__ */ jsxRuntimeExports.jsx(Avatar$1, { username, style });
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", width: 40, height: 40 }, children: [
-      !loaded2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Avatar$1, { username, style }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "img",
-        {
-          src: safeImageUrl(image2.src),
-          alt: "userIcon",
-          loading: "lazy",
-          decoding: "async",
-          referrerPolicy: "no-referrer",
-          onLoad: image2.onLoad,
-          onError: image2.onError,
-          style: {
-            position: "absolute",
-            inset: 0,
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            objectFit: "cover",
-            opacity: loaded2 ? 1 : 0,
-            transition: "opacity 150ms ease",
-            cursor: style?.cursor
-          }
-        }
-      )
-    ] });
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        style: {
+          position: "relative",
+          width: "var(--ethora-message-avatar-size, 40px)",
+          height: "var(--ethora-message-avatar-size, 40px)"
+        },
+        children: [
+          !loaded2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Avatar$1, { username, style }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "img",
+            {
+              src: safeImageUrl(image2.src),
+              alt: "userIcon",
+              loading: "lazy",
+              decoding: "async",
+              referrerPolicy: "no-referrer",
+              onLoad: image2.onLoad,
+              onError: image2.onError,
+              style: {
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                borderRadius: "50%",
+                objectFit: "cover",
+                opacity: loaded2 ? 1 : 0,
+                transition: "opacity 150ms ease",
+                cursor: style?.cursor
+              }
+            }
+          )
+        ]
+      }
+    );
   };
   const CustomComponentsContext = reactExports.createContext({});
   const shallowEqual = (a2, b2) => {
@@ -69118,160 +71313,15 @@ ${messageId}`;
     return /* @__PURE__ */ jsxRuntimeExports.jsx(CustomComponentsContext.Provider, { value: stableRef.current, children: children2 });
   };
   const useCustomComponents = () => reactExports.useContext(CustomComponentsContext);
-  const MessageContainerBase = ({
-    CustomMessage,
-    message,
-    activeMessage,
-    config,
-    xmppUsername,
-    showDateLabel,
-    isReply,
-    isLastInGroup,
-    className
-  }) => {
-    const { CustomDaySeparator, CustomNewMessageLabel } = useCustomComponents();
-    const t2 = useT();
-    const isUser = message.user.id === xmppUsername;
-    const blockedUserIds = useSelector(
-      (state2) => state2.chatSettingStore.blockedUserIds
-    );
-    const messageDate = reactExports.useMemo(() => new Date(message.date), [message.date]);
-    const formattedDate = reactExports.useMemo(() => {
-      try {
-        return new Intl.DateTimeFormat(void 0, {
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-          year: "numeric"
-        }).format(messageDate);
-      } catch {
-        return messageDate.toDateString();
-      }
-    }, [message.date]);
-    const renderDaySeparator = () => {
-      if (!showDateLabel) {
-        return null;
-      }
-      if (CustomDaySeparator) {
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(CustomDaySeparator, { date: messageDate, formattedDate });
-      }
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(DateLabel, { date: messageDate, colors: config?.colors });
-    };
-    if (message?.isSystemMessage === "true") {
-      const isWhitelisted = config?.whitelistSystemMessage?.includes(
-        message.user.id
-      );
-      const CustomSystem = config?.customSystemMessage;
-      if (CustomSystem && (isWhitelisted || !config?.whitelistSystemMessage)) {
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CustomSystem, { message, isUser: false, isReply: false }) }, message.id);
-      }
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, { children: [
-        renderDaySeparator(),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          SystemMessage,
-          {
-            messageText: message.callLog ? formatCallLogLabel(message.callLog, t2, message.body) : message.body,
-            colors: config?.colors
-          }
-        )
-      ] }, message.id);
-    }
-    if (message?.id === "delimiter-new") {
-      if (CustomNewMessageLabel) {
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(CustomNewMessageLabel, { color: config?.colors?.primary });
-      }
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(NewMessageLabel, { color: config?.colors?.primary });
-    }
-    const senderLocal = (message.user?.id ?? "").split("@")[0];
-    const isSenderBlocked = !isUser && blockedUserIds?.includes(senderLocal);
-    if (isSenderBlocked) {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, { children: [
-        showDateLabel && !activeMessage && renderDaySeparator(),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { "data-message-id": message.id, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          CustomMessageContainer,
-          {
-            $isUser: false,
-            $reply: false,
-            $lastInGroup: isLastInGroup,
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(CustomMessagePhotoContainer, { style: { cursor: "default" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                MessageAvatarPhoto,
-                {
-                  src: "",
-                  username: "",
-                  style: { cursor: "default" }
-                }
-              ) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(CustomMessageBubble, { $isUser: false, $deleted: false, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(CustomUserName, { $isUser: false, $color: config?.colors?.primary, children: t2("message.blockedUserName") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(CustomMessageText, { style: { fontStyle: "italic", opacity: 0.7 }, children: t2("message.blockedUser") })
-              ] })
-            ]
-          }
-        ) })
-      ] }, message.id);
-    }
-    const MessageComponent = CustomMessage || Message$2;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, { children: [
-      showDateLabel && !activeMessage && message.id !== "delimiter-new" && renderDaySeparator(),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { "data-message-id": message.id, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        MessageComponent,
-        {
-          message,
-          isUser,
-          $isUser: isUser,
-          isReply,
-          isLastInGroup,
-          className,
-          children: !CustomMessage ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(MessageTimestamp, { children: messageDate.toLocaleTimeString() }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(UserName, { children: [
-              message.user.name,
-              ": "
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(MessageText, { children: message.body })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-            MessageComponent,
-            {
-              message,
-              isUser,
-              $isUser: isUser,
-              isReply
-            }
-          )
-        }
-      ) })
-    ] }, message.id);
-  };
-  const MessageContainer = React.memo(MessageContainerBase);
-  const usePaneWidthVar = (ref) => {
-    const attached = reactExports.useRef(null);
-    const observer = reactExports.useRef(null);
+  const useNow = (intervalMs, enabled2 = true) => {
+    const [now, setNow] = reactExports.useState(() => Date.now());
     reactExports.useEffect(() => {
-      const el = ref.current;
-      if (el === attached.current) return;
-      observer.current?.disconnect();
-      observer.current = null;
-      attached.current = el;
-      if (!el) return;
-      const apply = () => {
-        const width = Math.round(el.clientWidth);
-        if (width > 0) el.style.setProperty(PANE_WIDTH_VAR, `${width}px`);
-      };
-      apply();
-      if (typeof ResizeObserver !== "undefined") {
-        observer.current = new ResizeObserver(apply);
-        observer.current.observe(el);
-      }
-    });
-    reactExports.useEffect(
-      () => () => {
-        observer.current?.disconnect();
-        observer.current = null;
-        attached.current = null;
-      },
-      []
-    );
+      if (!enabled2) return;
+      setNow(Date.now());
+      const id2 = setInterval(() => setNow(Date.now()), intervalMs);
+      return () => clearInterval(id2);
+    }, [intervalMs, enabled2]);
+    return now;
   };
   const slideUp = Et`
   from {
@@ -69347,11 +71397,11 @@ ${messageId}`;
   color: var(--ethora-color-text-on-primary, #fff);
   background-color: ${({ $type }) => TYPE_ACCENT[$type]};
 `;
-  const Body$2 = gt.div`
+  const Body$3 = gt.div`
   flex: 1;
   min-width: 0;
 `;
-  const Title = gt.strong`
+  const Title$2 = gt.strong`
   display: block;
   font-size: var(--ethora-font-size-sm, 14px);
   font-weight: 600;
@@ -69380,8 +71430,8 @@ ${messageId}`;
   }) => {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(ToastContainer, { $type: type, $duration: duration, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(IconBadge, { $type: type, "aria-hidden": "true", children: TYPE_ICON[type] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Body$2, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { children: title }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Body$3, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Title$2, { children: title }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Message$1, { children: message })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(ProgressBar, { $type: type, $duration: duration })
@@ -69429,656 +71479,176 @@ ${messageId}`;
     return context;
   };
   const useOptionalToast = () => reactExports.useContext(ToastContext);
-  const MAX_HISTORY_PAGES = 40;
-  const PAGE_SIZE$1 = 100;
-  const MAX_PAGE_FAILURES = 3;
-  const WINDOW_MARGIN = 15;
-  const NEAR_LIVE_MESSAGES = 300;
-  const ROOM_OPENING_GRACE_MS = 4e3;
-  const ROOM_OPENING_POLL_MS = 700;
-  const MAX_WINDOW_RETRIES = 6;
-  function useJumpToMessage({
-    roomJID,
-    messages,
-    visibleCount,
-    setRenderWindow,
-    fetchOlderPage,
-    containerRef,
-    historyComplete,
-    isUserScrolledUpRef,
-    jumpWindowActive = false,
-    fetchWindow,
-    scope = "main",
-    allMessages,
-    resolveReply,
-    roomOpening = false
-  }) {
-    const dispatch = useDispatch();
-    const t2 = useT();
-    const toast = useOptionalToast();
-    const showToast = toast?.showToast;
-    const jump = useSelector((state2) => state2.rooms.pendingJump);
-    const jumpThread = useJumpThread();
-    const ownerThreadId = ownerThreadFor(jumpThread, jump?.at);
-    const scopeThreadId = scope === "main" ? null : scope.threadId;
-    const isOwner = scopeThreadId === null ? ownerThreadId === null : ownerThreadId === scopeThreadId;
-    const attemptsRef = reactExports.useRef(0);
-    const loadingRef = reactExports.useRef(false);
-    const latest2 = reactExports.useRef({
-      t: t2,
-      showToast,
-      fetchOlderPage,
-      setRenderWindow,
-      fetchWindow,
-      resolveReply,
-      allMessages,
-      roomOpening
-    });
-    latest2.current = {
-      t: t2,
-      showToast,
-      fetchOlderPage,
-      setRenderWindow,
-      fetchWindow,
-      resolveReply,
-      allMessages,
-      roomOpening
-    };
-    const replyResolvedAtRef = reactExports.useRef(null);
-    const windowRetriesRef = reactExports.useRef(0);
-    const windowTriedAtRef = reactExports.useRef(null);
-    const windowMissingAtRef = reactExports.useRef(null);
-    const currentJumpAtRef = reactExports.useRef(null);
-    currentJumpAtRef.current = jump?.at ?? null;
-    const scheduledAtRef = reactExports.useRef(null);
-    const cursorRef = reactExports.useRef(null);
-    const exhaustedRef = reactExports.useRef(false);
-    const failuresRef = reactExports.useRef(0);
-    const timersRef = reactExports.useRef({});
-    const [tick, setTick] = reactExports.useState(0);
-    reactExports.useEffect(
-      () => () => {
-        const timers = timersRef.current;
-        if (timers.frame) cancelAnimationFrame(timers.frame);
-        if (timers.settle) clearTimeout(timers.settle);
-        if (timers.retry) clearTimeout(timers.retry);
-        if (timers.clear) {
-          clearTimeout(timers.clear);
-          clearInterval(
-            timers.clear
-          );
-        }
-      },
-      []
-    );
-    reactExports.useEffect(() => {
-      attemptsRef.current = 0;
-      cursorRef.current = null;
-      exhaustedRef.current = false;
-      failuresRef.current = 0;
-      windowRetriesRef.current = 0;
-    }, [jump?.at]);
-    reactExports.useEffect(() => {
-      if (!jump || jump.roomJID !== roomJID || !isOwner) return;
-      isUserScrolledUpRef.current = true;
-      const finish = (reached) => {
-        dispatch(clearPendingJump());
-        if (reached) return;
-        if (jump.preview) {
-          dispatch(showArchivedMessage(jump.preview));
-          return;
-        }
-        const { t: t22, showToast: showToast2 } = latest2.current;
-        showToast2?.({
-          id: "jump-to-message-missing",
-          title: t22("search.messages.title"),
-          message: t22("search.messages.notFound"),
-          type: "info"
-        });
-      };
-      if (Date.now() - jump.at > JUMP_TTL_MS) {
-        finish(
-          findMessageIndex(messages, jump.ids, {
-            createdAt: jump.createdAt,
-            body: jump.body
-          }) >= 0
-        );
-        return;
-      }
-      const recheckSoon = () => {
-        if (timersRef.current.retry) clearTimeout(timersRef.current.retry);
-        timersRef.current.retry = setTimeout(
-          () => setTick((value) => value + 1),
-          ROOM_OPENING_POLL_MS
-        );
-      };
-      const content2 = {
-        createdAt: jump.createdAt,
-        body: jump.body
-      };
-      if (scopeThreadId === null && latest2.current.resolveReply && replyResolvedAtRef.current !== jump.at) {
-        const pool = latest2.current.allMessages ?? messages;
-        const rawIndex = findMessageIndex(pool, jump.ids, content2);
-        const raw = rawIndex >= 0 ? pool[rawIndex] : null;
-        if (raw && replyParentId(raw)) {
-          replyResolvedAtRef.current = jump.at;
-          loadingRef.current = true;
-          const requestedAt = jump.at;
-          latest2.current.resolveReply(jump, raw).catch(() => false).then((opened) => {
-            loadingRef.current = false;
-            if (currentJumpAtRef.current !== requestedAt) return;
-            if (!opened) finish(false);
-            else setTick((value) => value + 1);
-          });
-          return;
-        }
-      }
-      const index2 = findMessageIndex(messages, jump.ids, content2);
-      const windowAvailable = Boolean(latest2.current.fetchWindow) && windowTriedAtRef.current !== jump.at;
-      if (index2 >= 0 && (jumpWindowActive || messages.length - index2 <= NEAR_LIVE_MESSAGES || !windowAvailable)) {
-        const fromEnd = messages.length - index2;
-        if (fromEnd > visibleCount) {
-          latest2.current.setRenderWindow(fromEnd + WINDOW_MARGIN);
-          return;
-        }
-        if (scheduledAtRef.current === jump.at) return;
-        scheduledAtRef.current = jump.at;
-        const targetId = String(messages[index2].id);
-        const findTarget = () => Array.from(
-          containerRef.current?.querySelectorAll(
-            "[data-message-id]"
-          ) ?? []
-        ).find((node2) => node2.getAttribute("data-message-id") === targetId) ?? null;
-        const scrollToTarget = () => {
-          const element2 = findTarget();
-          element2?.scrollIntoView({ behavior: "auto", block: "center" });
-          return element2;
-        };
-        const flash = () => {
-          const until = Date.now() + HIGHLIGHT_MS;
-          let applied = null;
-          const apply = () => {
-            const element2 = findTarget();
-            if (element2 && element2 !== applied) {
-              applied?.classList.remove(MESSAGE_HIGHLIGHT_CLASS);
-              element2.classList.add(MESSAGE_HIGHLIGHT_CLASS);
-              applied = element2;
-            }
-          };
-          apply();
-          const interval = setInterval(() => {
-            if (Date.now() >= until) {
-              clearInterval(interval);
-              applied?.classList.remove(MESSAGE_HIGHLIGHT_CLASS);
-              findTarget()?.classList.remove(MESSAGE_HIGHLIGHT_CLASS);
-              return;
-            }
-            apply();
-          }, 50);
-          timersRef.current.clear = interval;
-        };
-        timersRef.current.frame = requestAnimationFrame(() => {
-          const element2 = scrollToTarget();
-          if (element2) {
-            requestAnimationFrame(() => requestAnimationFrame(flash));
-            timersRef.current.settle = setTimeout(scrollToTarget, 300);
-          }
-          finish(Boolean(element2));
-        });
-        return;
-      }
-      if (jumpWindowActive) {
-        dispatch(clearJumpWindow());
-        return;
-      }
-      if (loadingRef.current) return;
-      if (messages.length === 0 && (!latest2.current.fetchWindow || latest2.current.roomOpening && Date.now() - jump.at < ROOM_OPENING_GRACE_MS)) {
-        recheckSoon();
-        return;
-      }
-      if (windowMissingAtRef.current === jump.at && index2 < 0) {
-        finish(false);
-        return;
-      }
-      if (windowAvailable && latest2.current.fetchWindow) {
-        windowTriedAtRef.current = jump.at;
-        loadingRef.current = true;
-        const requestedAt = jump.at;
-        latest2.current.fetchWindow(jump).catch(() => "unavailable").then((result) => {
-          loadingRef.current = false;
-          if (currentJumpAtRef.current !== requestedAt) return;
-          if (result === "missing") windowMissingAtRef.current = requestedAt;
-          if (result === "unavailable" && latest2.current.roomOpening && windowRetriesRef.current < MAX_WINDOW_RETRIES) {
-            windowRetriesRef.current += 1;
-            windowTriedAtRef.current = null;
-            recheckSoon();
-            return;
-          }
-          setTick((value) => value + 1);
-        });
-        return;
-      }
-      if (messages.length === 0) {
-        recheckSoon();
-        return;
-      }
-      const firstReal = messages.find(
-        (message) => message.id !== "delimiter-new"
-      );
-      if (!firstReal) return;
-      if (exhaustedRef.current || historyComplete || attemptsRef.current >= MAX_HISTORY_PAGES) {
-        finish(false);
-        return;
-      }
-      const before = cursorRef.current ?? Number(firstReal.id);
-      attemptsRef.current += 1;
-      loadingRef.current = true;
-      latest2.current.fetchOlderPage(roomJID, before, PAGE_SIZE$1).catch(() => ({ ok: false })).then((page) => {
-        loadingRef.current = false;
-        if (!page.ok) {
-          if (latest2.current.roomOpening) {
-            recheckSoon();
-            return;
-          }
-          failuresRef.current += 1;
-          if (failuresRef.current >= MAX_PAGE_FAILURES) {
-            exhaustedRef.current = true;
-          }
-        } else {
-          failuresRef.current = 0;
-          if (page.complete) exhaustedRef.current = true;
-          if (typeof page.cursor === "number" && page.cursor < before) {
-            cursorRef.current = page.cursor;
-          } else if (!page.complete) {
-            exhaustedRef.current = true;
-          }
-        }
-        setTick((value) => value + 1);
-      });
-    }, [
-      jump,
-      roomJID,
-      messages,
-      visibleCount,
-      historyComplete,
-      jumpWindowActive,
-      tick,
-      isOwner,
-      scopeThreadId,
-      containerRef,
-      isUserScrolledUpRef,
-      dispatch
-    ]);
-  }
-  const isIn = (messages, id2) => messages.find(
-    (message) => String(message.id) === id2 || String(message.xmppId) === id2
-  );
-  const repliesOf = (messages, parentId) => messages.filter((message) => replyParentId(message) === parentId);
-  async function openThreadForJump({
-    client: client2,
-    dispatch,
-    roomJID,
-    at: at2,
-    reply,
-    live: live2,
-    nearby = []
-  }) {
-    const parentId = replyParentId(reply);
-    if (!parentId) return false;
-    const known = mergeById(live2, nearby);
-    const liveParent = isIn(live2, parentId);
-    if (liveParent) {
-      setJumpThread({
-        roomJID,
-        parentId: String(liveParent.id),
-        at: at2,
-        parent: null,
-        replies: repliesOf(known, parentId).concat(reply)
-      });
-      dispatch(setActiveMessage({ id: String(liveParent.id), chatJID: roomJID }));
-      return true;
-    }
-    let parent = isIn(nearby, parentId);
-    let replies = repliesOf(known, parentId).concat(reply);
-    if (!parent) {
-      if (!client2) return false;
-      let result;
-      try {
-        result = await loadJumpWindow(client2, roomJID, [parentId]);
-      } catch {
-        return false;
-      }
-      if (result.status !== "found") return false;
-      parent = isIn(result.window.messages, parentId);
-      if (!parent) return false;
-      replies = replies.concat(repliesOf(result.window.messages, parentId));
-    }
-    setJumpThread({
-      roomJID,
-      parentId: String(parent.id),
-      at: at2,
-      parent,
-      replies: mergeById(replies, [])
-    });
-    return true;
-  }
-  function useStickToBottom({
-    containerRef,
-    contentRef,
-    isUserScrolledUpRef,
-    hasUnreadDelimiter
-  }) {
-    const delimiterRef = reactExports.useRef(hasUnreadDelimiter);
-    delimiterRef.current = hasUnreadDelimiter;
-    reactExports.useEffect(() => {
-      const scroller = containerRef.current;
-      const content2 = contentRef.current;
-      if (!scroller || !content2 || typeof ResizeObserver === "undefined") return;
-      const observer = new ResizeObserver(() => {
-        if (isUserScrolledUpRef.current || delimiterRef.current) return;
-        scroller.scrollTop = scroller.scrollHeight;
-      });
-      observer.observe(content2);
-      return () => observer.disconnect();
-    }, [containerRef, contentRef, isUserScrolledUpRef]);
-  }
-  function pickAnchorRow(viewTop, viewBottom, rows) {
-    let firstIntersecting = null;
-    for (const row of rows) {
-      if (row.bottom <= viewTop + 1) continue;
-      if (row.top >= viewBottom) break;
-      if (!firstIntersecting) firstIntersecting = row;
-      if (row.top >= viewTop && row.bottom <= viewBottom) {
-        return { id: row.id, offset: row.top - viewTop };
-      }
-    }
-    return firstIntersecting ? { id: firstIntersecting.id, offset: firstIntersecting.top - viewTop } : null;
-  }
-  function anchorScrollDelta(anchor, rowTop, viewTop) {
-    return rowTop - viewTop - anchor.offset;
-  }
-  const ANCHOR_IDLE_MS = 100;
-  const ROW_SELECTOR = "[data-message-id]";
-  function findRow(container, id2) {
-    const rows = container.querySelectorAll(ROW_SELECTOR);
-    for (const row of Array.from(rows)) {
-      if (row.getAttribute("data-message-id") === id2) return row;
-    }
-    return null;
-  }
-  function useScrollAnchor({
-    containerRef,
-    flowRef,
-    rows,
-    isStuckToBottom
-  }) {
-    const stuckRef = reactExports.useRef(isStuckToBottom);
-    stuckRef.current = isStuckToBottom;
-    const pendingRef = reactExports.useRef(null);
-    const restAnchorRef = reactExports.useRef(null);
-    const lastRowsRef = reactExports.useRef(rows);
-    const ownTopRef = reactExports.useRef(null);
-    const lastInputAtRef = reactExports.useRef(0);
-    const capture = () => {
-      const container = containerRef.current;
-      if (!container || stuckRef.current()) return null;
-      const viewTop = container.getBoundingClientRect().top;
-      const rects = Array.from(
-        container.querySelectorAll(ROW_SELECTOR)
-      ).map((el) => {
-        const r2 = el.getBoundingClientRect();
-        return {
-          id: el.getAttribute("data-message-id") ?? "",
-          top: r2.top,
-          bottom: r2.bottom
-        };
-      });
-      return pickAnchorRow(viewTop, viewTop + container.clientHeight, rects);
-    };
-    if (lastRowsRef.current !== rows) {
-      lastRowsRef.current = rows;
-      pendingRef.current = capture();
-    }
-    const apply = (anchor) => {
-      const container = containerRef.current;
-      if (!container) return false;
-      const row = findRow(container, anchor.id);
-      if (!row) return false;
-      const delta = anchorScrollDelta(
-        anchor,
-        row.getBoundingClientRect().top,
-        container.getBoundingClientRect().top
-      );
-      if (delta !== 0) {
-        container.scrollTop += delta;
-        ownTopRef.current = container.scrollTop;
-      }
-      return true;
-    };
-    reactExports.useLayoutEffect(() => {
-      const anchor = pendingRef.current;
-      pendingRef.current = null;
-      if (!anchor) return;
-      restAnchorRef.current = apply(anchor) ? anchor : null;
-    }, [rows]);
-    reactExports.useEffect(() => {
-      const container = containerRef.current;
-      const flow2 = flowRef.current;
-      if (!container) return;
-      let timer;
-      const reanchorSoon = () => {
-        lastInputAtRef.current = Date.now();
-        restAnchorRef.current = null;
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
-          timer = void 0;
-          restAnchorRef.current = capture();
-        }, ANCHOR_IDLE_MS);
-      };
-      const markInput = reanchorSoon;
-      const onScroll = () => {
-        if (ownTopRef.current === container.scrollTop) {
-          ownTopRef.current = null;
-          return;
-        }
-        reanchorSoon();
-      };
-      container.addEventListener("scroll", onScroll, { passive: true });
-      container.addEventListener("wheel", markInput, { passive: true });
-      container.addEventListener("touchmove", markInput, { passive: true });
-      let observer;
-      if (flow2 && typeof ResizeObserver !== "undefined") {
-        observer = new ResizeObserver(() => {
-          const anchor = restAnchorRef.current;
-          if (!anchor || stuckRef.current()) return;
-          if (Date.now() - lastInputAtRef.current < ANCHOR_IDLE_MS) return;
-          apply(anchor);
-        });
-        observer.observe(flow2);
-      }
-      return () => {
-        container.removeEventListener("scroll", onScroll);
-        container.removeEventListener("wheel", markInput);
-        container.removeEventListener("touchmove", markInput);
-        observer?.disconnect();
-        if (timer) clearTimeout(timer);
-      };
-    }, []);
-  }
-  const Scrim$1 = gt.div`
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--ethora-space-4, 16px);
-  background: var(--ethora-color-overlay, rgba(0, 0, 0, 0.5));
-  ${fadeInAnimation}
-`;
-  const Card$1 = gt.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--ethora-space-3, 12px);
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 460px;
-  max-height: 100%;
-  padding: var(--ethora-space-4, 16px);
-  border-radius: var(--ethora-radius-lg, 16px);
-  background: var(--ethora-color-bg, #fff);
-  color: var(--ethora-color-text, #141414);
-  box-shadow: var(--ethora-shadow-md, 0 8px 24px rgba(16, 24, 40, 0.18));
-`;
-  const Head = gt.div`
-  display: flex;
-  justify-content: space-between;
-  gap: var(--ethora-space-3, 12px);
-
-  strong {
-    font-size: var(--ethora-font-size-md, 16px);
-    font-weight: var(--ethora-font-weight-semibold, 600);
-  }
-`;
-  const Meta$2 = gt.div`
-  font-size: var(--ethora-font-size-xs, 12px);
-  color: var(--ethora-color-text-muted, #6c6c6c);
-`;
-  const Body$1 = gt.div`
-  overflow-y: auto;
-  padding: var(--ethora-space-3, 12px);
-  border-radius: var(--ethora-radius-md, 12px);
-  background: var(--ethora-color-bg-subtle, #f5f7fa);
-  font-size: var(--ethora-font-size-sm, 14px);
-  line-height: 1.5;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  user-select: text;
-`;
-  const Note = gt.p`
-  margin: 0;
-  font-size: var(--ethora-font-size-xs, 12px);
-  color: var(--ethora-color-text-secondary, #5a5f66);
-`;
-  const CloseButton$1 = gt.button`
-  align-self: flex-end;
-  padding: 6px 16px;
-  border: 1px solid var(--ethora-color-border, #e6e8ec);
-  border-radius: var(--ethora-radius-full, 999px);
-  background: transparent;
-  color: var(--ethora-color-text, #141414);
-  font: inherit;
-  font-size: var(--ethora-font-size-sm, 14px);
-  cursor: pointer;
-`;
-  const formatWhen$1 = (iso) => {
-    const date = new Date(iso);
-    if (Number.isNaN(date.getTime())) return "";
+  const safeFormat = (date, locale, options, fallback) => {
     try {
-      return new Intl.DateTimeFormat(void 0, {
-        dateStyle: "medium",
-        timeStyle: "short"
-      }).format(date);
+      return new Intl.DateTimeFormat(locale, options).format(date);
     } catch {
-      return date.toLocaleString();
+      return fallback;
     }
   };
-  const ArchivedMessageCard = ({ roomJID }) => {
-    const t2 = useT();
-    const dispatch = useDispatch();
-    const message = useSelector(
-      (state2) => state2.rooms.archivedMessage
-    );
-    const closeRef = reactExports.useRef(null);
-    const visible = Boolean(message && message.roomJID === roomJID);
-    reactExports.useEffect(() => {
-      if (!visible) return;
-      closeRef.current?.focus();
-      const onKey = (event) => {
-        if (event.key === "Escape") dispatch(clearArchivedMessage());
-      };
-      document.addEventListener("keydown", onKey);
-      return () => document.removeEventListener("keydown", onKey);
-    }, [visible, dispatch]);
-    reactExports.useEffect(
-      () => () => {
-        dispatch(clearArchivedMessage());
-      },
-      [dispatch]
-    );
-    if (!visible || !message) return null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Scrim$1,
-      {
-        "data-testid": "archived-message-card",
-        onClick: (event) => {
-          if (event.target === event.currentTarget)
-            dispatch(clearArchivedMessage());
-        },
-        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { role: "dialog", "aria-label": t2("search.messages.archivedTitle"), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Head, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: message.sender }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Meta$2, { children: formatWhen$1(message.createdAt) })
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Body$1, { children: message.body }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Note, { children: t2("search.messages.archivedNote") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            CloseButton$1,
-            {
-              ref: closeRef,
-              type: "button",
-              onClick: () => dispatch(clearArchivedMessage()),
-              children: t2("action.close")
-            }
-          )
-        ] })
-      }
+  const formatScheduledDay = (startAt, locale) => {
+    const date = new Date(startAt);
+    return safeFormat(
+      date,
+      locale,
+      { weekday: "short", month: "short", day: "numeric" },
+      date.toDateString()
     );
   };
-  class DisplayedMarkerThrottle {
-    constructor(options) {
-      this.options = options;
-      this.now = options.now ?? (() => Date.now());
-      this.setTimer = options.setTimer ?? ((fn, ms) => setTimeout(fn, ms));
-      this.clearTimer = options.clearTimer ?? ((handle2) => clearTimeout(handle2));
+  const formatScheduledTimeRange = (call, locale) => {
+    const options = {
+      hour: "numeric",
+      minute: "2-digit"
+    };
+    const start = new Date(call.startAt);
+    const from2 = safeFormat(start, locale, options, start.toLocaleTimeString());
+    const endMs = getScheduledCallEndMs(call);
+    if (!Number.isFinite(endMs) || !Number.isFinite(toEpochMs(call.startAt))) {
+      return from2;
     }
-    lastSentAt = null;
-    pendingId = null;
-    timer = null;
-    disposed = false;
-    now;
-    setTimer;
-    clearTimer;
-    mark(messageId) {
-      if (!messageId || this.disposed) return;
-      const wait = this.lastSentAt === null ? 0 : this.lastSentAt + this.options.minIntervalMs - this.now();
-      if (this.timer === null && wait <= 0) {
-        this.fire(messageId);
-        return;
+    const end = new Date(endMs);
+    return `${from2} - ${safeFormat(end, locale, options, end.toLocaleTimeString())}`;
+  };
+  const formatClockTime = (ms, locale) => {
+    const date = new Date(ms);
+    return safeFormat(
+      date,
+      locale,
+      { hour: "numeric", minute: "2-digit" },
+      date.toLocaleTimeString()
+    );
+  };
+  const formatScheduledDuration = (minutes, t2) => {
+    const total = Math.max(0, Math.round(minutes));
+    const hours = Math.floor(total / 60);
+    const rest = total % 60;
+    if (hours === 0) return t2("scheduledCall.duration.min", { n: rest });
+    if (rest === 0) return t2("scheduledCall.duration.hour", { n: hours });
+    return t2("scheduledCall.duration.hourMin", { h: hours, m: rest });
+  };
+  const isScheduledCallsEnabled = (config) => config?.videoCalls?.enabled === true && config?.scheduledCalls?.enabled !== false;
+  const canPlaceCallsInRoom = (config, roomType) => {
+    const calls = config?.videoCalls;
+    return calls?.enabled === true && Boolean(calls.livekitUrl?.trim()) && isCallRoomTypeAllowed(roomType, calls.allowedRoomTypes);
+  };
+  const canManageScheduledCall = (params) => {
+    const userId = String(params.userId || "");
+    if (!userId) return false;
+    if (params.callCreatedBy && String(params.callCreatedBy) === userId) {
+      return true;
+    }
+    const room = params.room;
+    return Boolean(
+      room && (String(room.createdBy || "") === userId || room.role === "owner")
+    );
+  };
+  const authHeaders = () => ({
+    headers: { Authorization: store.getState().chatSettingStore.user?.token || "" }
+  });
+  class ScheduledCallApiError extends Error {
+    status;
+    reason;
+    /** The server's own `code` (or `error`) string, when it sent one. */
+    code;
+    constructor(status, reason, code2) {
+      super(code2 || reason);
+      this.name = "ScheduledCallApiError";
+      this.status = status;
+      this.reason = reason;
+      this.code = code2;
+    }
+  }
+  const toApiError = (error2) => {
+    if (error2 instanceof ScheduledCallApiError) return error2;
+    const response = error2?.response;
+    const status = typeof response?.status === "number" ? response.status : null;
+    const rawCode = response?.data?.code ?? response?.data?.error ?? response?.data?.message;
+    const code2 = typeof rawCode === "string" ? rawCode : null;
+    if (status === 403) {
+      return new ScheduledCallApiError(status, "not-a-member", code2);
+    }
+    if (status === 404) {
+      return new ScheduledCallApiError(status, "not-found", code2);
+    }
+    return new ScheduledCallApiError(status, "network", code2);
+  };
+  const asCall = (value) => {
+    const call = value;
+    if (!call || typeof call !== "object" || typeof call.slug !== "string") {
+      throw new ScheduledCallApiError(null, "network", "bad-response");
+    }
+    return call;
+  };
+  const asLinks = (value) => value && typeof value === "object" ? value : {};
+  const asWithLinks = (data) => ({
+    scheduledCall: asCall(data?.scheduledCall),
+    links: asLinks(data?.links)
+  });
+  async function createScheduledCall(input) {
+    try {
+      const response = await http.post(
+        "/v1/chats/calls/scheduled",
+        input,
+        authHeaders()
+      );
+      return asWithLinks(response?.data);
+    } catch (error2) {
+      throw toApiError(error2);
+    }
+  }
+  async function getScheduledCall(slug) {
+    try {
+      const response = await http.get(
+        `/v1/chats/calls/scheduled/${encodeURIComponent(slug)}`,
+        authHeaders()
+      );
+      const data = response?.data;
+      const chat = data?.chat;
+      if (!chat || typeof chat.jid !== "string") {
+        throw new ScheduledCallApiError(null, "network", "bad-response");
       }
-      this.pendingId = messageId;
-      if (this.timer === null) {
-        this.timer = this.setTimer(() => this.onTimer(), Math.max(0, wait));
-      }
+      return { ...asWithLinks(data), chat };
+    } catch (error2) {
+      throw toApiError(error2);
     }
-    dispose() {
-      if (this.disposed) return;
-      if (this.timer !== null) this.clearTimer(this.timer);
-      this.timer = null;
-      const held = this.pendingId;
-      this.pendingId = null;
-      this.disposed = true;
-      if (held) this.options.send(held);
+  }
+  async function updateScheduledCall(slug, patch2) {
+    try {
+      const response = await http.patch(
+        `/v1/chats/calls/scheduled/${encodeURIComponent(slug)}`,
+        patch2,
+        authHeaders()
+      );
+      return asWithLinks(response?.data);
+    } catch (error2) {
+      throw toApiError(error2);
     }
-    onTimer() {
-      this.timer = null;
-      const held = this.pendingId;
-      this.pendingId = null;
-      if (held && !this.disposed) this.fire(held);
+  }
+  async function cancelScheduledCall(slug) {
+    try {
+      const response = await http.delete(
+        `/v1/chats/calls/scheduled/${encodeURIComponent(slug)}`,
+        authHeaders()
+      );
+      return asCall(response?.data?.scheduledCall);
+    } catch (error2) {
+      throw toApiError(error2);
     }
-    fire(messageId) {
-      this.lastSentAt = this.now();
-      this.options.send(messageId);
+  }
+  async function loadScheduledCallDetails(dispatch, getState, slug, options) {
+    const entry = getState().scheduledCall?.details?.[slug];
+    if (!options?.force && entry && entry.status !== "error") {
+      return entry.data ?? null;
+    }
+    dispatch(detailsLoading(slug));
+    try {
+      const details = await getScheduledCall(slug);
+      dispatch(detailsLoaded(details));
+      return details;
+    } catch (error2) {
+      const reason = error2 instanceof ScheduledCallApiError ? error2.reason : "network";
+      dispatch(detailsFailed({ slug, reason }));
+      return null;
     }
   }
   const PdfIconSvg = gt.svg`
@@ -70621,6 +72191,24 @@ ${messageId}`;
         "path",
         {
           d: "M16 10.5V6.5C16 5.67 15.33 5 14.5 5H4.5C3.67 5 3 5.67 3 6.5V17.5C3 18.33 3.67 19 4.5 19H14.5C15.33 19 16 18.33 16 17.5V13.5L21 17V7L16 10.5Z",
+          fill: color2
+        }
+      )
+    }
+  );
+  const CalendarIcon = ({ color: color2 = "currentColor", ...props }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "svg",
+    {
+      width: "20",
+      height: "20",
+      viewBox: "0 0 24 24",
+      fill: "none",
+      xmlns: "http://www.w3.org/2000/svg",
+      ...props,
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M19 4h-1V2h-2v2H8V2H6v2H5C3.89 4 3 4.9 3 6v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2Zm0 16H5V10h14v10ZM5 8V6h14v2H5Zm2 4h5v5H7v-5Z",
           fill: color2
         }
       )
@@ -71427,6 +73015,1187 @@ ${messageId}`;
       ]
     }
   );
+  const getTintedColor = (hex, amount = 0.2) => {
+    if (hex.startsWith("#")) {
+      hex = hex.slice(1);
+    }
+    if (hex.length === 3) {
+      hex = hex.split("").map((x2) => x2 + x2).join("");
+    }
+    const num = parseInt(hex, 16);
+    const r2 = num >> 16 & 255;
+    const g2 = num >> 8 & 255;
+    const b2 = num & 255;
+    const tintedR = Math.round(r2 + (255 - r2) * amount);
+    const tintedG = Math.round(g2 + (255 - g2) * amount);
+    const tintedB = Math.round(b2 + (255 - b2) * amount);
+    const tintedHex = `#${((1 << 24) + (tintedR << 16) + (tintedG << 8) + tintedB).toString(16).slice(1).toUpperCase()}`;
+    return tintedHex;
+  };
+  const toneColor = ($tone) => $tone === "danger" ? "var(--ethora-color-danger, #D92D20)" : "var(--ethora-color-primary, #0052CD)";
+  const CustomButton = gt.button`
+  border: ${({ $variant, $backgroundColor, $tone }) => $variant === "outlined" ? `1px solid ${$backgroundColor || toneColor($tone)}` : "none"};
+  border-radius: var(--ethora-radius-lg, 16px);
+  background-size: contain;
+  background-color: ${({ $variant, $backgroundColor, $tone }) => $variant === "filled" ? $backgroundColor || toneColor($tone) : "transparent"};
+  color: ${({ $variant, $backgroundColor, $tone }) => $variant === "filled" ? "var(--ethora-color-text-on-primary, #FFFFFF)" : $variant === "outlined" || $variant === "ghost" ? $backgroundColor || toneColor($tone) : "inherit"};
+  cursor: pointer;
+  height: 40px;
+  width: 40px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  transition:
+    background-color var(--ethora-motion-fast, 150ms),
+    box-shadow var(--ethora-motion-fast, 150ms);
+
+  ${({ $variant, $backgroundColor }) => $variant === "default" && `
+      border: none;
+      background-color: ${$backgroundColor || "transparent"};
+      color: inherit;
+  `}
+
+  ${({ $variant }) => $variant === "ghost" && ft`
+      background-color: transparent;
+    `}
+
+  &:hover {
+    background-color: ${({ $variant, $backgroundColor, $tone }) => $variant === "filled" ? getTintedColor($backgroundColor || toneColor($tone)) : $variant === "outlined" || $variant === "ghost" ? $tone === "danger" ? "rgba(217, 45, 32, 0.1)" : "rgba(0, 82, 205, 0.1)" : $backgroundColor || "rgba(202, 202, 202, 0.1)"};
+    box-shadow: ${({ $variant }) => $variant !== "default" && $variant !== "ghost" ? "0 4px 8px rgba(0, 0, 0, 0.2)" : "none"};
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    background-color: ${({ $variant }) => $variant === "filled" ? "#e0e0e0" : $variant === "default" ? "white" : "transparent"};
+    color: #888;
+    border-color: #e0e0e0;
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    [data-ethora-color-scheme='dark'] & {
+      background-color: ${({ $variant }) => $variant === "filled" ? "var(--ethora-color-bg-hover)" : $variant === "default" ? "var(--ethora-color-bg)" : "transparent"};
+      color: var(--ethora-color-text-muted);
+      border-color: var(--ethora-color-border);
+    }
+  }
+`;
+  const Button = React.forwardRef(({
+    text: text2,
+    EndIcon,
+    loading = false,
+    disabled = false,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- accepted
+    // for backward compatibility only, see the deprecated ButtonProps.unstyled
+    // doc comment; destructured here so it isn't spread onto the DOM button.
+    unstyled = false,
+    variant = "default",
+    tone = "default",
+    children: children2,
+    StartIcon,
+    ...props
+  }, ref) => {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      CustomButton,
+      {
+        ref,
+        disabled,
+        $backgroundColor: props?.style?.backgroundColor,
+        $variant: variant,
+        $tone: tone,
+        ...props,
+        children: [
+          !loading && StartIcon,
+          !loading && children2,
+          loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loader, { size: 24 }) : text2,
+          !loading && EndIcon
+        ]
+      }
+    );
+  });
+  const Row$8 = gt.div`
+  display: flex;
+  justify-content: center;
+  padding: 8px 16px;
+  box-sizing: border-box;
+  width: 100%;
+`;
+  const Card$2 = gt.div`
+  width: 100%;
+  max-width: 380px;
+  box-sizing: border-box;
+  border: 1px solid var(--ethora-color-border, #e6e8ec);
+  border-radius: var(--ethora-radius-lg, 16px);
+  background: var(--ethora-color-bg, #fff);
+  color: var(--ethora-color-text, #141414);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: ${({ $muted }) => $muted ? 0.65 : 1};
+`;
+  const HeaderLine = gt.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ethora-color-text-secondary, #5a5f66);
+  font-size: 13px;
+`;
+  const Badge = gt.span`
+  margin-inline-start: auto;
+  padding: 2px 8px;
+  border-radius: var(--ethora-radius-full, 999px);
+  font-size: 12px;
+  font-weight: 600;
+  color: ${({ $tone }) => $tone === "live" ? "var(--ethora-color-text-on-primary, #fff)" : $tone === "danger" ? "var(--ethora-color-danger, #d92d20)" : "var(--ethora-color-text-secondary, #5a5f66)"};
+  background: ${({ $tone }) => $tone === "live" ? "var(--ethora-color-success, #12b76a)" : "var(--ethora-color-bg-subtle, #f5f7fa)"};
+`;
+  const Title$1 = gt.div`
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  text-decoration: ${({ $struck }) => $struck ? "line-through" : "none"};
+`;
+  const When = gt.div`
+  font-size: 14px;
+  line-height: 20px;
+  text-decoration: ${({ $struck }) => $struck ? "line-through" : "none"};
+`;
+  const Hint$1 = gt.div`
+  font-size: 13px;
+  color: var(--ethora-color-text-secondary, #5a5f66);
+`;
+  const CalendarRow$1 = gt.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: center;
+`;
+  const CalendarLink$1 = gt.a`
+  font-size: 13px;
+  color: var(--ethora-color-primary, #0052cd);
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+`;
+  const Actions = gt.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+`;
+  const textButtonStyle = {
+    width: "auto",
+    minWidth: 88,
+    padding: "0 16px"
+  };
+  const ScheduledCallCard = ({ message }) => {
+    const meta = message.scheduledCall;
+    const dispatch = useDispatch();
+    const { getState } = useStore();
+    const t2 = useT();
+    const locale = useUiLocale();
+    const { showToast } = useToast();
+    const { config, user } = useChatSettingState();
+    const room = useSelector(
+      (state2) => state2.rooms.rooms?.[message.roomJid]
+    );
+    const [busy, setBusy] = reactExports.useState(false);
+    const status = meta.status;
+    const initialPhase = getScheduledCallPhase({ ...meta, status });
+    const live2 = initialPhase === "upcoming" || initialPhase === "joinable";
+    const now = useNow(3e4, live2);
+    const phase = getScheduledCallPhase({ ...meta, status }, now);
+    const open = phase === "upcoming" || phase === "joinable";
+    const apiBase = http.defaults?.baseURL;
+    const links = reactExports.useMemo(() => {
+      const context = { slug: meta.slug, apiBaseUrl: apiBase };
+      return {
+        google: safeCalendarLink("google", meta.googleUrl, context),
+        outlook: safeCalendarLink("outlook", meta.outlookUrl, context),
+        ics: safeCalendarLink("ics", meta.icsUrl, context)
+      };
+    }, [meta.slug, meta.googleUrl, meta.outlookUrl, meta.icsUrl, apiBase]);
+    const canJoin = isScheduledCallsEnabled(config) && canPlaceCallsInRoom(config, room?.type);
+    const canManage = open && isScheduledCallsEnabled(config) && canManageScheduledCall({
+      // Hosts that sign in with xmpp credentials may not pass the Mongo _id;
+      // the access token carries it.
+      userId: user?._id || readStableIdentity(user)?.userId,
+      callCreatedBy: meta.createdBy,
+      room
+    });
+    const title = displayCallTitle(meta.title, t2("scheduledCall.default.title"));
+    const struck = phase === "cancelled";
+    const KindIcon = meta.kind === "audio" ? AudioCallIcon : VideoCallIcon;
+    const handleJoin = reactExports.useCallback(async () => {
+      setBusy(true);
+      try {
+        const data = await loadScheduledCallDetails(dispatch, getState, meta.slug, {
+          force: true
+        });
+        if (data) dispatch(openPreJoin(data));
+        else {
+          showToast({
+            id: Date.now().toString(),
+            title: t2("toast.error"),
+            message: t2("scheduledCall.error.network"),
+            type: "error"
+          });
+        }
+      } finally {
+        setBusy(false);
+      }
+    }, [dispatch, getState, meta.slug, showToast, t2]);
+    const handleEdit = reactExports.useCallback(async () => {
+      setBusy(true);
+      try {
+        const data = await loadScheduledCallDetails(dispatch, getState, meta.slug, {
+          force: true
+        });
+        if (data) {
+          dispatch(openScheduleModal({ roomJid: message.roomJid, editing: data }));
+        } else {
+          showToast({
+            id: Date.now().toString(),
+            title: t2("toast.error"),
+            message: t2("scheduledCall.error.network"),
+            type: "error"
+          });
+        }
+      } finally {
+        setBusy(false);
+      }
+    }, [dispatch, getState, meta.slug, message.roomJid, showToast, t2]);
+    const badge = phase === "cancelled" ? { tone: "danger", text: t2("scheduledCall.status.cancelled") } : phase === "ended" ? { tone: "neutral", text: t2("scheduledCall.status.ended") } : phase === "joinable" ? { tone: "live", text: t2("scheduledCall.status.open") } : meta.status === "updated" ? { tone: "neutral", text: t2("scheduledCall.status.updated") } : null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Row$8, { "data-testid": "scheduled-call-card", "data-phase": phase, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Card$2,
+      {
+        $muted: phase === "ended" || phase === "cancelled",
+        role: "group",
+        "aria-label": `${t2("scheduledCall.prejoin.title")}: ${title}`,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(HeaderLine, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarIcon, { width: 16, height: 16, "aria-hidden": "true" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              KindIcon,
+              {
+                width: 16,
+                height: 16,
+                color: "currentColor",
+                "aria-hidden": "true"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: meta.kind === "audio" ? t2("scheduledCall.kind.audio") : t2("scheduledCall.kind.video") }),
+            badge && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { $tone: badge.tone, children: badge.text })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Title$1, { $struck: struck, children: title }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(When, { $struck: struck, children: [
+            formatScheduledDay(meta.startAt, locale),
+            ", ",
+            formatScheduledTimeRange(meta, locale),
+            " (",
+            formatScheduledDuration(meta.durationMinutes, t2),
+            ")"
+          ] }),
+          phase === "upcoming" && canJoin && /* @__PURE__ */ jsxRuntimeExports.jsx(Hint$1, { children: t2("scheduledCall.joinOpensAt", {
+            time: formatClockTime(getJoinOpensAtMs(meta), locale)
+          }) }),
+          open && (links.google || links.outlook || links.ics) && /* @__PURE__ */ jsxRuntimeExports.jsxs(CalendarRow$1, { children: [
+            links.google && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              CalendarLink$1,
+              {
+                href: links.google,
+                target: "_blank",
+                rel: "noopener noreferrer",
+                children: t2("scheduledCall.calendar.google")
+              }
+            ),
+            links.outlook && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              CalendarLink$1,
+              {
+                href: links.outlook,
+                target: "_blank",
+                rel: "noopener noreferrer",
+                children: t2("scheduledCall.calendar.outlook")
+              }
+            ),
+            links.ics && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              CalendarLink$1,
+              {
+                href: links.ics,
+                target: "_blank",
+                rel: "noopener noreferrer",
+                download: "call.ics",
+                children: t2("scheduledCall.calendar.ics")
+              }
+            )
+          ] }),
+          open && (canJoin || canManage) && /* @__PURE__ */ jsxRuntimeExports.jsxs(Actions, { children: [
+            canJoin && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
+              {
+                variant: "filled",
+                text: t2("scheduledCall.action.join"),
+                style: textButtonStyle,
+                disabled: phase !== "joinable" || busy,
+                onClick: () => void handleJoin(),
+                "data-testid": "scheduled-call-join"
+              }
+            ),
+            canManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "outlined",
+                  text: t2("scheduledCall.action.edit"),
+                  style: textButtonStyle,
+                  disabled: busy,
+                  onClick: () => void handleEdit(),
+                  "data-testid": "scheduled-call-edit"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "outlined",
+                  tone: "danger",
+                  text: t2("scheduledCall.action.cancel"),
+                  style: textButtonStyle,
+                  disabled: busy,
+                  onClick: () => dispatch(openCancelModal({ slug: meta.slug, title })),
+                  "data-testid": "scheduled-call-cancel"
+                }
+              )
+            ] })
+          ] })
+        ]
+      }
+    ) });
+  };
+  const MessageContainerBase = ({
+    CustomMessage,
+    message,
+    activeMessage,
+    config,
+    xmppUsername,
+    showDateLabel,
+    isReply,
+    isLastInGroup,
+    className
+  }) => {
+    const { CustomDaySeparator, CustomNewMessageLabel } = useCustomComponents();
+    const t2 = useT();
+    const isUser = message.user.id === xmppUsername;
+    const blockedUserIds = useSelector(
+      (state2) => state2.chatSettingStore.blockedUserIds
+    );
+    const messageDate = reactExports.useMemo(() => new Date(message.date), [message.date]);
+    const formattedDate = reactExports.useMemo(() => {
+      try {
+        return new Intl.DateTimeFormat(void 0, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric"
+        }).format(messageDate);
+      } catch {
+        return messageDate.toDateString();
+      }
+    }, [message.date]);
+    const renderDaySeparator = () => {
+      if (!showDateLabel) {
+        return null;
+      }
+      if (CustomDaySeparator) {
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(CustomDaySeparator, { date: messageDate, formattedDate });
+      }
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(DateLabel, { date: messageDate, colors: config?.colors });
+    };
+    if (message.scheduledCall) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, { children: [
+        showDateLabel && !activeMessage && renderDaySeparator(),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { "data-message-id": message.id, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ScheduledCallCard, { message }) })
+      ] }, message.id);
+    }
+    if (message?.isSystemMessage === "true") {
+      const isWhitelisted = config?.whitelistSystemMessage?.includes(
+        message.user.id
+      );
+      const CustomSystem = config?.customSystemMessage;
+      if (CustomSystem && (isWhitelisted || !config?.whitelistSystemMessage)) {
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(CustomSystem, { message, isUser: false, isReply: false }) }, message.id);
+      }
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, { children: [
+        renderDaySeparator(),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          SystemMessage,
+          {
+            messageText: message.callLog ? formatCallLogLabel(message.callLog, t2, message.body) : message.body,
+            colors: config?.colors
+          }
+        )
+      ] }, message.id);
+    }
+    if (message?.id === "delimiter-new") {
+      if (CustomNewMessageLabel) {
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(CustomNewMessageLabel, { color: config?.colors?.primary });
+      }
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(NewMessageLabel, { color: config?.colors?.primary });
+    }
+    const senderLocal = (message.user?.id ?? "").split("@")[0];
+    const isSenderBlocked = !isUser && blockedUserIds?.includes(senderLocal);
+    if (isSenderBlocked) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, { children: [
+        showDateLabel && !activeMessage && renderDaySeparator(),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { "data-message-id": message.id, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          CustomMessageContainer,
+          {
+            $isUser: false,
+            $reply: false,
+            $lastInGroup: isLastInGroup,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CustomMessagePhotoContainer, { style: { cursor: "default" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                MessageAvatarPhoto,
+                {
+                  src: "",
+                  username: "",
+                  style: { cursor: "default" }
+                }
+              ) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(CustomMessageBubble, { $isUser: false, $deleted: false, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CustomUserName, { $isUser: false, $color: config?.colors?.primary, children: t2("message.blockedUserName") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CustomMessageText, { style: { fontStyle: "italic", opacity: 0.7 }, children: t2("message.blockedUser") })
+              ] })
+            ]
+          }
+        ) })
+      ] }, message.id);
+    }
+    const MessageComponent = CustomMessage || Message$2;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, { children: [
+      showDateLabel && !activeMessage && message.id !== "delimiter-new" && renderDaySeparator(),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { "data-message-id": message.id, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        MessageComponent,
+        {
+          message,
+          isUser,
+          $isUser: isUser,
+          isReply,
+          isLastInGroup,
+          className,
+          children: !CustomMessage ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(MessageTimestamp, { children: messageDate.toLocaleTimeString() }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(UserName, { children: [
+              message.user.name,
+              ": "
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(MessageText, { children: message.body })
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+            MessageComponent,
+            {
+              message,
+              isUser,
+              $isUser: isUser,
+              isReply
+            }
+          )
+        }
+      ) })
+    ] }, message.id);
+  };
+  const MessageContainer = React.memo(MessageContainerBase);
+  const usePaneWidthVar = (ref) => {
+    const attached = reactExports.useRef(null);
+    const observer = reactExports.useRef(null);
+    reactExports.useEffect(() => {
+      const el = ref.current;
+      if (el === attached.current) return;
+      observer.current?.disconnect();
+      observer.current = null;
+      attached.current = el;
+      if (!el) return;
+      const apply = () => {
+        const width = Math.round(el.clientWidth);
+        if (width > 0) el.style.setProperty(PANE_WIDTH_VAR, `${width}px`);
+      };
+      apply();
+      if (typeof ResizeObserver !== "undefined") {
+        observer.current = new ResizeObserver(apply);
+        observer.current.observe(el);
+      }
+    });
+    reactExports.useEffect(
+      () => () => {
+        observer.current?.disconnect();
+        observer.current = null;
+        attached.current = null;
+      },
+      []
+    );
+  };
+  const MAX_HISTORY_PAGES = 40;
+  const PAGE_SIZE$1 = 100;
+  const MAX_PAGE_FAILURES = 3;
+  const WINDOW_MARGIN = 15;
+  const NEAR_LIVE_MESSAGES = 300;
+  const ROOM_OPENING_GRACE_MS = 4e3;
+  const ROOM_OPENING_POLL_MS = 700;
+  const MAX_WINDOW_RETRIES = 6;
+  function useJumpToMessage({
+    roomJID,
+    messages,
+    visibleCount,
+    setRenderWindow,
+    fetchOlderPage,
+    containerRef,
+    historyComplete,
+    isUserScrolledUpRef,
+    jumpWindowActive = false,
+    fetchWindow,
+    scope = "main",
+    allMessages,
+    resolveReply,
+    roomOpening = false
+  }) {
+    const dispatch = useDispatch();
+    const t2 = useT();
+    const toast = useOptionalToast();
+    const showToast = toast?.showToast;
+    const jump = useSelector((state2) => state2.rooms.pendingJump);
+    const jumpThread = useJumpThread();
+    const ownerThreadId = ownerThreadFor(jumpThread, jump?.at);
+    const scopeThreadId = scope === "main" ? null : scope.threadId;
+    const isOwner = scopeThreadId === null ? ownerThreadId === null : ownerThreadId === scopeThreadId;
+    const attemptsRef = reactExports.useRef(0);
+    const loadingRef = reactExports.useRef(false);
+    const latest2 = reactExports.useRef({
+      t: t2,
+      showToast,
+      fetchOlderPage,
+      setRenderWindow,
+      fetchWindow,
+      resolveReply,
+      allMessages,
+      roomOpening
+    });
+    latest2.current = {
+      t: t2,
+      showToast,
+      fetchOlderPage,
+      setRenderWindow,
+      fetchWindow,
+      resolveReply,
+      allMessages,
+      roomOpening
+    };
+    const replyResolvedAtRef = reactExports.useRef(null);
+    const windowRetriesRef = reactExports.useRef(0);
+    const windowTriedAtRef = reactExports.useRef(null);
+    const windowMissingAtRef = reactExports.useRef(null);
+    const currentJumpAtRef = reactExports.useRef(null);
+    currentJumpAtRef.current = jump?.at ?? null;
+    const scheduledAtRef = reactExports.useRef(null);
+    const cursorRef = reactExports.useRef(null);
+    const exhaustedRef = reactExports.useRef(false);
+    const failuresRef = reactExports.useRef(0);
+    const timersRef = reactExports.useRef({});
+    const [tick, setTick] = reactExports.useState(0);
+    reactExports.useEffect(
+      () => () => {
+        const timers = timersRef.current;
+        if (timers.frame) cancelAnimationFrame(timers.frame);
+        if (timers.settle) clearTimeout(timers.settle);
+        if (timers.retry) clearTimeout(timers.retry);
+        if (timers.clear) {
+          clearTimeout(timers.clear);
+          clearInterval(
+            timers.clear
+          );
+        }
+      },
+      []
+    );
+    reactExports.useEffect(() => {
+      attemptsRef.current = 0;
+      cursorRef.current = null;
+      exhaustedRef.current = false;
+      failuresRef.current = 0;
+      windowRetriesRef.current = 0;
+    }, [jump?.at]);
+    reactExports.useEffect(() => {
+      if (!jump || jump.roomJID !== roomJID || !isOwner) return;
+      isUserScrolledUpRef.current = true;
+      const finish = (reached) => {
+        dispatch(clearPendingJump());
+        if (reached) return;
+        if (jump.preview) {
+          dispatch(showArchivedMessage(jump.preview));
+          return;
+        }
+        const { t: t22, showToast: showToast2 } = latest2.current;
+        showToast2?.({
+          id: "jump-to-message-missing",
+          title: t22("search.messages.title"),
+          message: t22("search.messages.notFound"),
+          type: "info"
+        });
+      };
+      if (Date.now() - jump.at > JUMP_TTL_MS) {
+        finish(
+          findMessageIndex(messages, jump.ids, {
+            createdAt: jump.createdAt,
+            body: jump.body
+          }) >= 0
+        );
+        return;
+      }
+      const recheckSoon = () => {
+        if (timersRef.current.retry) clearTimeout(timersRef.current.retry);
+        timersRef.current.retry = setTimeout(
+          () => setTick((value) => value + 1),
+          ROOM_OPENING_POLL_MS
+        );
+      };
+      const content2 = {
+        createdAt: jump.createdAt,
+        body: jump.body
+      };
+      if (scopeThreadId === null && latest2.current.resolveReply && replyResolvedAtRef.current !== jump.at) {
+        const pool = latest2.current.allMessages ?? messages;
+        const rawIndex = findMessageIndex(pool, jump.ids, content2);
+        const raw = rawIndex >= 0 ? pool[rawIndex] : null;
+        if (raw && replyParentId(raw)) {
+          replyResolvedAtRef.current = jump.at;
+          loadingRef.current = true;
+          const requestedAt = jump.at;
+          latest2.current.resolveReply(jump, raw).catch(() => false).then((opened) => {
+            loadingRef.current = false;
+            if (currentJumpAtRef.current !== requestedAt) return;
+            if (!opened) finish(false);
+            else setTick((value) => value + 1);
+          });
+          return;
+        }
+      }
+      const index2 = findMessageIndex(messages, jump.ids, content2);
+      const windowAvailable = Boolean(latest2.current.fetchWindow) && windowTriedAtRef.current !== jump.at;
+      if (index2 >= 0 && (jumpWindowActive || messages.length - index2 <= NEAR_LIVE_MESSAGES || !windowAvailable)) {
+        const fromEnd = messages.length - index2;
+        if (fromEnd > visibleCount) {
+          latest2.current.setRenderWindow(fromEnd + WINDOW_MARGIN);
+          return;
+        }
+        if (scheduledAtRef.current === jump.at) return;
+        scheduledAtRef.current = jump.at;
+        const targetId = String(messages[index2].id);
+        const findTarget = () => Array.from(
+          containerRef.current?.querySelectorAll(
+            "[data-message-id]"
+          ) ?? []
+        ).find((node2) => node2.getAttribute("data-message-id") === targetId) ?? null;
+        const scrollToTarget = () => {
+          const element2 = findTarget();
+          element2?.scrollIntoView({ behavior: "auto", block: "center" });
+          return element2;
+        };
+        const flash = () => {
+          const until = Date.now() + HIGHLIGHT_MS;
+          let applied = null;
+          const apply = () => {
+            const element2 = findTarget();
+            if (element2 && element2 !== applied) {
+              applied?.classList.remove(MESSAGE_HIGHLIGHT_CLASS);
+              element2.classList.add(MESSAGE_HIGHLIGHT_CLASS);
+              applied = element2;
+            }
+          };
+          apply();
+          const interval = setInterval(() => {
+            if (Date.now() >= until) {
+              clearInterval(interval);
+              applied?.classList.remove(MESSAGE_HIGHLIGHT_CLASS);
+              findTarget()?.classList.remove(MESSAGE_HIGHLIGHT_CLASS);
+              return;
+            }
+            apply();
+          }, 50);
+          timersRef.current.clear = interval;
+        };
+        timersRef.current.frame = requestAnimationFrame(() => {
+          const element2 = scrollToTarget();
+          if (element2) {
+            requestAnimationFrame(() => requestAnimationFrame(flash));
+            timersRef.current.settle = setTimeout(scrollToTarget, 300);
+          }
+          finish(Boolean(element2));
+        });
+        return;
+      }
+      if (jumpWindowActive) {
+        dispatch(clearJumpWindow());
+        return;
+      }
+      if (loadingRef.current) return;
+      if (messages.length === 0 && (!latest2.current.fetchWindow || latest2.current.roomOpening && Date.now() - jump.at < ROOM_OPENING_GRACE_MS)) {
+        recheckSoon();
+        return;
+      }
+      if (windowMissingAtRef.current === jump.at && index2 < 0) {
+        finish(false);
+        return;
+      }
+      if (windowAvailable && latest2.current.fetchWindow) {
+        windowTriedAtRef.current = jump.at;
+        loadingRef.current = true;
+        const requestedAt = jump.at;
+        latest2.current.fetchWindow(jump).catch(() => "unavailable").then((result) => {
+          loadingRef.current = false;
+          if (currentJumpAtRef.current !== requestedAt) return;
+          if (result === "missing") windowMissingAtRef.current = requestedAt;
+          if (result === "unavailable" && latest2.current.roomOpening && windowRetriesRef.current < MAX_WINDOW_RETRIES) {
+            windowRetriesRef.current += 1;
+            windowTriedAtRef.current = null;
+            recheckSoon();
+            return;
+          }
+          setTick((value) => value + 1);
+        });
+        return;
+      }
+      if (messages.length === 0) {
+        recheckSoon();
+        return;
+      }
+      const firstReal = messages.find(
+        (message) => message.id !== "delimiter-new"
+      );
+      if (!firstReal) return;
+      if (exhaustedRef.current || historyComplete || attemptsRef.current >= MAX_HISTORY_PAGES) {
+        finish(false);
+        return;
+      }
+      const before = cursorRef.current ?? Number(firstReal.id);
+      attemptsRef.current += 1;
+      loadingRef.current = true;
+      latest2.current.fetchOlderPage(roomJID, before, PAGE_SIZE$1).catch(() => ({ ok: false })).then((page) => {
+        loadingRef.current = false;
+        if (!page.ok) {
+          if (latest2.current.roomOpening) {
+            recheckSoon();
+            return;
+          }
+          failuresRef.current += 1;
+          if (failuresRef.current >= MAX_PAGE_FAILURES) {
+            exhaustedRef.current = true;
+          }
+        } else {
+          failuresRef.current = 0;
+          if (page.complete) exhaustedRef.current = true;
+          if (typeof page.cursor === "number" && page.cursor < before) {
+            cursorRef.current = page.cursor;
+          } else if (!page.complete) {
+            exhaustedRef.current = true;
+          }
+        }
+        setTick((value) => value + 1);
+      });
+    }, [
+      jump,
+      roomJID,
+      messages,
+      visibleCount,
+      historyComplete,
+      jumpWindowActive,
+      tick,
+      isOwner,
+      scopeThreadId,
+      containerRef,
+      isUserScrolledUpRef,
+      dispatch
+    ]);
+  }
+  const isIn = (messages, id2) => messages.find(
+    (message) => String(message.id) === id2 || String(message.xmppId) === id2
+  );
+  const repliesOf = (messages, parentId) => messages.filter((message) => replyParentId(message) === parentId);
+  async function openThreadForJump({
+    client: client2,
+    dispatch,
+    roomJID,
+    at: at2,
+    reply,
+    live: live2,
+    nearby = []
+  }) {
+    const parentId = replyParentId(reply);
+    if (!parentId) return false;
+    const known = mergeById(live2, nearby);
+    const liveParent = isIn(live2, parentId);
+    if (liveParent) {
+      setJumpThread({
+        roomJID,
+        parentId: String(liveParent.id),
+        at: at2,
+        parent: null,
+        replies: repliesOf(known, parentId).concat(reply)
+      });
+      dispatch(setActiveMessage({ id: String(liveParent.id), chatJID: roomJID }));
+      return true;
+    }
+    let parent = isIn(nearby, parentId);
+    let replies = repliesOf(known, parentId).concat(reply);
+    if (!parent) {
+      if (!client2) return false;
+      let result;
+      try {
+        result = await loadJumpWindow(client2, roomJID, [parentId]);
+      } catch {
+        return false;
+      }
+      if (result.status !== "found") return false;
+      parent = isIn(result.window.messages, parentId);
+      if (!parent) return false;
+      replies = replies.concat(repliesOf(result.window.messages, parentId));
+    }
+    setJumpThread({
+      roomJID,
+      parentId: String(parent.id),
+      at: at2,
+      parent,
+      replies: mergeById(replies, [])
+    });
+    return true;
+  }
+  function useStickToBottom({
+    containerRef,
+    contentRef,
+    isUserScrolledUpRef,
+    hasUnreadDelimiter
+  }) {
+    const delimiterRef = reactExports.useRef(hasUnreadDelimiter);
+    delimiterRef.current = hasUnreadDelimiter;
+    reactExports.useEffect(() => {
+      const scroller = containerRef.current;
+      const content2 = contentRef.current;
+      if (!scroller || !content2 || typeof ResizeObserver === "undefined") return;
+      const observer = new ResizeObserver(() => {
+        if (isUserScrolledUpRef.current || delimiterRef.current) return;
+        scroller.scrollTop = scroller.scrollHeight;
+      });
+      observer.observe(content2);
+      return () => observer.disconnect();
+    }, [containerRef, contentRef, isUserScrolledUpRef]);
+  }
+  function pickAnchorRow(viewTop, viewBottom, rows) {
+    let firstIntersecting = null;
+    for (const row of rows) {
+      if (row.bottom <= viewTop + 1) continue;
+      if (row.top >= viewBottom) break;
+      if (!firstIntersecting) firstIntersecting = row;
+      if (row.top >= viewTop && row.bottom <= viewBottom) {
+        return { id: row.id, offset: row.top - viewTop };
+      }
+    }
+    return firstIntersecting ? { id: firstIntersecting.id, offset: firstIntersecting.top - viewTop } : null;
+  }
+  function anchorScrollDelta(anchor, rowTop, viewTop) {
+    return rowTop - viewTop - anchor.offset;
+  }
+  const ANCHOR_IDLE_MS = 100;
+  const ROW_SELECTOR = "[data-message-id]";
+  function findRow(container, id2) {
+    const rows = container.querySelectorAll(ROW_SELECTOR);
+    for (const row of Array.from(rows)) {
+      if (row.getAttribute("data-message-id") === id2) return row;
+    }
+    return null;
+  }
+  function useScrollAnchor({
+    containerRef,
+    flowRef,
+    rows,
+    isStuckToBottom
+  }) {
+    const stuckRef = reactExports.useRef(isStuckToBottom);
+    stuckRef.current = isStuckToBottom;
+    const pendingRef = reactExports.useRef(null);
+    const restAnchorRef = reactExports.useRef(null);
+    const lastRowsRef = reactExports.useRef(rows);
+    const ownTopRef = reactExports.useRef(null);
+    const lastInputAtRef = reactExports.useRef(0);
+    const capture = () => {
+      const container = containerRef.current;
+      if (!container || stuckRef.current()) return null;
+      const viewTop = container.getBoundingClientRect().top;
+      const rects = Array.from(
+        container.querySelectorAll(ROW_SELECTOR)
+      ).map((el) => {
+        const r2 = el.getBoundingClientRect();
+        return {
+          id: el.getAttribute("data-message-id") ?? "",
+          top: r2.top,
+          bottom: r2.bottom
+        };
+      });
+      return pickAnchorRow(viewTop, viewTop + container.clientHeight, rects);
+    };
+    if (lastRowsRef.current !== rows) {
+      lastRowsRef.current = rows;
+      pendingRef.current = capture();
+    }
+    const apply = (anchor) => {
+      const container = containerRef.current;
+      if (!container) return false;
+      const row = findRow(container, anchor.id);
+      if (!row) return false;
+      const delta = anchorScrollDelta(
+        anchor,
+        row.getBoundingClientRect().top,
+        container.getBoundingClientRect().top
+      );
+      if (delta !== 0) {
+        container.scrollTop += delta;
+        ownTopRef.current = container.scrollTop;
+      }
+      return true;
+    };
+    reactExports.useLayoutEffect(() => {
+      const anchor = pendingRef.current;
+      pendingRef.current = null;
+      if (!anchor) return;
+      restAnchorRef.current = apply(anchor) ? anchor : null;
+    }, [rows]);
+    reactExports.useEffect(() => {
+      const container = containerRef.current;
+      const flow2 = flowRef.current;
+      if (!container) return;
+      let timer;
+      const reanchorSoon = () => {
+        lastInputAtRef.current = Date.now();
+        restAnchorRef.current = null;
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          timer = void 0;
+          restAnchorRef.current = capture();
+        }, ANCHOR_IDLE_MS);
+      };
+      const markInput = reanchorSoon;
+      const onScroll = () => {
+        if (ownTopRef.current === container.scrollTop) {
+          ownTopRef.current = null;
+          return;
+        }
+        reanchorSoon();
+      };
+      container.addEventListener("scroll", onScroll, { passive: true });
+      container.addEventListener("wheel", markInput, { passive: true });
+      container.addEventListener("touchmove", markInput, { passive: true });
+      let observer;
+      if (flow2 && typeof ResizeObserver !== "undefined") {
+        observer = new ResizeObserver(() => {
+          const anchor = restAnchorRef.current;
+          if (!anchor || stuckRef.current()) return;
+          if (Date.now() - lastInputAtRef.current < ANCHOR_IDLE_MS) return;
+          apply(anchor);
+        });
+        observer.observe(flow2);
+      }
+      return () => {
+        container.removeEventListener("scroll", onScroll);
+        container.removeEventListener("wheel", markInput);
+        container.removeEventListener("touchmove", markInput);
+        observer?.disconnect();
+        if (timer) clearTimeout(timer);
+      };
+    }, []);
+  }
+  const Scrim$1 = gt.div`
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ethora-space-4, 16px);
+  background: var(--ethora-color-overlay, rgba(0, 0, 0, 0.5));
+  ${fadeInAnimation}
+`;
+  const Card$1 = gt.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--ethora-space-3, 12px);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 460px;
+  max-height: 100%;
+  padding: var(--ethora-space-4, 16px);
+  border-radius: var(--ethora-radius-lg, 16px);
+  background: var(--ethora-color-bg, #fff);
+  color: var(--ethora-color-text, #141414);
+  box-shadow: var(--ethora-shadow-md, 0 8px 24px rgba(16, 24, 40, 0.18));
+`;
+  const Head = gt.div`
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ethora-space-3, 12px);
+
+  strong {
+    font-size: var(--ethora-font-size-md, 16px);
+    font-weight: var(--ethora-font-weight-semibold, 600);
+  }
+`;
+  const Meta$2 = gt.div`
+  font-size: var(--ethora-font-size-xs, 12px);
+  color: var(--ethora-color-text-muted, #6c6c6c);
+`;
+  const Body$2 = gt.div`
+  overflow-y: auto;
+  padding: var(--ethora-space-3, 12px);
+  border-radius: var(--ethora-radius-md, 12px);
+  background: var(--ethora-color-bg-subtle, #f5f7fa);
+  font-size: var(--ethora-font-size-sm, 14px);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+`;
+  const Note = gt.p`
+  margin: 0;
+  font-size: var(--ethora-font-size-xs, 12px);
+  color: var(--ethora-color-text-secondary, #5a5f66);
+`;
+  const CloseButton$1 = gt.button`
+  align-self: flex-end;
+  padding: 6px 16px;
+  border: 1px solid var(--ethora-color-border, #e6e8ec);
+  border-radius: var(--ethora-radius-full, 999px);
+  background: transparent;
+  color: var(--ethora-color-text, #141414);
+  font: inherit;
+  font-size: var(--ethora-font-size-sm, 14px);
+  cursor: pointer;
+`;
+  const formatWhen$1 = (iso) => {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return "";
+    try {
+      return new Intl.DateTimeFormat(void 0, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(date);
+    } catch {
+      return date.toLocaleString();
+    }
+  };
+  const ArchivedMessageCard = ({ roomJID }) => {
+    const t2 = useT();
+    const dispatch = useDispatch();
+    const message = useSelector(
+      (state2) => state2.rooms.archivedMessage
+    );
+    const closeRef = reactExports.useRef(null);
+    const visible = Boolean(message && message.roomJID === roomJID);
+    reactExports.useEffect(() => {
+      if (!visible) return;
+      closeRef.current?.focus();
+      const onKey = (event) => {
+        if (event.key === "Escape") dispatch(clearArchivedMessage());
+      };
+      document.addEventListener("keydown", onKey);
+      return () => document.removeEventListener("keydown", onKey);
+    }, [visible, dispatch]);
+    reactExports.useEffect(
+      () => () => {
+        dispatch(clearArchivedMessage());
+      },
+      [dispatch]
+    );
+    if (!visible || !message) return null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Scrim$1,
+      {
+        "data-testid": "archived-message-card",
+        onClick: (event) => {
+          if (event.target === event.currentTarget)
+            dispatch(clearArchivedMessage());
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { role: "dialog", "aria-label": t2("search.messages.archivedTitle"), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Head, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: message.sender }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Meta$2, { children: formatWhen$1(message.createdAt) })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Body$2, { children: message.body }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Note, { children: t2("search.messages.archivedNote") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CloseButton$1,
+            {
+              ref: closeRef,
+              type: "button",
+              onClick: () => dispatch(clearArchivedMessage()),
+              children: t2("action.close")
+            }
+          )
+        ] })
+      }
+    );
+  };
+  class DisplayedMarkerThrottle {
+    constructor(options) {
+      this.options = options;
+      this.now = options.now ?? (() => Date.now());
+      this.setTimer = options.setTimer ?? ((fn, ms) => setTimeout(fn, ms));
+      this.clearTimer = options.clearTimer ?? ((handle2) => clearTimeout(handle2));
+    }
+    lastSentAt = null;
+    pendingId = null;
+    timer = null;
+    disposed = false;
+    now;
+    setTimer;
+    clearTimer;
+    mark(messageId) {
+      if (!messageId || this.disposed) return;
+      const wait = this.lastSentAt === null ? 0 : this.lastSentAt + this.options.minIntervalMs - this.now();
+      if (this.timer === null && wait <= 0) {
+        this.fire(messageId);
+        return;
+      }
+      this.pendingId = messageId;
+      if (this.timer === null) {
+        this.timer = this.setTimer(() => this.onTimer(), Math.max(0, wait));
+      }
+    }
+    dispose() {
+      if (this.disposed) return;
+      if (this.timer !== null) this.clearTimer(this.timer);
+      this.timer = null;
+      const held = this.pendingId;
+      this.pendingId = null;
+      this.disposed = true;
+      if (held) this.options.send(held);
+    }
+    onTimer() {
+      this.timer = null;
+      const held = this.pendingId;
+      this.pendingId = null;
+      if (held && !this.disposed) this.fire(held);
+    }
+    fire(messageId) {
+      this.lastSentAt = this.now();
+      this.options.send(messageId);
+    }
+  }
   const messageRunEnds = (list2) => {
     const ends = /* @__PURE__ */ new Set();
     list2.forEach((message, index2) => {
@@ -71627,8 +74396,10 @@ ${messageId}`;
           (item) => item.roomJid === roomJID && item.isReply && item.isReply === "true" && parseMessageReference(item.mainMessage)?.id === activeMessage.id
         );
       } else {
-        return addReplyMessages.filter(
-          (item) => item.isSystemMessage === "true" || item.showInChannel === "true" || (!item.isReply || item.isReply === "false") && !item.mainMessage
+        return collapseScheduledCallMessages(
+          addReplyMessages.filter(
+            (item) => item.isSystemMessage === "true" || item.showInChannel === "true" || (!item.isReply || item.isReply === "false") && !item.mainMessage
+          )
         );
       }
     }, [addReplyMessages, isReply, roomJID, activeMessage?.id]);
@@ -72718,109 +75489,6 @@ ${messageId}`;
   scrollbar-width: thin;
   scrollbar-color: ${(props) => `${props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"} transparent`};
 `;
-  const getTintedColor = (hex, amount = 0.2) => {
-    if (hex.startsWith("#")) {
-      hex = hex.slice(1);
-    }
-    if (hex.length === 3) {
-      hex = hex.split("").map((x2) => x2 + x2).join("");
-    }
-    const num = parseInt(hex, 16);
-    const r2 = num >> 16 & 255;
-    const g2 = num >> 8 & 255;
-    const b2 = num & 255;
-    const tintedR = Math.round(r2 + (255 - r2) * amount);
-    const tintedG = Math.round(g2 + (255 - g2) * amount);
-    const tintedB = Math.round(b2 + (255 - b2) * amount);
-    const tintedHex = `#${((1 << 24) + (tintedR << 16) + (tintedG << 8) + tintedB).toString(16).slice(1).toUpperCase()}`;
-    return tintedHex;
-  };
-  const toneColor = ($tone) => $tone === "danger" ? "var(--ethora-color-danger, #D92D20)" : "var(--ethora-color-primary, #0052CD)";
-  const CustomButton = gt.button`
-  border: ${({ $variant, $backgroundColor, $tone }) => $variant === "outlined" ? `1px solid ${$backgroundColor || toneColor($tone)}` : "none"};
-  border-radius: var(--ethora-radius-lg, 16px);
-  background-size: contain;
-  background-color: ${({ $variant, $backgroundColor, $tone }) => $variant === "filled" ? $backgroundColor || toneColor($tone) : "transparent"};
-  color: ${({ $variant, $backgroundColor, $tone }) => $variant === "filled" ? "var(--ethora-color-text-on-primary, #FFFFFF)" : $variant === "outlined" || $variant === "ghost" ? $backgroundColor || toneColor($tone) : "inherit"};
-  cursor: pointer;
-  height: 40px;
-  width: 40px;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  transition:
-    background-color var(--ethora-motion-fast, 150ms),
-    box-shadow var(--ethora-motion-fast, 150ms);
-
-  ${({ $variant, $backgroundColor }) => $variant === "default" && `
-      border: none;
-      background-color: ${$backgroundColor || "transparent"};
-      color: inherit;
-  `}
-
-  ${({ $variant }) => $variant === "ghost" && ft`
-      background-color: transparent;
-    `}
-
-  &:hover {
-    background-color: ${({ $variant, $backgroundColor, $tone }) => $variant === "filled" ? getTintedColor($backgroundColor || toneColor($tone)) : $variant === "outlined" || $variant === "ghost" ? $tone === "danger" ? "rgba(217, 45, 32, 0.1)" : "rgba(0, 82, 205, 0.1)" : $backgroundColor || "rgba(202, 202, 202, 0.1)"};
-    box-shadow: ${({ $variant }) => $variant !== "default" && $variant !== "ghost" ? "0 4px 8px rgba(0, 0, 0, 0.2)" : "none"};
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--ethora-color-primary, #0052cd);
-    outline-offset: 2px;
-  }
-
-  &:disabled {
-    background-color: ${({ $variant }) => $variant === "filled" ? "#e0e0e0" : $variant === "default" ? "white" : "transparent"};
-    color: #888;
-    border-color: #e0e0e0;
-    cursor: not-allowed;
-    opacity: 0.6;
-
-    [data-ethora-color-scheme='dark'] & {
-      background-color: ${({ $variant }) => $variant === "filled" ? "var(--ethora-color-bg-hover)" : $variant === "default" ? "var(--ethora-color-bg)" : "transparent"};
-      color: var(--ethora-color-text-muted);
-      border-color: var(--ethora-color-border);
-    }
-  }
-`;
-  const Button = React.forwardRef(({
-    text: text2,
-    EndIcon,
-    loading = false,
-    disabled = false,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- accepted
-    // for backward compatibility only, see the deprecated ButtonProps.unstyled
-    // doc comment; destructured here so it isn't spread onto the DOM button.
-    unstyled = false,
-    variant = "default",
-    tone = "default",
-    children: children2,
-    StartIcon,
-    ...props
-  }, ref) => {
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      CustomButton,
-      {
-        ref,
-        disabled,
-        $backgroundColor: props?.style?.backgroundColor,
-        $variant: variant,
-        $tone: tone,
-        ...props,
-        children: [
-          !loading && StartIcon,
-          !loading && children2,
-          loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loader, { size: 24 }) : text2,
-          !loading && EndIcon
-        ]
-      }
-    );
-  });
   const pulse = Et`
   0% {
     transform: scale(1);
@@ -73448,7 +76116,7 @@ ${messageId}`;
   z-index: 5;
   ${fadeInUpAnimation}
 `;
-  const Row$6 = gt.div`
+  const Row$7 = gt.div`
   padding: 10px 14px;
   cursor: pointer;
   font-size: var(--ethora-font-size, 16px);
@@ -73473,7 +76141,7 @@ ${messageId}`;
   font-size: var(--ethora-font-size, 16px);
   opacity: 0.6;
 `;
-  const ShowAllRow = gt(Row$6)`
+  const ShowAllRow = gt(Row$7)`
   color: var(--ethora-color-primary-text, var(--ethora-color-primary, #0052cd));
   font-weight: 600;
   border-top: 1px solid var(--ethora-color-border, #eee);
@@ -73492,7 +76160,7 @@ ${messageId}`;
     if (candidates.length === 0 && !hasOverflow && !loading) return null;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Dropdown$1, { role: "listbox", children: [
       candidates.map((candidate, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Row$6,
+        Row$7,
         {
           role: "option",
           "aria-selected": index2 === highlightedIndex,
@@ -73556,25 +76224,47 @@ ${messageId}`;
   position: absolute;
   top: 16px;
   right: 16px;
-  background: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: transparent;
   border: none;
-  font-size: 1.25em;
+  font-size: 24px;
+  line-height: 1;
   cursor: pointer;
   color: var(--ethora-color-text-muted, #8c8c8c);
-  border-radius: var(--ethora-radius-sm, 8px);
-  transition: background-color var(--ethora-motion-fast, 150ms);
+  border-radius: 50%;
+  transition:
+    background-color var(--ethora-motion-fast, 150ms),
+    color var(--ethora-motion-fast, 150ms),
+    transform var(--ethora-motion-fast, 150ms);
 
   &:hover {
     color: var(--ethora-color-text, #141414);
     background-color: var(--ethora-color-bg-hover, #f0f2f5);
+    transform: rotate(90deg);
+  }
+
+  &:active {
+    transform: rotate(90deg) scale(0.94);
   }
 
   &:focus-visible {
     outline: 2px solid var(--ethora-color-primary, #0052cd);
     outline-offset: 2px;
   }
+
+  @media (max-width: 480px) {
+    top: 12px;
+    right: 12px;
+  }
 `;
-  const ModalContainer = gt.div.attrs({ role: "dialog", "aria-modal": "true" })`
+  const ModalContainer = gt.div.attrs({
+    role: "dialog",
+    "aria-modal": "true"
+  })`
   background: var(--ethora-color-bg, #fff);
   border-radius: var(--ethora-radius-lg, 16px);
   padding: 32px 64px;
@@ -73615,6 +76305,79 @@ ${messageId}`;
     font-size: 1.2em;
   }
 `;
+  const NewChatDialog = gt(ModalContainer)`
+  width: min(100%, 440px);
+  max-width: 440px;
+  max-height: min(760px, calc(100dvh - 48px));
+  padding: 28px 32px 24px;
+  gap: 20px;
+  overflow: hidden;
+  justify-content: flex-start;
+  font-family: var(
+    --ethora-font-family,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif
+  );
+  &,
+  & * {
+    font-family: inherit;
+  }
+  ${({ $closing }) => $closing && scaleOutAnimation}
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - max(12px, env(safe-area-inset-top)) - 8px);
+    padding: 20px 20px 16px;
+    gap: 14px;
+    border-radius: 20px 20px 16px 16px;
+  }
+`;
+  const NewChatBackdrop = gt(ModalBackground)`
+  ${({ $closing }) => $closing && fadeOutAnimation}
+  @media (max-width: 480px) {
+    align-items: flex-end;
+    padding: 0 12px max(12px, env(safe-area-inset-bottom));
+  }
+`;
+  const NewChatDialogHeader = gt.header`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: 40px;
+`;
+  const NewChatDialogBody = gt.div`
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 4px 4px 8px;
+  box-sizing: border-box;
+
+  @media (max-width: 480px) {
+    gap: 16px;
+  }
+`;
+  const NewChatDialogFooter = gt.footer`
+  display: flex;
+  flex: 0 0 auto;
+  width: 100%;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ethora-color-border, #e6e8ec);
+`;
   const ModalSectionLabel = gt.div`
   width: 100%;
   font-size: var(--ethora-font-size-sm, 14px);
@@ -73632,7 +76395,10 @@ ${messageId}`;
   width: 100%;
   padding: 0;
 `;
-  const ModalContainerFullScreen = gt.div.attrs({ role: "dialog", "aria-modal": "true" })`
+  const ModalContainerFullScreen = gt.div.attrs({
+    role: "dialog",
+    "aria-modal": "true"
+  })`
   width: 100%;
   height: 100%;
   background-color: var(--ethora-color-bg, #fff);
@@ -73688,7 +76454,9 @@ ${messageId}`;
 `;
   const ScrollableContainer = gt.div`
   max-height: 100px;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   width: 80%;
   padding: 8px;
   max-width: 80%;
@@ -73817,6 +76585,7 @@ ${messageId}`;
     active = false,
     placeholderIcon,
     disableOverlay,
+    fileInputId = "avatar-file-input",
     online = false
   }) => {
     const colors = useSelector(
@@ -73865,7 +76634,7 @@ ${messageId}`;
     };
     const handleAvatarClick = () => {
       if (upload?.active) {
-        document.getElementById("avatar-file-input")?.click();
+        document.getElementById(fileInputId)?.click();
       }
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -73914,7 +76683,7 @@ ${messageId}`;
                     FileInput,
                     {
                       type: "file",
-                      id: "avatar-file-input",
+                      id: fileInputId,
                       accept: "image/png, image/jpeg",
                       onChange: handleFileChange
                     }
@@ -75463,15 +78232,6 @@ ${messageId}`;
   font-size: var(--ethora-font-size, 14px);
   color: var(--ethora-color-text, #141414);
 `;
-  const PresenceModalBackground = gt(ModalBackground)`
-  ${({ $closing }) => $closing && fadeOutAnimation}
-`;
-  const PresenceModalContainer = gt(ModalContainer)`
-  ${({ $closing }) => $closing && scaleOutAnimation}
-`;
-  gt(ModalContainerFullScreen)`
-  ${({ $closing }) => $closing ? fadeOutAnimation : fadeInAnimation}
-`;
   function useExitTransition(isOpen, durationMs) {
     const [phase, setPhase] = reactExports.useState(isOpen ? "open" : "closed");
     const timeoutRef = reactExports.useRef();
@@ -75560,22 +78320,87 @@ ${messageId}`;
     { name: "Public", id: "public" },
     { name: "Members-only", id: "group" }
   ];
-  const useIsMobileViewport = (breakpoint = 480) => {
-    const getMatches = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
-    const [isMobile, setIsMobile] = reactExports.useState(getMatches);
-    reactExports.useEffect(() => {
-      if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-        return;
-      }
-      const mediaQuery = window.matchMedia(`(max-width: ${breakpoint}px)`);
-      const update = () => setIsMobile(mediaQuery.matches);
-      update();
-      mediaQuery.addEventListener("change", update);
-      return () => mediaQuery.removeEventListener("change", update);
-    }, [breakpoint]);
-    return isMobile;
-  };
-  const isMobileViewportNow = (breakpoint = 480) => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
+  const AvatarPicker = gt.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+`;
+  const AvatarPickerActions = gt.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+`;
+  const TextAction = gt.button`
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--ethora-radius-sm, 8px);
+  background: transparent;
+  color: var(--ethora-color-primary-text, var(--ethora-color-primary, #0052cd));
+  font: inherit;
+  font-size: var(--ethora-font-size-sm, 14px);
+  font-weight: var(--ethora-font-weight-medium, 500);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ethora-color-bg-hover, #f0f2f5);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: 2px;
+  }
+`;
+  const MemberPickerHeader = gt.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  width: 100%;
+`;
+  const MemberPickerAction = gt(TextAction)`
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 10px 16px;
+  border: 1px solid var(--ethora-color-primary, #35a5d5);
+  border-radius: var(--ethora-radius-md, 12px);
+  text-align: center;
+  font-size: var(--ethora-font-size-md, 16px);
+
+  &:hover {
+    background: var(--ethora-color-bg-hover, rgba(53, 165, 213, 0.12));
+  }
+`;
+  const MemberCount = gt.span`
+  flex: 0 0 auto;
+  color: var(--ethora-color-text-muted, #667085);
+  font-size: var(--ethora-font-size-xs, 12px);
+  font-weight: var(--ethora-font-weight-medium, 500);
+`;
+  const MemberPickerSection = gt.div`
+  width: 100%;
+  margin-top: 8px;
+  padding: 4px 0 8px;
+`;
+  const ModalHint = gt.p`
+  margin: 0;
+  color: var(--ethora-color-text-secondary, #5a5f66);
+  font-size: var(--ethora-font-size-sm, 14px);
+  line-height: 1.45;
+`;
+  gt.input`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+`;
   const ChatTypeGroup = gt.div`
   position: relative;
   display: flex;
@@ -75652,7 +78477,6 @@ ${messageId}`;
     const { client: client2 } = useXmppClient();
     const { showToast } = useToast();
     useChatSettingState();
-    const isMobileViewport = useIsMobileViewport();
     const t2 = useT();
     const DEFAULT_CHAT_TYPE = { name: "Public", id: "public" };
     const PUBLIC_TYPE = CHAT_TYPES.find((option) => option.id === "public") || DEFAULT_CHAT_TYPE;
@@ -75668,6 +78492,7 @@ ${messageId}`;
     const [profileImage, setProfileImage] = reactExports.useState(null);
     const [errors2, setErrors] = reactExports.useState({ name: "", description: "" });
     const [selectedUsers, setSelectedUsers] = reactExports.useState([]);
+    const [isMemberPickerOpen, setIsMemberPickerOpen] = reactExports.useState(false);
     const containerRef = reactExports.useRef(null);
     const isPrivate = chatType.id === "group";
     const [userPickerExpanded, setUserPickerExpanded] = reactExports.useState(false);
@@ -75707,6 +78532,7 @@ ${messageId}`;
       setProfileImage(null);
       setErrors({ name: "", description: "" });
       setSelectedUsers([]);
+      setIsMemberPickerOpen(false);
     };
     useModalDismiss({
       enabled: isModalOpen,
@@ -75830,125 +78656,160 @@ ${messageId}`;
           "aria-label": t2("action.newChat")
         }
       ),
-      isModalRendered && /* @__PURE__ */ jsxRuntimeExports.jsx(PresenceModalBackground, { ref: containerRef, $anchorTop: true, $closing: isModalClosing, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(PresenceModalContainer, { ref: containerRef, $closing: isModalClosing, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          CloseButton,
-          {
-            onClick: handleCloseModal,
-            style: { fontSize: 24 },
-            "aria-label": t2("action.close"),
-            children: "\xD7"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ModalTitle, { children: t2("modal.newChat.title") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          ProfileImagePlaceholder,
-          {
-            size: isMobileViewport ? 80 : 120,
-            upload: { active: true, onUpload },
-            remove: { enabled: true, onRemoveClick },
-            placeholderIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddPhotoIcon, {}),
-            icon: profileImage,
-            disableOverlay: !profileImage,
-            role: "user"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          GroupContainer,
-          {
-            style: {
-              flexDirection: "column",
-              position: "relative",
-              boxSizing: "border-box",
-              width: "100%"
-            },
-            children: [
+      isModalRendered && /* @__PURE__ */ jsxRuntimeExports.jsx(NewChatBackdrop, { $closing: isModalClosing, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(NewChatDialog, { ref: containerRef, $closing: isModalClosing, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(NewChatDialogHeader, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ModalTitle, { children: t2("modal.newChat.title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CloseButton,
+            {
+              onClick: handleCloseModal,
+              "aria-label": t2("action.close"),
+              children: "\xD7"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(NewChatDialogBody, { "data-testid": "new-chat-dialog-body", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(AvatarPicker, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ProfileImagePlaceholder,
+              {
+                size: 64,
+                upload: { active: true, onUpload },
+                fileInputId: "new-chat-avatar-file-input",
+                placeholderIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddPhotoIcon, {}),
+                icon: profileImage,
+                disableOverlay: true,
+                role: "user"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(AvatarPickerActions, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
-                InputWithLabel,
+                TextAction,
                 {
-                  style: { flex: 1 },
-                  colorBg: config?.colors?.colorInput,
-                  id: "roomName",
-                  value: roomName,
-                  onChange: handleRoomNameChange,
-                  placeholder: t2("modal.newChat.roomNamePlaceholder"),
-                  helperText: errors2.name,
-                  error: !!errors2.name
+                  type: "button",
+                  onClick: () => document.getElementById("new-chat-avatar-file-input")?.click(),
+                  children: t2(profileImage ? "action.changePhoto" : "action.addPhoto")
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                ChatTypeGroup,
-                {
-                  role: "radiogroup",
-                  "aria-label": t2("modal.newChat.chatTypePlaceholder"),
-                  onKeyDown: (e2) => {
-                    if (e2.key !== "ArrowLeft" && e2.key !== "ArrowRight") return;
-                    e2.preventDefault();
-                    const next2 = isPrivate ? PUBLIC_TYPE : PRIVATE_TYPE;
-                    setChatType(next2);
-                    e2.currentTarget.querySelector(
-                      `#ethora-chattype-${next2.id}`
-                    )?.focus();
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(ChatTypeIndicator, { $index: isPrivate ? 1 : 0, $count: 2 }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      ChatTypeOption,
-                      {
-                        type: "button",
-                        role: "radio",
-                        id: "ethora-chattype-public",
-                        "aria-checked": !isPrivate,
-                        tabIndex: !isPrivate ? 0 : -1,
-                        active: !isPrivate,
-                        onClick: () => setChatType(PUBLIC_TYPE),
-                        children: t2("modal.newChat.typePublic")
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      ChatTypeOption,
-                      {
-                        type: "button",
-                        role: "radio",
-                        id: "ethora-chattype-group",
-                        "aria-checked": isPrivate,
-                        tabIndex: isPrivate ? 0 : -1,
-                        active: isPrivate,
-                        onClick: () => setChatType(PRIVATE_TYPE),
-                        children: t2("modal.newChat.typePrivate")
-                      }
-                    )
-                  ]
-                }
-              )
-            ]
-          }
-        ),
-        isPrivate && /* @__PURE__ */ jsxRuntimeExports.jsx(InlineUsersWrapper, { $expanded: userPickerExpanded, children: /* @__PURE__ */ jsxRuntimeExports.jsx(InlineUsersInner, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          GroupContainer,
-          {
-            style: {
-              flexDirection: "column",
-              position: "relative",
-              boxSizing: "border-box",
-              width: "100%"
-            },
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              UsersList,
+              profileImage && /* @__PURE__ */ jsxRuntimeExports.jsx(TextAction, { type: "button", onClick: onRemoveClick, children: t2("action.removePhoto") })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            GroupContainer,
+            {
+              style: {
+                flexDirection: "column",
+                position: "relative",
+                boxSizing: "border-box",
+                width: "100%",
+                gap: 16
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  InputWithLabel,
+                  {
+                    style: { flex: 1 },
+                    colorBg: config?.colors?.colorInput,
+                    id: "roomName",
+                    value: roomName,
+                    onChange: handleRoomNameChange,
+                    placeholder: t2("modal.newChat.roomNamePlaceholder"),
+                    helperText: errors2.name,
+                    error: !!errors2.name
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  ChatTypeGroup,
+                  {
+                    role: "radiogroup",
+                    "aria-label": t2("modal.newChat.chatTypePlaceholder"),
+                    onKeyDown: (e2) => {
+                      if (e2.key !== "ArrowLeft" && e2.key !== "ArrowRight") return;
+                      e2.preventDefault();
+                      const next2 = isPrivate ? PUBLIC_TYPE : PRIVATE_TYPE;
+                      setChatType(next2);
+                      e2.currentTarget.querySelector(
+                        `#ethora-chattype-${next2.id}`
+                      )?.focus();
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(ChatTypeIndicator, { $index: isPrivate ? 1 : 0, $count: 2 }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        ChatTypeOption,
+                        {
+                          type: "button",
+                          role: "radio",
+                          id: "ethora-chattype-public",
+                          "aria-checked": !isPrivate,
+                          tabIndex: !isPrivate ? 0 : -1,
+                          active: !isPrivate,
+                          onClick: () => setChatType(PUBLIC_TYPE),
+                          children: t2("modal.newChat.typePublic")
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        ChatTypeOption,
+                        {
+                          type: "button",
+                          role: "radio",
+                          id: "ethora-chattype-group",
+                          "aria-checked": isPrivate,
+                          tabIndex: isPrivate ? 0 : -1,
+                          active: isPrivate,
+                          onClick: () => setChatType(PRIVATE_TYPE),
+                          children: t2("modal.newChat.typeGroup")
+                        }
+                      )
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ModalHint, { children: t2(
+                  isPrivate ? "modal.newChat.groupHint" : "modal.newChat.publicHint"
+                ) })
+              ]
+            }
+          ),
+          isPrivate && /* @__PURE__ */ jsxRuntimeExports.jsxs(MemberPickerSection, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(MemberPickerHeader, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(MemberCount, { children: [
+              selectedUsers.length,
+              "/20"
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              MemberPickerAction,
               {
-                selectedUsers,
-                setSelectedUsers,
-                style: {
-                  minWidth: "100%",
-                  width: "100%",
-                  maxHeight: "280px"
-                },
-                headerElement: false
+                type: "button",
+                "aria-expanded": isMemberPickerOpen,
+                onClick: () => setIsMemberPickerOpen((open) => !open),
+                children: t2("action.addMembers")
               }
-            )
-          }
-        ) }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(GroupContainer, { children: [
+            ),
+            isMemberPickerOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(InlineUsersWrapper, { $expanded: userPickerExpanded, children: /* @__PURE__ */ jsxRuntimeExports.jsx(InlineUsersInner, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              GroupContainer,
+              {
+                style: {
+                  flexDirection: "column",
+                  position: "relative",
+                  boxSizing: "border-box",
+                  width: "100%"
+                },
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  UsersList,
+                  {
+                    selectedUsers,
+                    setSelectedUsers,
+                    style: {
+                      minWidth: "100%",
+                      width: "100%",
+                      maxHeight: "min(240px, 28dvh)"
+                    },
+                    headerElement: false
+                  }
+                )
+              }
+            ) }) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(NewChatDialogFooter, { "data-testid": "new-chat-dialog-footer", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
             {
@@ -76286,6 +79147,22 @@ ${messageId}`;
     MODAL_TYPES.PUBLIC_CHATS,
     ...SETTINGS_SUB_MODAL_TYPES
   ];
+  const useIsMobileViewport = (breakpoint = 480) => {
+    const getMatches = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
+    const [isMobile, setIsMobile] = reactExports.useState(getMatches);
+    reactExports.useEffect(() => {
+      if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+        return;
+      }
+      const mediaQuery = window.matchMedia(`(max-width: ${breakpoint}px)`);
+      const update = () => setIsMobile(mediaQuery.matches);
+      update();
+      mediaQuery.addEventListener("change", update);
+      return () => mediaQuery.removeEventListener("change", update);
+    }, [breakpoint]);
+    return isMobile;
+  };
+  const isMobileViewportNow = (breakpoint = 480) => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
   const PREVIEW_NAME_PX = 16;
   const PREVIEW_LINE_PX = 18;
   const PREVIEW_BLOCK_MIN_PX = PREVIEW_NAME_PX + 2 + PREVIEW_LINE_PX;
@@ -76775,7 +79652,7 @@ ${messageId}`;
           children: t2("presence.onlineCount", { count: onlineUsernames.length })
         }
       ),
-      isOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(Popover, { onClick: (e2) => e2.stopPropagation(), children: entries.map((entry) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Row$5, { children: [
+      isOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(Popover, { onClick: (e2) => e2.stopPropagation(), children: entries.map((entry) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Row$6, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Dot, {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Name$3, { children: entry.name })
       ] }, entry.username)) })
@@ -76822,7 +79699,7 @@ ${messageId}`;
   animation: ${fadeIn} 0.15s ease-out;
   cursor: default;
 `;
-  const Row$5 = gt.div`
+  const Row$6 = gt.div`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -77586,6 +80463,7 @@ ${messageId}`;
   const logoutService = {
     performLogout: async () => {
       store.getState().chatSettingStore.user.token || "";
+      const pushScope = store.getState().chatSettingStore.config?.pushNotifications?.serviceWorkerScope || "/";
       const xmppClient = getGlobalXmppClient();
       try {
         xmppClient?.markIntentionalLogout?.();
@@ -77611,7 +80489,12 @@ ${messageId}`;
       clearScopedChatCache();
       const disconnectPromise = xmppClient ? withTimeout(xmppClient.disconnect(), 1500) : Promise.resolve();
       const pushTeardownPromise = withTimeout(
-        disablePushNotifications(),
+        Promise.all([
+          disablePushNotifications(),
+          // The call push flow's own leftovers (held call, the tap the worker
+          // keeps for the next page load, call notifications on screen).
+          clearCallPushSession(pushScope)
+        ]),
         2500
       );
       const persistPromise = withTimeout(
@@ -77940,7 +80823,7 @@ ${messageId}`;
   display: flex;
   flex-direction: column;
 `;
-  const Row$4 = gt.div`
+  const Row$5 = gt.div`
   display: flex;
   align-items: center;
   gap: 10px;
@@ -78180,7 +81063,7 @@ ${messageId}`;
       )) }),
       otherItems.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(RowsContainer, { children: otherItems.map((file) => {
         const roomTitle = resolveRoomTitle(file.roomName);
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(Row$4, { children: [
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(Row$5, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(RowIconWrap, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
             FileIcon,
             {
@@ -79166,10 +82049,20 @@ ${messageId}`;
       [muted, isSupported, isPending, toggleMute, setMuted]
     );
   };
+  const normalizeJid = (jid2) => jid2.trim().split("/")[0].toLowerCase();
+  const canLeaveRoom = (jid2, defaultRooms) => {
+    if (!jid2) return true;
+    const roomJid = normalizeJid(jid2);
+    const appRoom = defaultRooms?.find(
+      (room) => normalizeJid(room.jid) === roomJid
+    );
+    return appRoom ? appRoom.removable === true : true;
+  };
   const RoomMenu = ({
     roomJid,
     handleLeaveClick,
     handleReportClick,
+    isModerator = false,
     handleBlockClick,
     canBlock
   }) => {
@@ -79183,6 +82076,7 @@ ${messageId}`;
     } = useRoomMute(roomJid);
     const showMuteOption = isMuteSupported && !config?.disableRoomMute;
     const showBlockOption = !!canBlock && !!handleBlockClick && config?.features?.userBlock === true && !config?.disableUserBlock;
+    const showLeaveOption = !isModerator && canLeaveRoom(roomJid, config?.defaultRooms);
     const menuOptions = reactExports.useMemo(
       () => [
         ...showMuteOption ? [
@@ -79206,29 +82100,35 @@ ${messageId}`;
             styles: { color: "var(--ethora-color-danger, #D92D20)" }
           }
         ] : [],
-        {
-          label: t2("action.report"),
-          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ReportIcon, {}),
-          onClick: () => {
-            handleReportClick();
-            ethoraLogger.log("Report clicked");
-          },
-          styles: { color: "var(--ethora-color-danger, #D92D20)" }
-        },
-        {
-          label: t2("action.leave"),
-          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LeaveIcon, {}),
-          onClick: () => {
-            handleLeaveClick();
-          },
-          styles: { color: "var(--ethora-color-danger, #D92D20)" }
-        }
+        ...!isModerator ? [
+          {
+            label: t2("action.report"),
+            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ReportIcon, {}),
+            onClick: () => {
+              handleReportClick();
+              ethoraLogger.log("Report clicked");
+            },
+            styles: { color: "var(--ethora-color-danger, #D92D20)" }
+          }
+        ] : [],
+        ...showLeaveOption ? [
+          {
+            label: t2("action.leave"),
+            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LeaveIcon, {}),
+            onClick: () => {
+              handleLeaveClick();
+            },
+            styles: { color: "var(--ethora-color-danger, #D92D20)" }
+          }
+        ] : []
       ],
       [
         handleLeaveClick,
         handleReportClick,
         handleBlockClick,
         showBlockOption,
+        showLeaveOption,
+        isModerator,
         t2,
         showMuteOption,
         muted,
@@ -79248,6 +82148,7 @@ ${messageId}`;
         }
       );
     }
+    if (isModerator && menuOptions.length === 0) return null;
     return /* @__PURE__ */ jsxRuntimeExports.jsx(
       DropdownMenu,
       {
@@ -79268,6 +82169,85 @@ ${messageId}`;
   function formatNumberWithCommas(num, locale) {
     return num.toLocaleString(locale ?? "en-US");
   }
+  async function requestOutgoingCall(params) {
+    const startedAt = store.getState().call.startedAt;
+    const result = await createChatCall(params.chatName, { kind: params.kind });
+    const current2 = store.getState().call;
+    const stillCurrent = current2.phase !== "idle" && current2.direction === "outgoing" && current2.startedAt === startedAt;
+    if (!stillCurrent) {
+      if (result.mode === "p2p") {
+        reportCallEnded(result.callId);
+        if (params.peerXmppUsername) {
+          sendCallStateSignal("cancelled", {
+            peerXmppUsername: params.peerXmppUsername,
+            callId: result.callId,
+            roomBareName: params.chatName
+          });
+        }
+      }
+      return;
+    }
+    store.dispatch(
+      setOutgoingCallRoute({
+        startedAt,
+        callId: result.callId,
+        mode: result.mode,
+        group: result.group,
+        livekitUrl: result.livekitUrl,
+        iceServers: result.iceServers
+      })
+    );
+  }
+  async function placeRoomCall(params) {
+    const { dispatch, room, kind } = params;
+    if (!room?.jid) return;
+    const chatName = room.jid.split("@")[0];
+    if (!chatName) return;
+    const isGroupRoom = room.type === "group";
+    const selfLocal = String(params.selfXmppUsername || "").split("@")[0];
+    const peer = isGroupRoom ? void 0 : (room.members || []).find((member) => {
+      const mLocal = String(member?.xmppUsername || "").split("@")[0];
+      return mLocal && mLocal !== selfLocal;
+    });
+    const peerXmppUsername = peer?.xmppUsername || null;
+    const rawTitle = String(room.name || "").trim();
+    const isBadTitle = !rawTitle || ["deleted", "deleted user", "unknown", "null"].includes(
+      rawTitle.toLowerCase()
+    );
+    const peerDisplay = peer ? `${peer.firstName || ""} ${peer.lastName || ""}`.trim() || peer.name || "" : "";
+    const dialName = (isBadTitle ? peerDisplay : rawTitle) || peerDisplay || chatName;
+    dispatch(
+      startOutgoingCall({
+        roomJid: room.jid,
+        roomName: dialName,
+        roomBareName: chatName,
+        kind,
+        peerXmppUsername,
+        isGroup: isGroupRoom
+      })
+    );
+    if (peerXmppUsername) {
+      sendCallInviteSignal(kind, {
+        peerXmppUsername,
+        roomBareName: chatName
+      });
+    }
+    try {
+      await requestOutgoingCall({ chatName, kind, peerXmppUsername });
+    } catch (error2) {
+      const message = error2 instanceof Error ? error2.message : "Failed to create call";
+      dispatch(setCallError(message));
+    }
+  }
+  const PresenceModalBackground = gt(ModalBackground)`
+  ${({ $closing }) => $closing && fadeOutAnimation}
+`;
+  const PresenceModalContainer = gt(ModalContainer)`
+  ${({ $closing }) => $closing && scaleOutAnimation}
+`;
+  gt(ModalContainerFullScreen)`
+  ${({ $closing }) => $closing ? fadeOutAnimation : fadeInAnimation}
+`;
   const ModalWrapper = ({
     iconTitle: IconTitle,
     title,
@@ -79856,9 +82836,9 @@ ${messageId}`;
       (state2) => state2.chatSettingStore.user?.fileToken || ""
     );
     const videoCallsConfig = config?.videoCalls;
-    const allowedRoomTypes = videoCallsConfig?.allowedRoomTypes || ["private"];
     const isVideoCallsEnabled = videoCallsConfig?.enabled === true;
     const isPrivateRoom2 = currentRoom?.type === "private";
+    currentRoom?.type === "group";
     const onlineUsers = useRoomPresence(currentRoom?.jid);
     const myXmppUsername = stateUser?.xmppUsername || "";
     const peer = isPrivateRoom2 ? (currentRoom?.members || []).find(
@@ -79872,12 +82852,15 @@ ${messageId}`;
     );
     const peerProfileImage = peer?.profileImage || peerUsersSetEntry?.profileImage || "";
     const canBlock = isPrivateRoom2 && !!peer?.xmppUsername && config?.features?.userBlock === true && !config?.disableUserBlock;
-    const isRoomAllowedByType = isPrivateRoom2 && allowedRoomTypes.includes("private");
-    const isRoomAllowed = isRoomAllowedByType;
+    const isRoomAllowed = isCallRoomTypeAllowed(
+      currentRoom?.type,
+      videoCallsConfig?.allowedRoomTypes
+    );
     const hasLivekitUrl = Boolean(videoCallsConfig?.livekitUrl?.trim());
     const isCallBusy = call?.phase !== "idle";
     const canCall = isVideoCallsEnabled && isRoomAllowed && hasLivekitUrl;
     const isAudioCallsEnabled = canCall && videoCallsConfig?.enableAudioCalls === true;
+    const canSchedule = canCall && isScheduledCallsEnabled(config);
     const callDisabledReason = !isRoomAllowed ? t2("call.disabled.roomType") : !hasLivekitUrl ? t2("call.disabled.noLivekit") : isCallBusy ? t2("call.disabled.busy") : "";
     const handleReportClick = () => {
       dispatch(setOpenReportModal({ isOpen: true }));
@@ -79896,7 +82879,7 @@ ${messageId}`;
       setIsLeaveModalOpen(false);
     }, []);
     const handleConfirmLeave = reactExports.useCallback(() => {
-      if (!activeRoomJID) {
+      if (!activeRoomJID || !canLeaveRoom(activeRoomJID, config?.defaultRooms)) {
         setIsLeaveModalOpen(false);
         return;
       }
@@ -79912,7 +82895,7 @@ ${messageId}`;
       }
       dispatch(setCurrentRoom({ roomJID: null }));
       setIsLeaveModalOpen(false);
-    }, [activeRoomJID, dispatch, client2, isPrivateRoom2]);
+    }, [activeRoomJID, config?.defaultRooms, dispatch, client2, isPrivateRoom2]);
     const handleBlockClick = reactExports.useCallback(async () => {
       const peerUsername = peer?.xmppUsername;
       if (!peerUsername || !activeRoomJID) return;
@@ -79945,51 +82928,14 @@ ${messageId}`;
         if (!canCall || isCallBusy || !currentRoom?.jid) {
           return;
         }
-        const chatName = currentRoom.jid.split("@")[0];
-        if (!chatName) return;
-        const selfLocal = String(stateUser?.xmppUsername || "").split("@")[0];
-        const peer2 = (currentRoom.members || []).find((member) => {
-          const mLocal = String(member?.xmppUsername || "").split("@")[0];
-          return mLocal && mLocal !== selfLocal;
+        await placeRoomCall({
+          dispatch,
+          room: currentRoom,
+          kind,
+          selfXmppUsername: stateUser?.xmppUsername
         });
-        const peerXmppUsername = peer2?.xmppUsername || null;
-        const rawTitle = String(currentRoom.name || "").trim();
-        const isBadTitle = !rawTitle || ["deleted", "deleted user", "unknown", "null"].includes(
-          rawTitle.toLowerCase()
-        );
-        const peerDisplay = peer2 ? `${peer2.firstName || ""} ${peer2.lastName || ""}`.trim() || peer2.name || "" : "";
-        const dialName = (isBadTitle ? peerDisplay : rawTitle) || peerDisplay || chatName;
-        dispatch(
-          startOutgoingCall({
-            roomJid: currentRoom.jid,
-            roomName: dialName,
-            roomBareName: chatName,
-            kind,
-            peerXmppUsername
-          })
-        );
-        if (peerXmppUsername) {
-          sendCallInviteSignal(kind, {
-            peerXmppUsername,
-            roomBareName: chatName
-          });
-        }
-        try {
-          await createChatCall(chatName, { kind });
-        } catch (error2) {
-          const message = error2 instanceof Error ? error2.message : "Failed to create call";
-          dispatch(setCallError(message));
-        }
       },
-      [
-        canCall,
-        isCallBusy,
-        currentRoom?.jid,
-        currentRoom?.name,
-        currentRoom?.members,
-        stateUser?.xmppUsername,
-        dispatch
-      ]
+      [canCall, isCallBusy, currentRoom, stateUser?.xmppUsername, dispatch]
     );
     const handleVideoCallClick = reactExports.useCallback(
       () => placeCall("video"),
@@ -80117,6 +83063,16 @@ ${messageId}`;
             }
           ),
           shouldShowLanguageSelector(config?.translates) && /* @__PURE__ */ jsxRuntimeExports.jsx(LanguageSelectorButton, {}),
+          canSchedule && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            HeaderIconButton,
+            {
+              onClick: () => dispatch(openScheduleModal({ roomJid: currentRoom.jid })),
+              title: t2("scheduledCall.action.schedule"),
+              "aria-label": t2("scheduledCall.action.schedule"),
+              "data-testid": "schedule-call-button",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarIcon, {})
+            }
+          ),
           canCall && !isCallBusy && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             isAudioCallsEnabled && /* @__PURE__ */ jsxRuntimeExports.jsx(
               HeaderCallButton,
@@ -80149,6 +83105,7 @@ ${messageId}`;
             RoomMenu,
             {
               roomJid: currentRoom?.jid,
+              isModerator: currentRoom?.role?.toLowerCase() === "moderator",
               handleLeaveClick,
               handleReportClick,
               handleBlockClick,
@@ -81603,23 +84560,6 @@ ${messageId}`;
         initialPresenceAndHistory();
       }
     }, [activeRoomJID, roomCount, messageLength, activeMessageCount]);
-    const attemptedDefaultRoomJoins = reactExports.useRef(/* @__PURE__ */ new Set());
-    reactExports.useEffect(() => {
-      const defaultRooms = Array.isArray(config?.defaultRooms) ? config.defaultRooms : [];
-      const roomsList = readRooms();
-      if (!client2 || !defaultRooms.length || !roomsList) return;
-      const missing = defaultRooms.filter(
-        (room) => roomsList[room.jid] === void 0 && !attemptedDefaultRoomJoins.current.has(room.jid)
-      );
-      if (!missing.length) return;
-      missing.forEach((room) => {
-        attemptedDefaultRoomJoins.current.add(room.jid);
-        client2.presenceInRoomStanza(room.jid, 0, 1200, false);
-      });
-      if (config?.newArch === false) {
-        client2.getRoomsStanza();
-      }
-    }, [client2, config?.defaultRooms, roomCount]);
   };
   const useComposing = (config) => {
     const { client: client2 } = useXmppClient();
@@ -83112,7 +86052,7 @@ ${messageId}`;
   const SPEEDS = [1, 1.5, 2];
   const BAR_WIDTH = 3;
   const BAR_GAP = 2;
-  const Row$3 = gt.div`
+  const Row$4 = gt.div`
   display: flex;
   align-items: center;
   gap: 10px;
@@ -83238,11 +86178,11 @@ ${messageId}`;
     b: a2.b + (b2.b - a2.b) * amount
   });
   const relativeLuminance = ({ r: r2, g: g2, b: b2 }) => {
-    const channel = (value) => {
+    const channel2 = (value) => {
       const c2 = value / 255;
       return c2 <= 0.03928 ? c2 / 12.92 : ((c2 + 0.055) / 1.055) ** 2.4;
     };
-    return 0.2126 * channel(r2) + 0.7152 * channel(g2) + 0.0722 * channel(b2);
+    return 0.2126 * channel2(r2) + 0.7152 * channel2(g2) + 0.0722 * channel2(b2);
   };
   const contrastRatio = (a2, b2) => {
     const [light, dark] = [relativeLuminance(a2), relativeLuminance(b2)].sort(
@@ -83316,7 +86256,7 @@ ${messageId}`;
     const waveformRef = reactExports.useRef(null);
     const wavesurfer = reactExports.useRef(null);
     const [isPlaying, setIsPlaying] = reactExports.useState(false);
-    const [isReady, setIsReady] = reactExports.useState(false);
+    const [isReady2, setIsReady] = reactExports.useState(false);
     const [playbackRate, setPlaybackRate] = reactExports.useState(1);
     const [duration, setDuration] = reactExports.useState(0);
     const [currentTime, setCurrentTime] = reactExports.useState(0);
@@ -83390,14 +86330,14 @@ ${messageId}`;
       setPlaybackRate(next2);
       instance2.setPlaybackRate(next2);
     }, [playbackRate]);
-    const timeLabel = isReady ? formatTime(currentTime > 0 ? currentTime : duration) : "";
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Row$3, { children: [
+    const timeLabel = isReady2 ? formatTime(currentTime > 0 ? currentTime : duration) : "";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Row$4, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         PlayButton,
         {
           type: "button",
           onClick: togglePlayPause,
-          disabled: !isReady,
+          disabled: !isReady2,
           "aria-label": t2(isPlaying ? "media.audioPause" : "media.audioPlay"),
           children: isPlaying ? /* @__PURE__ */ jsxRuntimeExports.jsx(PauseIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(PlayIcon, {})
         }
@@ -83405,7 +86345,7 @@ ${messageId}`;
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Track, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(WaveBox, { "aria-hidden": "true", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Wave, { ref: waveformRef }),
-          !isReady && /* @__PURE__ */ jsxRuntimeExports.jsx(WavePlaceholder, {})
+          !isReady2 && /* @__PURE__ */ jsxRuntimeExports.jsx(WavePlaceholder, {})
         ] }),
         timeLabel && /* @__PURE__ */ jsxRuntimeExports.jsx(Time, { children: timeLabel })
       ] }),
@@ -83414,7 +86354,7 @@ ${messageId}`;
         {
           type: "button",
           onClick: changeSpeed,
-          disabled: !isReady,
+          disabled: !isReady2,
           "aria-label": t2("media.audioSpeed"),
           children: [
             playbackRate,
@@ -83747,7 +86687,7 @@ ${messageId}`;
     object-position: top center;
   }
 `;
-  const Body = gt.span`
+  const Body$1 = gt.span`
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -83814,7 +86754,7 @@ ${messageId}`;
           "aria-label": rest["aria-label"],
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(IconTile, { $tone: tone, children: icon }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Body, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Body$1, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Name$2, { children: name2 }),
               parts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Meta$1, { children: parts.map((part, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(MetaPart, { children: part }, `${index2}-${part}`)) })
             ] }),
@@ -86080,7 +89020,7 @@ ${messageId}`;
     transform: none;
   }
 `;
-  const Row$2 = gt.div`
+  const Row$3 = gt.div`
   --qr-primary: var(--ethora-color-primary, ${(props) => props.$accent});
   --qr-text: ${(props) => props.$dark ? "color-mix(in srgb, var(--qr-primary) 70%, #fff)" : "var(--ethora-color-primary-text, var(--qr-primary))"};
   --qr-tint: ${(props) => props.$dark ? "14%" : "6%"};
@@ -86184,7 +89124,7 @@ ${messageId}`;
       [locked, messageId, onSelect]
     );
     if (!replies.length || locked) return null;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Row$2, { role: "group", "aria-label": "Quick replies", $dark: dark, $accent: accent, children: replies.map((reply, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Row$3, { role: "group", "aria-label": "Quick replies", $dark: dark, $accent: accent, children: replies.map((reply, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
       Chip$1,
       {
         type: "button",
@@ -86518,15 +89458,29 @@ ${messageId}`;
       });
     };
     const timerRef = reactExports.useRef(null);
+    const touchStartRef = reactExports.useRef(null);
     const handleTouchStart = (event) => {
+      const touch = event.touches[0];
+      touchStartRef.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
       timerRef.current = setTimeout(() => {
+        timerRef.current = null;
         handleContextMenu(event);
       }, 500);
     };
     const handleTouchEnd = () => {
+      touchStartRef.current = null;
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
+      }
+    };
+    const LONG_PRESS_MOVE_TOLERANCE_PX = 10;
+    const handleTouchMove = (event) => {
+      const start = touchStartRef.current;
+      const touch = event.touches[0];
+      if (!timerRef.current || !start || !touch) return;
+      if (Math.abs(touch.clientX - start.x) > LONG_PRESS_MOVE_TOLERANCE_PX || Math.abs(touch.clientY - start.y) > LONG_PRESS_MOVE_TOLERANCE_PX) {
+        handleTouchEnd();
       }
     };
     const avatarClickable = !profilesDisabled && !senderNamePending && senderDisplayName !== "Deleted User" && senderDisplayName !== unresolvedPlaceholder;
@@ -86901,6 +89855,8 @@ ${messageId}`;
                 onContextMenu: !config?.disableInteractions ? handleContextMenu : void 0,
                 onTouchStart: !config?.disableInteractions ? handleTouchStart : void 0,
                 onTouchEnd: !config?.disableInteractions ? handleTouchEnd : void 0,
+                onTouchMove: !config?.disableInteractions ? handleTouchMove : void 0,
+                onTouchCancel: !config?.disableInteractions ? handleTouchEnd : void 0,
                 children: [
                   !isUser && /* @__PURE__ */ jsxRuntimeExports.jsx(
                     CustomUserName,
@@ -87195,7 +90151,7 @@ ${messageId}`;
         handleRegularLogin();
       }
     };
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(FormContainer, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form, { onSubmit: handleSubmit, children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(FormContainer, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleSubmit, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(FieldGroup, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(FieldLabel, { htmlFor: "ethora-login-email", children: t2("field.email") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -87313,7 +90269,7 @@ ${messageId}`;
   height: 100%;
   background-color: var(--ethora-color-bg-subtle, #f5f7fa);
 `;
-  const Form = gt.form`
+  const Form$1 = gt.form`
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -87878,6 +90834,60 @@ ${messageId}`;
       children2
     ] }) });
   };
+  const REPORT_CATEGORIES = [
+    {
+      id: "spam",
+      labelKey: "report.category.spam",
+      apiCategory: "spam",
+      name: "Spam"
+    },
+    {
+      id: "violence",
+      labelKey: "report.category.violence",
+      apiCategory: "violance",
+      name: "Violence"
+    },
+    {
+      id: "childAbuse",
+      labelKey: "report.category.childAbuse",
+      apiCategory: "other",
+      name: "Child Abuse"
+    },
+    {
+      id: "pornography",
+      labelKey: "report.category.pornography",
+      apiCategory: "pornography",
+      name: "Pornography"
+    },
+    {
+      id: "personalDetails",
+      labelKey: "report.category.personalDetails",
+      apiCategory: "personal details",
+      name: "Personal Details"
+    },
+    {
+      id: "illegalDrugs",
+      labelKey: "report.category.illegalDrugs",
+      apiCategory: "illegal drugs",
+      name: "Illegal Drugs"
+    }
+  ];
+  const OTHER_REPORT_CATEGORY = {
+    id: "other",
+    labelKey: "report.category.other",
+    apiCategory: "other",
+    name: "Other"
+  };
+  const findReportCategory = (id2) => [...REPORT_CATEGORIES, OTHER_REPORT_CATEGORY].find((c2) => c2.id === id2);
+  const buildReportRoomPayload = (roomJid, categoryId, details) => {
+    const chatName = String(roomJid || "").trim().split("@")[0];
+    const category = findReportCategory(categoryId);
+    if (!chatName || !category) return null;
+    const note = String(details || "").trim();
+    const prefix2 = category.apiCategory === "other" && category !== OTHER_REPORT_CATEGORY ? category.name : "";
+    const text2 = [prefix2, note].filter(Boolean).join(": ") || category.name;
+    return { chatName, category: category.apiCategory, text: text2 };
+  };
   const Report = gt.button`
   padding: 12px 16px;
   border: none;
@@ -87897,20 +90907,14 @@ ${messageId}`;
     outline-offset: -2px;
   }
 `;
-  const REPORT_CATEGORIES = [
-    { id: "Spam", labelKey: "report.category.spam" },
-    { id: "Violence", labelKey: "report.category.violence" },
-    { id: "Child Abuse", labelKey: "report.category.childAbuse" },
-    { id: "Pornography", labelKey: "report.category.pornography" },
-    { id: "Personal Details", labelKey: "report.category.personalDetails" },
-    { id: "Illegal Drugs", labelKey: "report.category.illegalDrugs" }
-  ];
-  const OTHER_CATEGORY = { id: "Other", labelKey: "report.category.other" };
+  const OTHER_CATEGORY = OTHER_REPORT_CATEGORY;
   const ModalReportChat = ({ isClosing }) => {
     const { config } = useChatSettingState();
     const { activeRoomJID } = useRoomState();
     const dispatch = useDispatch();
     const t2 = useT();
+    const { showToast } = useToast();
+    const [isSending, setIsSending] = reactExports.useState(false);
     const [message, setMessage] = reactExports.useState("");
     const [reportChoose, setReportChoose] = reactExports.useState({
       name: "",
@@ -87922,30 +90926,57 @@ ${messageId}`;
       },
       []
     );
-    const handleCloseModal = () => {
+    const handleCloseModal = reactExports.useCallback(() => {
       dispatch(setOpenReportModal({ isOpen: false }));
-    };
+    }, [dispatch]);
     const handleReport = reactExports.useCallback(async () => {
-      await postReportRoom({
-        chatName: activeRoomJID,
-        category: reportChoose.name,
-        text: message || ""
-      });
-    }, [activeRoomJID]);
-    const chosenLabel = () => {
-      const category = [...REPORT_CATEGORIES, OTHER_CATEGORY].find(
-        (c2) => c2.id === reportChoose.name
+      const payload = buildReportRoomPayload(
+        activeRoomJID,
+        reportChoose.name,
+        message
       );
+      if (!payload || isSending) return;
+      setIsSending(true);
+      try {
+        await postReportRoom(payload);
+        showToast({
+          id: Date.now().toString(),
+          title: t2("toast.success"),
+          message: t2("toast.reportSent"),
+          type: "success"
+        });
+        handleCloseModal();
+      } catch {
+        showToast({
+          id: Date.now().toString(),
+          title: t2("toast.error"),
+          message: t2("toast.reportFailed"),
+          type: "error"
+        });
+      } finally {
+        setIsSending(false);
+      }
+    }, [
+      activeRoomJID,
+      reportChoose.name,
+      message,
+      isSending,
+      showToast,
+      t2,
+      handleCloseModal
+    ]);
+    const chosenLabel = () => {
+      const category = findReportCategory(reportChoose.name);
       return category ? t2(category.labelKey) : reportChoose.name;
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       ModalBox,
       {
-        title: reportChoose.name === "Other" ? t2("modal.report.messageTitle") : t2("modal.report.chatTitle"),
+        title: reportChoose.name === OTHER_CATEGORY.id ? t2("modal.report.messageTitle") : t2("modal.report.chatTitle"),
         handleCloseModal,
         isClosing,
         children: [
-          reportChoose.name === "Other" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0 }, children: t2("modal.report.otherDetails") }),
+          reportChoose.name === OTHER_CATEGORY.id && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0 }, children: t2("modal.report.otherDetails") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "100%" }, children: reportChoose.isChoose ? /* @__PURE__ */ jsxRuntimeExports.jsx(
             "div",
             {
@@ -87955,7 +90986,7 @@ ${messageId}`;
                 alignItems: "center",
                 position: "relative"
               },
-              children: reportChoose.name === "Other" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+              children: reportChoose.name === OTHER_CATEGORY.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(
                 MessageInput,
                 {
                   color: config?.colors?.primary,
@@ -88012,6 +91043,7 @@ ${messageId}`;
                   Button,
                   {
                     onClick: handleReport,
+                    disabled: isSending,
                     text: t2("action.report"),
                     style: { width: "100%" },
                     unstyled: true,
@@ -88104,7 +91136,7 @@ ${messageId}`;
     const [notFoundRoomJID, setNotFoundRoomJID] = reactExports.useState(null);
     const rooms = options?.rooms;
     const activeRoomJID = options?.activeRoomJID;
-    const isReady = options?.isReady;
+    const isReady2 = options?.isReady;
     const setCurrentRoomRef = reactExports.useRef(setCurrentRoom2);
     setCurrentRoomRef.current = setCurrentRoom2;
     reactExports.useEffect(() => {
@@ -88133,14 +91165,14 @@ ${messageId}`;
           setNotFoundRoomJID(null);
           return;
         }
-        if (isReady) {
+        if (isReady2) {
           clearStorage();
           setNotFoundRoomJID(roomJID);
         }
       } catch (error2) {
         console.error("Error using QR chat selection:", error2);
       }
-    }, [conferenceServer, rooms, activeRoomJID, isReady]);
+    }, [conferenceServer, rooms, activeRoomJID, isReady2]);
     return { wasAutoSelected, notFoundRoomJID };
   };
   const chatAutoEnterer = ({
@@ -89047,11 +92079,584 @@ ${messageId}`;
       }
     }, [threadOpen, panelOpen]);
   };
+  const Form = gt.form`
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  color: var(--ethora-color-text, #141414);
+`;
+  const Field$1 = gt.label`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 0;
+  flex: 1;
+`;
+  const inputCss = `
+  font: inherit;
+  font-weight: 400;
+  font-size: 15px;
+  padding: 9px 12px;
+  border-radius: var(--ethora-radius-sm, 8px);
+  border: 1px solid var(--ethora-color-border, #e6e8ec);
+  background: var(--ethora-color-bg, #fff);
+  color: var(--ethora-color-text, #141414);
+  box-sizing: border-box;
+  width: 100%;
+  &:focus-visible {
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: 1px;
+  }
+`;
+  const Input = gt.input`
+  ${inputCss}
+  ${({ $invalid }) => $invalid && "border-color: var(--ethora-color-danger, #d92d20);"}
+`;
+  const Select$1 = gt.select`
+  ${inputCss}
+  ${({ $invalid }) => $invalid && "border-color: var(--ethora-color-danger, #d92d20);"}
+`;
+  const TextArea = gt.textarea`
+  ${inputCss}
+  resize: vertical;
+  min-height: 64px;
+  ${({ $invalid }) => $invalid && "border-color: var(--ethora-color-danger, #d92d20);"}
+`;
+  const Row$2 = gt.div`
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+`;
+  const ErrorText = gt.div`
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ethora-color-danger, #d92d20);
+`;
+  const Muted = gt.div`
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ethora-color-text-secondary, #5a5f66);
+`;
+  const Radios = gt.div`
+  display: flex;
+  gap: 16px;
+  font-weight: 400;
+  font-size: 14px;
+`;
+  const ScheduleCallModal = () => {
+    const modal = useSelector((state2) => state2.scheduledCall?.scheduleModal);
+    if (!modal) return null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(ScheduleCallForm, {}, modal.editing?.scheduledCall.slug || "new");
+  };
+  const ScheduleCallForm = () => {
+    const dispatch = useDispatch();
+    const t2 = useT();
+    const { showToast } = useToast();
+    const { config } = useChatSettingState();
+    const modal = useSelector((state2) => state2.scheduledCall?.scheduleModal);
+    const editing = modal.editing?.scheduledCall ?? null;
+    const containerRef = reactExports.useRef(null);
+    const close = () => dispatch(closeScheduleModal());
+    useModalDismiss({ onClose: close, containerRef });
+    const initial2 = reactExports.useMemo(() => {
+      const start = editing ? new Date(editing.startAt) : defaultScheduleStart();
+      return {
+        title: editing?.title ?? "",
+        description: editing?.description ?? "",
+        date: toLocalDateInput(start),
+        time: toLocalTimeInput(start),
+        durationMinutes: editing?.durationMinutes ?? DEFAULT_DURATION_MINUTES,
+        kind: editing?.kind ?? "video"
+      };
+    }, []);
+    const [values, setValues] = reactExports.useState(initial2);
+    const [errors2, setErrors] = reactExports.useState({});
+    const [saving, setSaving] = reactExports.useState(false);
+    const [saveError, setSaveError] = reactExports.useState(null);
+    const audioAllowed = config?.videoCalls?.enableAudioCalls === true || values.kind === "audio";
+    const set2 = (key, value) => setValues((prev2) => ({ ...prev2, [key]: value }));
+    const timeChanged = !editing || values.date !== initial2.date || values.time !== initial2.time;
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+      if (saving) return;
+      const found2 = validateScheduleForm(values, Date.now(), {
+        skipPastCheck: !timeChanged
+      });
+      setErrors(found2);
+      setSaveError(null);
+      if (Object.keys(found2).length > 0) return;
+      const start = combineLocalDateTime(values.date, values.time);
+      const title = values.title.trim() || t2("scheduledCall.default.title");
+      setSaving(true);
+      try {
+        if (editing) {
+          const patch2 = {};
+          if (title !== editing.title) patch2.title = title;
+          if (values.description !== (editing.description ?? "")) {
+            patch2.description = values.description;
+          }
+          if (timeChanged) patch2.startAt = start.toISOString();
+          if (values.durationMinutes !== editing.durationMinutes) {
+            patch2.durationMinutes = values.durationMinutes;
+          }
+          if (values.kind !== editing.kind) patch2.kind = values.kind;
+          if (Object.keys(patch2).length > 0) {
+            await updateScheduledCall(editing.slug, patch2);
+            dispatch(forgetDetails(editing.slug));
+          }
+          showToast({
+            id: Date.now().toString(),
+            title: t2("toast.success"),
+            message: t2("scheduledCall.toast.updated"),
+            type: "success"
+          });
+        } else {
+          const chatName = modal.roomJid.split("@")[0];
+          await createScheduledCall({
+            chatName,
+            title,
+            description: values.description.trim() || void 0,
+            startAt: start.toISOString(),
+            durationMinutes: values.durationMinutes,
+            timezone: localTimeZone(),
+            kind: values.kind
+          });
+          showToast({
+            id: Date.now().toString(),
+            title: t2("toast.success"),
+            message: t2("scheduledCall.toast.scheduled"),
+            type: "success"
+          });
+        }
+        close();
+      } catch (error2) {
+        const api = error2 instanceof ScheduledCallApiError ? error2 : null;
+        if (api?.code === "START_IN_PAST") {
+          setErrors({ startPast: true });
+        } else {
+          setSaveError(
+            api?.status === 403 ? t2("scheduledCall.error.forbidden") : t2("scheduledCall.form.error.save")
+          );
+        }
+      } finally {
+        setSaving(false);
+      }
+    };
+    const tz = localTimeZone();
+    const kinds = audioAllowed ? ["video", "audio"] : ["video"];
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(PresenceModalBackground, { "data-testid": "schedule-call-modal", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(PresenceModalContainer, { ref: containerRef, style: { maxWidth: 480 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        CloseButton,
+        {
+          type: "button",
+          onClick: close,
+          style: { fontSize: 24 },
+          "aria-label": t2("action.close"),
+          children: "\xD7"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ModalTitle, { children: editing ? t2("scheduledCall.form.titleEdit") : t2("scheduledCall.form.titleCreate") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form, { onSubmit: handleSubmit, noValidate: true, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Field$1, { children: [
+          t2("scheduledCall.form.title"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Input,
+            {
+              type: "text",
+              value: values.title,
+              maxLength: MAX_TITLE_LENGTH + 1,
+              placeholder: t2("scheduledCall.form.titlePlaceholder"),
+              onChange: (e2) => set2("title", e2.target.value),
+              $invalid: Boolean(errors2.title),
+              "data-testid": "schedule-call-title"
+            }
+          ),
+          errors2.title && /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText, { role: "alert", children: t2("scheduledCall.form.error.title") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row$2, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Field$1, { children: [
+            t2("scheduledCall.form.date"),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Input,
+              {
+                type: "date",
+                value: values.date,
+                onChange: (e2) => set2("date", e2.target.value),
+                $invalid: Boolean(errors2.start || errors2.startPast),
+                "data-testid": "schedule-call-date"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Field$1, { children: [
+            t2("scheduledCall.form.time"),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Input,
+              {
+                type: "time",
+                value: values.time,
+                onChange: (e2) => set2("time", e2.target.value),
+                $invalid: Boolean(errors2.start || errors2.startPast),
+                "data-testid": "schedule-call-time"
+              }
+            )
+          ] })
+        ] }),
+        (errors2.start || errors2.startPast) && /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText, { role: "alert", children: errors2.start ? t2("scheduledCall.form.error.start") : t2("scheduledCall.form.error.startPast") }),
+        tz && /* @__PURE__ */ jsxRuntimeExports.jsx(Muted, { children: t2("scheduledCall.form.timezone", { tz }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row$2, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Field$1, { children: [
+            t2("scheduledCall.form.duration"),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Select$1,
+              {
+                value: values.durationMinutes,
+                onChange: (e2) => set2("durationMinutes", Number(e2.target.value)),
+                $invalid: Boolean(errors2.duration),
+                "data-testid": "schedule-call-duration",
+                children: durationOptions(initial2.durationMinutes).map((minutes) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: minutes, children: formatScheduledDuration(minutes, t2) }, minutes))
+              }
+            ),
+            errors2.duration && /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText, { role: "alert", children: t2("scheduledCall.form.error.duration") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Field$1, { as: "div", children: [
+            t2("scheduledCall.form.type"),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Radios, { role: "radiogroup", "aria-label": t2("scheduledCall.form.type"), children: kinds.map((kind) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", gap: 6, alignItems: "center" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "radio",
+                  name: "schedule-call-kind",
+                  value: kind,
+                  checked: values.kind === kind,
+                  onChange: () => set2("kind", kind)
+                }
+              ),
+              kind === "audio" ? t2("scheduledCall.kind.audio") : t2("scheduledCall.kind.video")
+            ] }, kind)) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Field$1, { children: [
+          t2("scheduledCall.form.description"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TextArea,
+            {
+              value: values.description,
+              maxLength: MAX_DESCRIPTION_LENGTH + 1,
+              onChange: (e2) => set2("description", e2.target.value),
+              $invalid: Boolean(errors2.description)
+            }
+          ),
+          errors2.description && /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText, { role: "alert", children: t2("scheduledCall.form.error.description") })
+        ] }),
+        saveError && /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText, { role: "alert", children: saveError }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(GroupContainer, { style: { gap: 12 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              type: "button",
+              onClick: close,
+              text: t2("action.cancel"),
+              style: { width: "100%" },
+              variant: "outlined"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              type: "submit",
+              text: editing ? t2("scheduledCall.form.submitEdit") : t2("scheduledCall.form.submitCreate"),
+              style: { width: "100%" },
+              variant: "filled",
+              loading: saving,
+              disabled: saving,
+              "data-testid": "schedule-call-submit"
+            }
+          )
+        ] })
+      ] })
+    ] }) });
+  };
+  const ScheduledCallCancelConfirm = () => {
+    const dispatch = useDispatch();
+    const t2 = useT();
+    const { showToast } = useToast();
+    const pending2 = useSelector((state2) => state2.scheduledCall?.cancelModal);
+    const close = reactExports.useCallback(() => dispatch(closeCancelModal()), [dispatch]);
+    const confirm = reactExports.useCallback(async () => {
+      if (!pending2) return;
+      const { slug } = pending2;
+      close();
+      try {
+        await cancelScheduledCall(slug);
+        dispatch(forgetDetails(slug));
+        showToast({
+          id: Date.now().toString(),
+          title: t2("toast.success"),
+          message: t2("scheduledCall.toast.cancelled"),
+          type: "success"
+        });
+      } catch (error2) {
+        const forbidden = error2 instanceof ScheduledCallApiError && error2.status === 403;
+        showToast({
+          id: Date.now().toString(),
+          title: t2("toast.error"),
+          message: forbidden ? t2("scheduledCall.error.forbidden") : t2("scheduledCall.toast.cancelFailed"),
+          type: "error"
+        });
+      }
+    }, [pending2, close, dispatch, showToast, t2]);
+    if (!pending2) return null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ModalWrapper,
+      {
+        title: t2("scheduledCall.cancelConfirm.title"),
+        description: t2("scheduledCall.cancelConfirm.description"),
+        buttonText: t2("scheduledCall.cancelConfirm.confirm"),
+        cancelText: t2("scheduledCall.cancelConfirm.keep"),
+        backgroundColorButton: "#E53935",
+        handleClick: () => void confirm(),
+        handleCloseModal: close
+      }
+    );
+  };
+  const Body = gt.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  text-align: center;
+  color: var(--ethora-color-text, #141414);
+`;
+  const Title = gt.div`
+  font-size: 20px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+`;
+  const Line = gt.div`
+  font-size: 14px;
+  color: var(--ethora-color-text-secondary, #5a5f66);
+`;
+  const Notice = gt.div`
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: var(--ethora-radius-sm, 8px);
+  background: var(--ethora-color-bg-subtle, #f5f7fa);
+  color: ${({ $tone }) => $tone === "warn" ? "var(--ethora-color-danger, #d92d20)" : "var(--ethora-color-text-secondary, #5a5f66)"};
+`;
+  const CalendarRow = gt.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  justify-content: center;
+`;
+  const CalendarLink = gt.a`
+  font-size: 13px;
+  color: var(--ethora-color-primary, #0052cd);
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+  const ScheduledCallPreJoin = () => {
+    const dispatch = useDispatch();
+    const t2 = useT();
+    const locale = useUiLocale();
+    const { config, user } = useChatSettingState();
+    const details = useSelector((state2) => state2.scheduledCall?.preJoin);
+    const callPhase = useSelector((state2) => state2.call?.phase);
+    const room = useSelector(
+      (state2) => details ? state2.rooms.rooms?.[details.chat.jid] : void 0
+    );
+    const containerRef = reactExports.useRef(null);
+    const close = () => dispatch(closePreJoin());
+    useModalDismiss({ onClose: close, containerRef, enabled: Boolean(details) });
+    const now = useNow(15e3, Boolean(details));
+    if (!details) return null;
+    const call = details.scheduledCall;
+    const phase = getScheduledCallPhase(call, now);
+    const roomType = room?.type || details.chat.type;
+    const callsAllowed = isScheduledCallsEnabled(config) && canPlaceCallsInRoom(config, roomType);
+    const busy = callPhase !== void 0 && callPhase !== "idle";
+    const canJoinNow = phase === "joinable" && callsAllowed && !busy;
+    const handleJoin = () => {
+      if (!canJoinNow) return;
+      close();
+      void placeRoomCall({
+        dispatch,
+        room: room ?? {
+          jid: details.chat.jid,
+          name: details.chat.title || details.chat.name,
+          members: [],
+          type: roomType
+        },
+        kind: call.kind,
+        selfXmppUsername: user?.xmppUsername
+      });
+    };
+    const notice = phase === "cancelled" ? { tone: "warn", text: t2("scheduledCall.prejoin.cancelled") } : phase === "ended" ? { tone: "info", text: t2("scheduledCall.prejoin.ended") } : !callsAllowed ? { tone: "warn", text: t2("scheduledCall.prejoin.unavailable") } : busy ? { tone: "warn", text: t2("scheduledCall.prejoin.busy") } : phase === "upcoming" ? {
+      tone: "info",
+      // "3:59 p.m." + the sentence's own full stop must not read "p.m.."
+      text: t2("scheduledCall.prejoin.notOpen", {
+        time: formatClockTime(getJoinOpensAtMs(call), locale)
+      }).replace(/\.\.$/, ".")
+    } : null;
+    const open = phase === "upcoming" || phase === "joinable";
+    const google = httpLinkOrNull(details.links?.google);
+    const outlook = httpLinkOrNull(details.links?.outlook);
+    const ics = httpLinkOrNull(details.links?.ics);
+    const chatTitle = sanitizeCallName(details.chat.title) || sanitizeCallName(room?.name);
+    const title = displayCallTitle(call.title, t2("scheduledCall.default.title"));
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(PresenceModalBackground, { "data-testid": "scheduled-call-prejoin", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(PresenceModalContainer, { ref: containerRef, style: { maxWidth: 440 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        CloseButton,
+        {
+          onClick: close,
+          style: { fontSize: 24 },
+          "aria-label": t2("action.close"),
+          children: "\xD7"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ModalTitle, { children: t2("scheduledCall.prejoin.title") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Body, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { children: title }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Line, { children: [
+          call.kind === "audio" ? t2("scheduledCall.kind.audio") : t2("scheduledCall.kind.video"),
+          " \xB7 ",
+          formatScheduledDuration(call.durationMinutes, t2)
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Line, { children: [
+          formatScheduledDay(call.startAt, locale),
+          ", ",
+          formatScheduledTimeRange(call, locale)
+        ] }),
+        chatTitle && /* @__PURE__ */ jsxRuntimeExports.jsx(Line, { children: t2("scheduledCall.prejoin.chat", { chat: chatTitle }) })
+      ] }),
+      notice && /* @__PURE__ */ jsxRuntimeExports.jsx(Notice, { $tone: notice.tone, children: notice.text }),
+      open && (google || outlook || ics) && /* @__PURE__ */ jsxRuntimeExports.jsxs(CalendarRow, { children: [
+        google && /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarLink, { href: google, target: "_blank", rel: "noopener noreferrer", children: t2("scheduledCall.calendar.google") }),
+        outlook && /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarLink, { href: outlook, target: "_blank", rel: "noopener noreferrer", children: t2("scheduledCall.calendar.outlook") }),
+        ics && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          CalendarLink,
+          {
+            href: ics,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            download: "call.ics",
+            children: t2("scheduledCall.calendar.ics")
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Line, { children: t2("scheduledCall.prejoin.hint") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(GroupContainer, { style: { gap: 12 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            onClick: close,
+            text: t2("action.close"),
+            style: { width: "100%" },
+            variant: "outlined"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            onClick: handleJoin,
+            text: t2("scheduledCall.action.joinCall"),
+            style: { width: "100%" },
+            variant: "filled",
+            disabled: !canJoinNow,
+            "data-testid": "scheduled-call-prejoin-join"
+          }
+        )
+      ] })
+    ] }) });
+  };
+  const ERROR_KEYS = {
+    "not-found": "scheduledCall.error.notFound",
+    "not-a-member": "scheduledCall.error.notMember",
+    cancelled: "scheduledCall.error.cancelled",
+    network: "scheduledCall.error.network"
+  };
+  const ScheduledCallLayer = ({
+    scheduledCallSlug,
+    onRevealRoom
+  }) => {
+    const dispatch = useDispatch();
+    const t2 = useT();
+    const { showToast } = useToast();
+    const { config } = useChatSettingState();
+    const request = useSelector((state2) => state2.scheduledCall?.openRequest);
+    const rooms = useSelector((state2) => state2.rooms.rooms);
+    const lastPropSlug = reactExports.useRef(null);
+    const [pendingRoom, setPendingRoom] = reactExports.useState(null);
+    const mounted = reactExports.useRef(true);
+    reactExports.useEffect(() => {
+      mounted.current = true;
+      return () => {
+        mounted.current = false;
+      };
+    }, []);
+    reactExports.useEffect(() => {
+      const slug = (scheduledCallSlug || "").trim();
+      if (!slug || lastPropSlug.current === slug) return;
+      lastPropSlug.current = slug;
+      dispatch(requestOpenScheduledCall(slug));
+    }, [scheduledCallSlug, dispatch]);
+    reactExports.useEffect(() => {
+      if (!request) return;
+      const { slug } = request;
+      dispatch(clearOpenRequest());
+      const fail = (reason) => {
+        dispatch(setOpenError({ slug, reason }));
+        showToast({
+          id: Date.now().toString(),
+          title: t2("toast.error"),
+          message: t2(ERROR_KEYS[reason]),
+          type: "error"
+        });
+        try {
+          config?.scheduledCalls?.onOpenError?.({ slug, reason });
+        } catch {
+        }
+      };
+      void (async () => {
+        if (!isValidScheduledCallSlug(slug)) return fail("not-found");
+        try {
+          const details = await getScheduledCall(slug);
+          if (!mounted.current) return;
+          if (details.scheduledCall.status === "cancelled") return fail("cancelled");
+          setPendingRoom(details.chat.jid);
+          dispatch(openPreJoin(details));
+          onRevealRoom?.();
+        } catch (error2) {
+          if (!mounted.current) return;
+          fail(error2 instanceof ScheduledCallApiError ? error2.reason : "network");
+        }
+      })();
+    }, [request]);
+    reactExports.useEffect(() => {
+      if (!pendingRoom || !rooms?.[pendingRoom]) return;
+      dispatch(setCurrentRoom({ roomJID: pendingRoom }));
+      setPendingRoom(null);
+    }, [rooms, pendingRoom, dispatch]);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ScheduleCallModal, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ScheduledCallPreJoin, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ScheduledCallCancelConfirm, {})
+    ] });
+  };
   const THREE_COLUMN_MIN_WIDTH_PX = 1280;
   const ChatWrapper = ({
     MainComponentStyles,
     config,
-    roomJID
+    roomJID,
+    scheduledCallSlug
   }) => {
     const { CustomMessageComponent } = useCustomComponents();
     const resolvedMessageComponent = CustomMessageComponent || MemoizedMessage;
@@ -89350,6 +92955,13 @@ ${messageId}`;
                   {
                     modal: activeModal,
                     setOpenModal: (value) => dispatch(setActiveModal(value))
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  ScheduledCallLayer,
+                  {
+                    scheduledCallSlug,
+                    onRevealRoom: () => setIsChatVisible(true)
                   }
                 )
               ]
@@ -90005,8 +93617,25 @@ ${messageId}`;
       });
     }
   }
+  function clearTypography() {
+    if (typeof document === "undefined") return;
+    document.getElementById(LINK_ID)?.remove();
+    document.getElementById(STYLE_ID)?.remove();
+    document.documentElement.style.removeProperty(FONT_VAR);
+    document.documentElement.style.removeProperty(SIZE_VAR);
+    SIZE_VARIANTS.forEach(({ suffix }) => {
+      document.documentElement.style.removeProperty(`${SIZE_VAR}${suffix}`);
+    });
+  }
   function useTypography(typography) {
+    const applied = reactExports.useRef(false);
     reactExports.useEffect(() => {
+      if (!typography && applied.current) {
+        clearTypography();
+        applied.current = false;
+        return;
+      }
+      if (typography) applied.current = true;
       applyTypography(typography);
     }, [
       typography?.fontFamily,
@@ -90016,6 +93645,81 @@ ${messageId}`;
       JSON.stringify(typography?.fontFaces ?? []),
       JSON.stringify(typography?.weights ?? {})
     ]);
+  }
+  const APP_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
+  const VERSION_RE = /^[A-Za-z0-9._-]{1,40}$/;
+  const isValidRemoteAppId = (appId) => typeof appId === "string" && APP_ID_RE.test(appId);
+  const apiOrigin = (baseUrl) => String(baseUrl || VITE_APP_API_URL$1 || "").trim().replace(/\/+(v[12])\/*$/i, "").replace(/\/+$/, "");
+  const remoteAppearanceUrl = (baseUrl, appId, version) => {
+    const v2 = version && VERSION_RE.test(version) ? `&v=${encodeURIComponent(version)}` : "";
+    return `${apiOrigin(baseUrl)}/v2/chat-component/config?appId=${encodeURIComponent(appId)}${v2}`;
+  };
+  async function fetchRemoteAppearance(opts, signal) {
+    if (!isValidRemoteAppId(opts.appId)) throw new Error("remoteAppearance: invalid appId");
+    const res = await fetch(remoteAppearanceUrl(opts.baseUrl, opts.appId, opts.version), {
+      method: "GET",
+      credentials: "omit",
+      headers: { Accept: "application/json" },
+      signal
+    });
+    if (!res.ok) throw new Error(`remoteAppearance: HTTP ${res.status}`);
+    const body = await res.json();
+    const version = typeof body?.version === "string" && VERSION_RE.test(body.version) ? body.version : "0";
+    return { record: parseRemoteConfigRecord(body?.config), version };
+  }
+  const DEFAULT_REMOTE_APPEARANCE_WAIT_MS = 2500;
+  function useRemoteAppearance(config) {
+    const options = config?.remoteAppearance;
+    const appId = isValidRemoteAppId(options?.appId) ? options.appId : "";
+    const baseUrl = options?.baseUrl || config?.baseUrl;
+    const waitMs = Math.max(0, options?.initialWaitMs ?? DEFAULT_REMOTE_APPEARANCE_WAIT_MS);
+    const [record, setRecord] = reactExports.useState(null);
+    const [waiting, setWaiting] = reactExports.useState(Boolean(appId));
+    const shownVersion = reactExports.useRef(null);
+    const seq = reactExports.useRef(0);
+    reactExports.useEffect(() => {
+      shownVersion.current = null;
+      seq.current += 1;
+      if (!appId) {
+        setRecord(null);
+        setWaiting(false);
+        return;
+      }
+      setRecord(null);
+      setWaiting(true);
+      let inflight2 = null;
+      let disposed = false;
+      const timeout2 = setTimeout(() => setWaiting(false), waitMs);
+      const load = (version) => {
+        inflight2?.abort();
+        const controller = new AbortController();
+        inflight2 = controller;
+        const mine = ++seq.current;
+        fetchRemoteAppearance({ baseUrl, appId, version }, controller.signal).then((snap) => {
+          if (disposed || mine !== seq.current) return;
+          shownVersion.current = snap.version;
+          setRecord(snap.record);
+        }).catch((error2) => {
+          if (disposed || controller.signal.aborted) return;
+          ethoraLogger.log("[RemoteAppearance] read failed, keeping the current look", error2);
+        }).finally(() => {
+          if (!disposed && mine === seq.current) setWaiting(false);
+        });
+      };
+      load();
+      const unsubscribe = subscribeChatComponentConfigUpdated((event) => {
+        if (event.appId !== appId) return;
+        if (event.version && event.version === shownVersion.current) return;
+        load(event.version);
+      });
+      return () => {
+        disposed = true;
+        clearTimeout(timeout2);
+        unsubscribe();
+        inflight2?.abort();
+      };
+    }, [appId, baseUrl, waitMs]);
+    return { record, waiting: Boolean(appId) && waiting };
   }
   const chatRootStyle = { display: "contents" };
   const ChatRoot = ({ config, children: children2 }) => {
@@ -90050,12 +93754,24 @@ ${messageId}`;
     useTypography(config?.typography);
     return null;
   };
-  const ConfigEnabler = ({ config }) => {
+  const ConfigEnabler = ({ config, remote }) => {
     const dispatch = useDispatch();
+    const previous2 = React.useRef(void 0);
     React.useEffect(() => {
       if (!config) return;
+      if (previous2.current && previous2.current !== config) {
+        const { live: live2, restart } = classifyConfigChange(previous2.current, config);
+        if (live2.length || restart.length) {
+          ethoraLogger.log("[LiveConfig] config changed", {
+            appliedLive: live2,
+            readAtNextMount: restart
+          });
+        }
+      }
+      previous2.current = config;
+      dispatch(setRemoteConfig(remote ?? null));
       dispatch(setConfig(config));
-    }, [config, dispatch]);
+    }, [config, remote, dispatch]);
     React.useEffect(() => {
       setE2eeEnabled(config?.e2ee?.enabled === true);
     }, [config?.e2ee?.enabled]);
@@ -90104,19 +93820,24 @@ ${messageId}`;
       CustomNewMessageLabel,
       ...props
     }) => {
-      const memoizedConfig = reactExports.useMemo(() => {
+      const hostConfig = reactExports.useMemo(() => {
         if (!props.config) return props.config;
         return {
           ...props.config,
           newArch: props.config.newArch ?? true
         };
       }, [props.config]);
+      const remote = useRemoteAppearance(props.config);
+      const memoizedConfig = reactExports.useMemo(
+        () => applyRemoteConfigRecord(hostConfig, remote.record),
+        [hostConfig, remote.record]
+      );
       return (
         // <Provider> sits OUTSIDE the root element (the DOM is unchanged)
         // purely so ChatRoot can read the store, see its comment above.
         /* @__PURE__ */ jsxRuntimeExports.jsx(Provider_default, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChatRoot, { config: memoizedConfig, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChatErrorBoundary, { config: memoizedConfig, scope: "chat", children: /* @__PURE__ */ jsxRuntimeExports.jsx(PersistGate, { loading: /* @__PURE__ */ jsxRuntimeExports.jsx(Loader, {}), persistor, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ToastProvider, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(NotificationEnabler, {}),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ConfigEnabler, { config: memoizedConfig }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ConfigEnabler, { config: memoizedConfig, remote: remote.record }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeTokens, { config: memoizedConfig }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TypographyEnabler, { config: memoizedConfig }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeColorsEnabler, { config: memoizedConfig }),
@@ -90129,7 +93850,7 @@ ${messageId}`;
               CustomScrollableArea,
               CustomDaySeparator,
               CustomNewMessageLabel,
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoginWrapper, { ...props, config: memoizedConfig })
+              children: remote.waiting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Loader, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(LoginWrapper, { ...props, config: memoizedConfig })
             }
           )
         ] }) }) }) }) })
@@ -90194,6 +93915,7 @@ ${messageId}`;
   }
   const greetingId = (roomJID) => `ethora-widget-greeting:${roomJID}`;
   const injected = /* @__PURE__ */ new Set();
+  const subscriptions = /* @__PURE__ */ new Map();
   function isGreetingMessageId(id2) {
     return typeof id2 === "string" && id2.startsWith("ethora-widget-greeting:");
   }
@@ -90202,7 +93924,9 @@ ${messageId}`;
     text: text2,
     botXmppUsername,
     botName,
-    botAvatar
+    botAvatar,
+    roomCreatedAt,
+    chatId
   }) {
     const body = (text2 || "").trim();
     if (!roomJID || !body) return;
@@ -90219,6 +93943,10 @@ ${messageId}`;
       }
       const lastViewed = Number(room?.lastViewedTimestamp) || 0;
       if (lastViewed > 0) knownTimestamps.push(lastViewed);
+      const created = roomCreatedAt ? Date.parse(roomCreatedAt) : 0;
+      const objectIdTime = chatId && /^[a-f\d]{24}$/i.test(chatId) ? parseInt(chatId.slice(0, 8), 16) * 1e3 : 0;
+      const roomStart = Number.isFinite(created) && created > 0 ? created : objectIdTime;
+      if (roomStart > 0) knownTimestamps.push(roomStart);
       let backdated = Date.now() - 1e3;
       if (knownTimestamps.length) {
         backdated = Math.min(backdated, Math.min(...knownTimestamps) - 1e3);
@@ -90250,7 +93978,7 @@ ${messageId}`;
             // message is never going anywhere, so the clock would never clear.
             pending: false
           },
-          start: false
+          start: true
         })
       );
     };
@@ -90259,21 +93987,20 @@ ${messageId}`;
       const room = s2?.rooms?.rooms?.[roomJID];
       if (!room) return;
       const messages = Array.isArray(room.messages) ? room.messages : [];
-      const isReal = (m2) => !isGreetingMessageId(m2?.id) && !(m2?.isSystemMessage === true || m2?.isSystemMessage === "true");
-      if (messages.some(isReal)) {
-        unsubscribe?.();
-        return;
-      }
       if (messages.some((m2) => m2?.id === greetingId(roomJID))) return;
       inject();
     };
-    let unsubscribe = null;
-    unsubscribe = store.subscribe(ensure);
+    subscriptions.set(roomJID, store.subscribe(ensure));
     ensure();
     try {
       window.__ethoraStore = store;
     } catch {
     }
+  }
+  function clearGreetingSubscriptions() {
+    subscriptions.forEach((unsubscribe) => unsubscribe());
+    subscriptions.clear();
+    injected.clear();
   }
   const registered = /* @__PURE__ */ new Set();
   function registerWidgetRoom(session) {
@@ -91120,6 +94847,7 @@ ${CHROME_KEYFRAMES}
   const DEFAULT_GRADIENT_TO = "#ad1deb";
   const CTA_VISIBLE_MS = 5e3;
   const CLOSE_MS = 170;
+  const SESSION_REFRESH_MS = 5 * 60 * 1e3;
   const DEFAULT_FONT_STACK = "var(--ethora-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif)";
   function resolveUiLocale(explicit) {
     const pick2 = (v2) => v2 && v2.trim() ? v2.trim() : void 0;
@@ -91189,9 +94917,11 @@ ${CHROME_KEYFRAMES}
     const [envelope, setEnvelope] = reactExports.useState(null);
     const [provisionError, setProvisionError] = reactExports.useState(null);
     const provisionInFlight = reactExports.useRef(null);
+    const lastSessionCallAt = reactExports.useRef(0);
     const startProvision = reactExports.useCallback(() => {
       if (envelope || provisionInFlight.current) return;
       setProvisionError(null);
+      lastSessionCallAt.current = Date.now();
       provisionInFlight.current = provision().then((env2) => {
         setEnvelope(env2);
       }).catch((e2) => {
@@ -91199,6 +94929,14 @@ ${CHROME_KEYFRAMES}
         setProvisionError(provisionErrorMessage(e2));
       }).finally(() => {
         provisionInFlight.current = null;
+      });
+    }, [envelope, provision]);
+    const refreshSession = reactExports.useCallback(() => {
+      if (!envelope || provisionInFlight.current) return;
+      if (Date.now() - lastSessionCallAt.current < SESSION_REFRESH_MS) return;
+      lastSessionCallAt.current = Date.now();
+      provision().catch((e2) => {
+        console.warn("[ethora-widget] session refresh failed:", e2);
       });
     }, [envelope, provision]);
     const session = reactExports.useMemo(
@@ -91233,6 +94971,16 @@ ${CHROME_KEYFRAMES}
     reactExports.useEffect(() => {
       if (open && envelope) setHasMounted(true);
     }, [open, envelope]);
+    reactExports.useEffect(() => {
+      if (open) refreshSession();
+    }, [open, refreshSession]);
+    reactExports.useEffect(() => {
+      const onVisible = () => {
+        if (open && document.visibilityState === "visible") refreshSession();
+      };
+      document.addEventListener("visibilitychange", onVisible);
+      return () => document.removeEventListener("visibilitychange", onVisible);
+    }, [open, refreshSession]);
     reactExports.useEffect(
       () => () => {
         if (closeTimer.current) window.clearTimeout(closeTimer.current);
@@ -91256,18 +95004,20 @@ ${CHROME_KEYFRAMES}
       if (hasMounted) registerWidgetRoom(session);
     }, [hasMounted, session]);
     reactExports.useEffect(() => {
-      if (!hasMounted || !persona.greetingMessage) return;
+      if (!hasMounted || !persona.greetingMessage || !envelope) return;
       const timer = setTimeout(() => {
         registerGreeting({
           roomJID,
           text: persona.greetingMessage === DEFAULT_COPY.greeting ? makeT(uiLocale)("widget.greeting") : persona.greetingMessage,
           botXmppUsername: persona.botXmppUsername,
           botName: persona.botName,
-          botAvatar: persona.botAvatar
+          botAvatar: persona.botAvatar,
+          roomCreatedAt: envelope.room.createdAt,
+          chatId: envelope.room.chatId
         });
       }, 0);
       return () => clearTimeout(timer);
-    }, [hasMounted, roomJID, persona]);
+    }, [hasMounted, roomJID, persona, envelope]);
     const [learnedBotName, setLearnedBotName] = reactExports.useState("");
     reactExports.useEffect(() => {
       if (persona.botNameExplicit || !persona.botXmppUsername) return;
@@ -91670,6 +95420,8 @@ ${CHROME_KEYFRAMES}
               onKeyDown: (e2) => {
                 if (e2.key === "Escape") closePanel();
               },
+              onKeyDownCapture: refreshSession,
+              onPointerDownCapture: refreshSession,
               style: { ...panelStyle, display: panelVisible ? "flex" : "none" },
               children: [
                 !isExpanded && /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -92092,14 +95844,29 @@ ${CHROME_KEYFRAMES}
   }
   const TIMEOUT_MS = 1500;
   const IDENTITY_ATTRIBUTES = /* @__PURE__ */ new Set(["data-app-id", "data-api-base", "data-api-url", "data-bot-id"]);
+  const CACHE_KEY = "ethora-widget-appearance";
+  function readCachedAppearance(appId, apiBase) {
+    try {
+      const cached = JSON.parse(window.localStorage.getItem(CACHE_KEY) || "null");
+      return cached?.appId === appId && cached?.apiBase === apiBase && cached.appearance && typeof cached.appearance === "object" && !Array.isArray(cached.appearance) ? cached.appearance : {};
+    } catch {
+      return {};
+    }
+  }
+  function cacheAppearance(appId, apiBase, appearance) {
+    try {
+      window.localStorage.setItem(CACHE_KEY, JSON.stringify({ appId, apiBase, appearance }));
+    } catch {
+    }
+  }
   async function fetchStoredAppearance({ appId, apiBase }) {
-    if (!appId || !apiBase || typeof fetch !== "function") return {};
+    if (!appId || !apiBase || typeof fetch !== "function") return null;
     const controller = typeof AbortController === "function" ? new AbortController() : null;
     const timer = controller ? setTimeout(() => controller.abort(), TIMEOUT_MS) : null;
     try {
       const url = `${joinUrl(apiBase, "/v2/widget/config")}?appId=${encodeURIComponent(appId)}`;
       const resp = await fetch(url, { signal: controller?.signal, credentials: "omit" });
-      if (!resp.ok) return {};
+      if (!resp.ok) return null;
       const body = await resp.json();
       const raw = body && typeof body.appearance === "object" && body.appearance ? body.appearance : {};
       const out = {};
@@ -92109,7 +95876,7 @@ ${CHROME_KEYFRAMES}
       }
       return out;
     } catch {
-      return {};
+      return null;
     } finally {
       if (timer) clearTimeout(timer);
     }
@@ -92293,6 +96060,7 @@ ${CHROME_KEYFRAMES}
   const OWNED_STORAGE_KEYS = [
     "ethora-widget-visitor",
     "ethora-widget-app-id",
+    "ethora-widget-appearance",
     "EthoraAssistantOpen",
     "EthoraAssistantExpanded",
     "EthoraAssistantCtaDismissed",
@@ -92458,11 +96226,7 @@ ${CHROME_KEYFRAMES}
       );
       return;
     }
-    const stored = await fetchStoredAppearance({ appId, apiBase });
-    if (document.getElementById("chat-widget")) return;
-    const cosmeticGet = makeCosmeticGetter(scriptTag, stored);
-    const overrides = readOverrides(cosmeticGet);
-    const appearance = readAppearance(cosmeticGet);
+    const stored = readCachedAppearance(appId, apiBase);
     clearStorageForNewApp(appId);
     const host = document.createElement("div");
     host.id = "chat-widget";
@@ -92476,23 +96240,37 @@ ${CHROME_KEYFRAMES}
     shadow.appendChild(appRoot);
     const provision = () => provisionWidgetSession({ appId, apiBase });
     const reactRoot = ReactDOM.createRoot(appRoot);
+    let mounted = true;
     registerTeardown(() => {
+      mounted = false;
+      clearGreetingSubscriptions();
       reactRoot.unmount();
       host.remove();
     });
-    reactRoot.render(
-      // Pin chat-component's (single-instance) styled-components into the shadow.
-      /* @__PURE__ */ jsxRuntimeExports.jsx(tt, { target: shadow, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Assistant,
-        {
-          provision,
-          apiBase,
-          assetBase,
-          overrides,
-          appearance
-        }
-      ) })
-    );
+    const render = (config) => {
+      const cosmeticGet = makeCosmeticGetter(scriptTag, config);
+      const overrides = readOverrides(cosmeticGet);
+      const appearance = readAppearance(cosmeticGet);
+      reactRoot.render(
+        // Pin chat-component's (single-instance) styled-components into the shadow.
+        /* @__PURE__ */ jsxRuntimeExports.jsx(tt, { target: shadow, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Assistant,
+          {
+            provision,
+            apiBase,
+            assetBase,
+            overrides,
+            appearance
+          }
+        ) })
+      );
+    };
+    render(stored);
+    void fetchStoredAppearance({ appId, apiBase }).then((fresh) => {
+      if (!mounted || fresh === null) return;
+      cacheAppearance(appId, apiBase, fresh);
+      render(fresh);
+    });
   }
   bootstrap();
   const initializeApp = () => ({ name: "stub", options: {} });
@@ -99892,8 +103670,8 @@ ${CHROME_KEYFRAMES}
     const type = typeof value;
     if (type !== "object" || !value)
       return [PRIMITIVE, type];
-    const asString = toString.call(value).slice(8, -1);
-    switch (asString) {
+    const asString2 = toString.call(value).slice(8, -1);
+    switch (asString2) {
       case "Array":
         return [ARRAY, EMPTY];
       case "Object":
@@ -99907,13 +103685,13 @@ ${CHROME_KEYFRAMES}
       case "Set":
         return [SET, EMPTY];
       case "DataView":
-        return [ARRAY, asString];
+        return [ARRAY, asString2];
     }
-    if (asString.includes("Array"))
-      return [ARRAY, asString];
-    if (asString.includes("Error"))
-      return [ERROR, asString];
-    return [OBJECT, asString];
+    if (asString2.includes("Array"))
+      return [ARRAY, asString2];
+    if (asString2.includes("Error"))
+      return [ERROR, asString2];
+    return [OBJECT, asString2];
   };
   const shouldSkip = ([TYPE, type]) => TYPE === PRIMITIVE && (type === "function" || type === "symbol");
   const serializer = (strict, json, $2, _2) => {
@@ -107680,7 +111458,7 @@ ${CHROME_KEYFRAMES}
     const editHandleRef = reactExports.useRef(null);
     const videoCallsConfig = config?.videoCalls;
     const isE2eeEnabled2 = config?.e2ee?.enabled === true;
-    const canCall = videoCallsConfig?.enabled === true && Boolean(videoCallsConfig?.livekitUrl?.trim()) && (videoCallsConfig?.allowedRoomTypes || ["private"]).includes("private");
+    const canCall = videoCallsConfig?.enabled === true && Boolean(videoCallsConfig?.livekitUrl?.trim()) && isCallRoomTypeAllowed("private", videoCallsConfig?.allowedRoomTypes);
     const isAudioCallsEnabled = canCall && videoCallsConfig?.enableAudioCalls === true;
     const isCallBusy = callPhase !== "idle";
     const handleBackClick = reactExports.useCallback(() => {
@@ -107866,7 +111644,11 @@ ${CHROME_KEYFRAMES}
         }
         dispatch(setActiveModal());
         try {
-          await createChatCall(room.bareName, { kind });
+          await requestOutgoingCall({
+            chatName: room.bareName,
+            kind,
+            peerXmppUsername: room.peerXmppUsername || null
+          });
         } catch (error2) {
           const message = error2 instanceof Error ? error2.message : t2("toast.failedToCreateCall");
           dispatch(setCallError(message));
@@ -110598,6 +114380,7 @@ ${CHROME_KEYFRAMES}
         DropdownMenu,
         {
           options: menuOptions,
+          position: "left",
           openButton: /* @__PURE__ */ jsxRuntimeExports.jsx(
             Button,
             {
@@ -110614,6 +114397,54 @@ ${CHROME_KEYFRAMES}
     ] });
   };
   const ChatProfileMemberRow$1 = React.memo(ChatProfileMemberRow);
+  const RoomInfoEditButton = gt.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: var(--ethora-radius-md, 10px);
+  padding: 6px 10px;
+  color: var(--ethora-color-primary, #168fc4);
+  background: transparent;
+  font: inherit;
+  font-size: var(--ethora-font-size-xs, 12px);
+  cursor: pointer;
+  &:hover { background: var(--ethora-color-bg-hover, rgba(127, 127, 127, 0.12)); }
+  &:focus-visible { outline: 2px solid var(--ethora-color-primary, #168fc4); }
+  svg { width: 16px; height: 16px; }
+`;
+  const RoomInfoInput = gt.input`
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--ethora-color-border, #d0d5dd);
+  border-radius: var(--ethora-radius-md, 10px);
+  padding: 9px 11px;
+  color: var(--ethora-color-text, inherit);
+  background: var(--ethora-color-bg, transparent);
+  font: inherit;
+  font-size: var(--ethora-font-size-sm, 14px);
+`;
+  const RoomInfoTextarea = gt.textarea`
+  width: 100%;
+  min-height: 88px;
+  box-sizing: border-box;
+  resize: vertical;
+  border: 1px solid var(--ethora-color-border, #d0d5dd);
+  border-radius: var(--ethora-radius-md, 10px);
+  padding: 9px 11px;
+  color: var(--ethora-color-text, inherit);
+  background: var(--ethora-color-bg, transparent);
+  font: inherit;
+  font-size: var(--ethora-font-size-sm, 14px);
+`;
+  const RoomInfoEditActions = gt.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ethora-space-2, 8px);
+  margin-top: var(--ethora-space-2, 8px);
+  button { width: auto; min-width: 76px; padding: 0 12px; }
+`;
   const MEMBER_RENDER_WINDOW_INITIAL = 150;
   const MEMBER_RENDER_WINDOW_STEP = 150;
   const ChatProfileModal = ({
@@ -110622,22 +114453,13 @@ ${CHROME_KEYFRAMES}
     const [loading, setLoading] = reactExports.useState(false);
     const [visible, setVisible] = reactExports.useState(false);
     const [isModalOpen, setIsModalOpen] = reactExports.useState(false);
+    const [editingRoomInfo, setEditingRoomInfo] = reactExports.useState(false);
+    const [roomTitleDraft, setRoomTitleDraft] = reactExports.useState("");
+    const [roomDescriptionDraft, setRoomDescriptionDraft] = reactExports.useState("");
+    const [savingRoomInfo, setSavingRoomInfo] = reactExports.useState(false);
     const { showToast } = useToast();
     const t2 = useT();
     const uiLocale = useUiLocale();
-    const chatMenuOptions = reactExports.useMemo(
-      () => [
-        {
-          label: t2("action.deleteChat"),
-          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DeleteIcon, {}),
-          onClick: () => {
-            setIsModalOpen(true);
-          },
-          styles: { color: "var(--ethora-color-danger, #D92D20)" }
-        }
-      ],
-      [t2]
-    );
     const [filesExpanded, setFilesExpanded] = reactExports.useState(false);
     const [visibleMemberCount, setVisibleMemberCount] = reactExports.useState(
       MEMBER_RENDER_WINDOW_INITIAL
@@ -110645,7 +114467,6 @@ ${CHROME_KEYFRAMES}
     const [memberQuery, setMemberQuery] = reactExports.useState("");
     const dispatch = useDispatch();
     const store2 = useStore();
-    const { client: client2 } = useXmppClient();
     const { user: stateUser, config } = useChatSettingState();
     const activeRoom = useSelector((state2) => getActiveRoom(state2));
     const {
@@ -110671,7 +114492,10 @@ ${CHROME_KEYFRAMES}
     const peerProfileImage = peer?.profileImage || peerUsersSetEntry?.profileImage || "";
     const onlineUsersSet = reactExports.useMemo(() => new Set(onlineUsers), [onlineUsers]);
     const membersTruncated = isRoomMembersTruncated(activeRoom);
-    const { members: directoryMembers, state: directoryState } = useRoomDirectory(activeRoom?.jid, membersTruncated);
+    const { members: directoryMembers, state: directoryState } = useRoomDirectory(
+      activeRoom?.jid,
+      membersTruncated
+    );
     const directoryLoading = membersTruncated && directoryState === "loading";
     const enrichedMembers = reactExports.useMemo(() => {
       const known = Array.isArray(activeRoom?.members) ? activeRoom.members : [];
@@ -110736,19 +114560,22 @@ ${CHROME_KEYFRAMES}
         mediaData.append("files", file);
         const uploadResult = await uploadFile(mediaData, activeRoom.jid);
         const location = uploadResult?.data?.results?.[0]?.location;
-        if (location) {
-          try {
-            await patchMyChat(activeRoom.jid.split("@")[0], { picture: location });
-          } catch (persistError) {
-            console.warn("Chat picture persistence failed:", persistError);
-          }
-          client2.setRoomImageStanza(activeRoom.jid, location, "icon", "none");
-          dispatch(
-            updateRoom({ jid: activeRoom.jid, updates: { icon: location } })
-          );
-        }
+        if (!location) throw new Error("Image upload returned no location");
+        await patchMyChat(activeRoom.jid.split("@")[0], { picture: location });
+        dispatch(
+          updateRoom({
+            jid: activeRoom.jid,
+            updates: { icon: location, picture: location }
+          })
+        );
       } catch (error2) {
         console.error("File upload failed or location is missing:", error2);
+        showToast({
+          id: Date.now().toString(),
+          title: t2("toast.error"),
+          message: t2("toast.failedToUpdateChat"),
+          type: "error"
+        });
       }
     };
     const handleDeleteUser = async (userId) => {
@@ -110787,9 +114614,67 @@ ${CHROME_KEYFRAMES}
         await patchMyChat(activeRoom.jid.split("@")[0], { picture: "" });
       } catch (persistError) {
         console.warn("Chat picture clear failed:", persistError);
+        showToast({
+          id: Date.now().toString(),
+          title: t2("toast.error"),
+          message: t2("toast.failedToUpdateChat"),
+          type: "error"
+        });
+        return;
       }
-      client2.setRoomImageStanza(activeRoom.jid, null, "icon", "none");
-      dispatch(updateRoom({ jid: activeRoom.jid, updates: { icon: null } }));
+      dispatch(
+        updateRoom({
+          jid: activeRoom.jid,
+          updates: { icon: null, picture: "" }
+        })
+      );
+    };
+    const showDescription = !config?.disableChatInfo?.disableDescription;
+    const showType = !config?.disableChatInfo?.disableType;
+    const isRoomModerator = activeRoom?.role?.toLowerCase() === "moderator";
+    const canManageRoom = isRoomModerator && activeRoom?.type !== "private" && !roomConfigDisabled;
+    const canEditRoomInfo = activeRoom?.type !== "private" && isRoomModerator && !roomConfigDisabled;
+    const startEditingRoomInfo = () => {
+      setRoomTitleDraft(activeRoom.title || activeRoom.name || "");
+      setRoomDescriptionDraft(activeRoom.description || "");
+      setEditingRoomInfo(true);
+    };
+    const saveRoomInfo = async () => {
+      const title = roomTitleDraft.trim();
+      if (!title || savingRoomInfo) return;
+      setSavingRoomInfo(true);
+      try {
+        const description = roomDescriptionDraft.trim();
+        await patchMyChat(activeRoom.jid.split("@")[0], {
+          title,
+          ...showDescription ? { description } : {}
+        });
+        dispatch(
+          updateRoom({
+            jid: activeRoom.jid,
+            updates: {
+              title,
+              ...showDescription ? { description } : {}
+            }
+          })
+        );
+        setEditingRoomInfo(false);
+        showToast({
+          id: Date.now().toString(),
+          title: t2("toast.success"),
+          message: t2("toast.chatInfoUpdated"),
+          type: "success"
+        });
+      } catch {
+        showToast({
+          id: Date.now().toString(),
+          title: t2("toast.error"),
+          message: t2("toast.failedToUpdateChat"),
+          type: "error"
+        });
+      } finally {
+        setSavingRoomInfo(false);
+      }
     };
     const handleUserAvatarClick = (user) => {
       dispatch(setActiveModal(MODAL_TYPES.PROFILE));
@@ -110799,7 +114684,8 @@ ${CHROME_KEYFRAMES}
           firstName: user.firstName,
           lastName: user.lastName,
           name: `${user.firstName} ${user.lastName}`,
-          userJID: user?.xmppUsername
+          userJID: user?.xmppUsername,
+          profileImage: user.profileImage || user.photoURL
         })
       );
     };
@@ -110825,39 +114711,19 @@ ${CHROME_KEYFRAMES}
       const formattedCount = formatNumberWithCommas(displayCount, uiLocale);
       return displayCount === 1 ? t2("modal.chatProfile.memberCountSingular", { count: formattedCount }) : t2("modal.chatProfile.memberCountPlural", { count: formattedCount });
     })();
-    const showDescription = !config?.disableChatInfo?.disableDescription;
-    const showType = !config?.disableChatInfo?.disableType;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       SideDrawer,
       {
         title: t2("modal.chatProfile.title"),
         onClose: handleCloseModal,
-        headerActions: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          activeRoom?.type === "public" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
-            {
-              EndIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(QrIcon, {}),
-              onClick: () => setVisible(true),
-              "aria-label": t2("action.showQr")
-            }
-          ),
-          activeRoom.role === "moderator" && activeRoom.type !== "private" && !roomConfigDisabled && !config?.disableChatInfo?.disableChatHeaderMenu && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            DropdownMenu,
-            {
-              position: "left",
-              options: chatMenuOptions,
-              openButton: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Button,
-                {
-                  style: { padding: 8, maxHeight: "40px" },
-                  EndIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(MoreIcon, {}),
-                  unstyled: true,
-                  "aria-label": t2("action.moreOptions")
-                }
-              )
-            }
-          )
-        ] }),
+        headerActions: /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: activeRoom?.type === "public" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            EndIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(QrIcon, {}),
+            onClick: () => setVisible(true),
+            "aria-label": t2("action.showQr")
+          }
+        ) }),
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(ProfileHero, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -110878,18 +114744,69 @@ ${CHROME_KEYFRAMES}
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileHeroName, { children: activeRoom.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 4 }, children: [
+                editingRoomInfo ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  RoomInfoInput,
+                  {
+                    "aria-label": t2("modal.chatProfile.chatName"),
+                    value: roomTitleDraft,
+                    maxLength: 120,
+                    onChange: (event) => setRoomTitleDraft(event.target.value)
+                  }
+                ) : /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileHeroName, { children: activeRoom.title || activeRoom.name }),
+                canEditRoomInfo && !editingRoomInfo && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  RoomInfoEditButton,
+                  {
+                    type: "button",
+                    "aria-label": t2("action.editProfile"),
+                    onClick: startEditingRoomInfo,
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(EditIcon, {}),
+                      t2("action.editProfile")
+                    ]
+                  }
+                )
+              ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileHeroSubtitle, { children: memberCountLabel })
             ] })
           ] }),
-          activeRoom.role === "moderator" && activeRoom.type === "group" && !roomConfigDisabled && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectUsersModal, {}),
+          !editingRoomInfo && activeRoom.role === "moderator" && activeRoom.type === "group" && !roomConfigDisabled && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectUsersModal, {}),
           (showDescription || showType) && /* @__PURE__ */ jsxRuntimeExports.jsxs(DrawerSection, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(DrawerSectionTitle, { children: t2("modal.chatProfile.aboutSection") }),
-            showDescription && /* @__PURE__ */ jsxRuntimeExports.jsx(DrawerDescriptionText, { $empty: !activeRoom?.description, children: activeRoom?.description || t2("modal.profile.noDescription") }),
+            showDescription && (editingRoomInfo ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+              RoomInfoTextarea,
+              {
+                "aria-label": t2("modal.chatProfile.description"),
+                value: roomDescriptionDraft,
+                maxLength: 2e3,
+                onChange: (event) => setRoomDescriptionDraft(event.target.value)
+              }
+            ) : /* @__PURE__ */ jsxRuntimeExports.jsx(DrawerDescriptionText, { $empty: !activeRoom?.description, children: activeRoom?.description || t2("modal.profile.noDescription") })),
+            editingRoomInfo && canEditRoomInfo && /* @__PURE__ */ jsxRuntimeExports.jsxs(RoomInfoEditActions, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "outlined",
+                  text: t2("action.cancel"),
+                  disabled: savingRoomInfo,
+                  onClick: () => setEditingRoomInfo(false)
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "filled",
+                  text: t2("action.save"),
+                  loading: savingRoomInfo,
+                  disabled: !roomTitleDraft.trim() || savingRoomInfo,
+                  onClick: saveRoomInfo
+                }
+              )
+            ] }),
             showType && /* @__PURE__ */ jsxRuntimeExports.jsxs(DrawerFactPill, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(GlobeIcon, { color: "currentColor" }),
               t2(
-                activeRoom.type === "private" ? "modal.chatProfile.typePrivate" : activeRoom.type === "group" ? "modal.chatProfile.typeGroup" : "modal.chatProfile.typePublic"
+                activeRoom.type === "group" ? "modal.chatProfile.typeGroup" : activeRoom.type === "private" ? "modal.chatProfile.typePrivate" : "modal.chatProfile.typePublic"
               )
             ] })
           ] }),
@@ -111014,6 +114931,17 @@ ${CHROME_KEYFRAMES}
               }
             )
           ] }),
+          canManageRoom && /* @__PURE__ */ jsxRuntimeExports.jsx(DrawerSection, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              variant: "outlined",
+              tone: "danger",
+              StartIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(DeleteIcon, {}),
+              text: t2("action.deleteChat"),
+              style: { width: "100%" },
+              onClick: () => setIsModalOpen(true)
+            }
+          ) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             OperationalModal,
             {
