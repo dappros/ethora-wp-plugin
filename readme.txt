@@ -4,7 +4,7 @@ Tags: chat, chatbot, ai, live-chat, customer-support
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -157,6 +157,9 @@ The chat widget bundled with this plugin is built from Ethora's open-source code
 The widget is produced with a standard `npm install` + Vite build from the source repository above; no build step is required to run the plugin.
 
 == Changelog ==
+
+= 1.8.1 =
+* Updated: bundled widget rebuilt from widget release v26.10.30.
 
 = 1.8.0 =
 * Updated: bundled widget rebuilt from widget release v26.10.1.
