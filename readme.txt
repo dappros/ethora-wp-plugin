@@ -160,6 +160,8 @@ The widget is produced with a standard `npm install` + Vite build from the sourc
 
 = 1.8.1 =
 * Updated: bundled widget rebuilt from widget release v26.10.30.
+* Fixed: the opening greeting remains at the start of a conversation after a page reload or navigation.
+* Improved: the launcher uses cached appearance settings while the latest settings load in the background.
 
 = 1.8.0 =
 * Updated: bundled widget rebuilt from widget release v26.10.1.
