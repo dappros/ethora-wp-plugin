@@ -51,7 +51,7 @@
   function requireReact_production_min() {
     if (hasRequiredReact_production_min) return react_production_min;
     hasRequiredReact_production_min = 1;
-    var l2 = Symbol.for("react.element"), n2 = Symbol.for("react.portal"), p2 = Symbol.for("react.fragment"), q2 = Symbol.for("react.strict_mode"), r2 = Symbol.for("react.profiler"), t2 = Symbol.for("react.provider"), u2 = Symbol.for("react.context"), v2 = Symbol.for("react.forward_ref"), w2 = Symbol.for("react.suspense"), x2 = Symbol.for("react.memo"), y = Symbol.for("react.lazy"), z2 = Symbol.iterator;
+    var l2 = Symbol.for("react.element"), n2 = Symbol.for("react.portal"), p2 = Symbol.for("react.fragment"), q2 = Symbol.for("react.strict_mode"), r2 = Symbol.for("react.profiler"), t2 = Symbol.for("react.provider"), u2 = Symbol.for("react.context"), v2 = Symbol.for("react.forward_ref"), w2 = Symbol.for("react.suspense"), x2 = Symbol.for("react.memo"), y2 = Symbol.for("react.lazy"), z2 = Symbol.iterator;
     function A2(a2) {
       if (null === a2 || "object" !== typeof a2) return null;
       a2 = z2 && a2[z2] || a2["@@iterator"];
@@ -239,7 +239,7 @@
     };
     react_production_min.isValidElement = O2;
     react_production_min.lazy = function(a2) {
-      return { $$typeof: y, _payload: { _status: -1, _result: a2 }, _init: T2 };
+      return { $$typeof: y2, _payload: { _status: -1, _result: a2 }, _init: T2 };
     };
     react_production_min.memo = function(a2, b2) {
       return { $$typeof: x2, type: a2, compare: void 0 === b2 ? null : b2 };
@@ -3187,7 +3187,7 @@
           return p2.now() - q2;
         };
       }
-      var r2 = [], t2 = [], u2 = 1, v2 = null, y = 3, z2 = false, A2 = false, B2 = false, D2 = "function" === typeof setTimeout ? setTimeout : null, E2 = "function" === typeof clearTimeout ? clearTimeout : null, F2 = "undefined" !== typeof setImmediate ? setImmediate : null;
+      var r2 = [], t2 = [], u2 = 1, v2 = null, y2 = 3, z2 = false, A2 = false, B2 = false, D2 = "function" === typeof setTimeout ? setTimeout : null, E2 = "function" === typeof clearTimeout ? clearTimeout : null, F2 = "undefined" !== typeof setImmediate ? setImmediate : null;
       "undefined" !== typeof navigator && void 0 !== navigator.scheduling && void 0 !== navigator.scheduling.isInputPending && navigator.scheduling.isInputPending.bind(navigator.scheduling);
       function G2(a2) {
         for (var b2 = h2(t2); null !== b2; ) {
@@ -3210,14 +3210,14 @@
         A2 = false;
         B2 && (B2 = false, E2(L2), L2 = -1);
         z2 = true;
-        var c2 = y;
+        var c2 = y2;
         try {
           G2(b2);
           for (v2 = h2(r2); null !== v2 && (!(v2.expirationTime > b2) || a2 && !M2()); ) {
             var d2 = v2.callback;
             if ("function" === typeof d2) {
               v2.callback = null;
-              y = v2.priorityLevel;
+              y2 = v2.priorityLevel;
               var e2 = d2(v2.expirationTime <= b2);
               b2 = exports.unstable_now();
               "function" === typeof e2 ? v2.callback = e2 : v2 === h2(r2) && k2(r2);
@@ -3233,7 +3233,7 @@
           }
           return w2;
         } finally {
-          v2 = null, y = c2, z2 = false;
+          v2 = null, y2 = c2, z2 = false;
         }
       }
       var N2 = false, O2 = null, L2 = -1, P2 = 5, Q2 = -1;
@@ -3290,27 +3290,27 @@
         0 > a2 || 125 < a2 ? console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported") : P2 = 0 < a2 ? Math.floor(1e3 / a2) : 5;
       };
       exports.unstable_getCurrentPriorityLevel = function() {
-        return y;
+        return y2;
       };
       exports.unstable_getFirstCallbackNode = function() {
         return h2(r2);
       };
       exports.unstable_next = function(a2) {
-        switch (y) {
+        switch (y2) {
           case 1:
           case 2:
           case 3:
             var b2 = 3;
             break;
           default:
-            b2 = y;
+            b2 = y2;
         }
-        var c2 = y;
-        y = b2;
+        var c2 = y2;
+        y2 = b2;
         try {
           return a2();
         } finally {
-          y = c2;
+          y2 = c2;
         }
       };
       exports.unstable_pauseExecution = function() {
@@ -3328,12 +3328,12 @@
           default:
             a2 = 3;
         }
-        var c2 = y;
-        y = a2;
+        var c2 = y2;
+        y2 = a2;
         try {
           return b2();
         } finally {
-          y = c2;
+          y2 = c2;
         }
       };
       exports.unstable_scheduleCallback = function(a2, b2, c2) {
@@ -3362,14 +3362,14 @@
       };
       exports.unstable_shouldYield = M2;
       exports.unstable_wrapCallback = function(a2) {
-        var b2 = y;
+        var b2 = y2;
         return function() {
-          var c2 = y;
-          y = b2;
+          var c2 = y2;
+          y2 = b2;
           try {
             return a2.apply(this, arguments);
           } finally {
-            y = c2;
+            y2 = c2;
           }
         };
       };
@@ -6239,7 +6239,7 @@
         }
         return null;
       }
-      function y(a3, b3, c3, d3, e3) {
+      function y2(a3, b3, c3, d3, e3) {
         if ("string" === typeof d3 && "" !== d3 || "number" === typeof d3) return a3 = a3.get(c3) || null, h2(b3, a3, "" + d3, e3);
         if ("object" === typeof d3 && null !== d3) {
           switch (d3.$$typeof) {
@@ -6249,7 +6249,7 @@
               return a3 = a3.get(null === d3.key ? c3 : d3.key) || null, l2(b3, a3, d3, e3);
             case Ha:
               var f3 = d3._init;
-              return y(a3, b3, c3, f3(d3._payload), e3);
+              return y2(a3, b3, c3, f3(d3._payload), e3);
           }
           if (eb(d3) || Ka(d3)) return a3 = a3.get(c3) || null, m2(b3, a3, d3, e3, null);
           Mg(b3, d3);
@@ -6276,7 +6276,7 @@
           I2 && tg(e3, w2);
           return l3;
         }
-        for (u2 = d2(e3, u2); w2 < h3.length; w2++) x2 = y(u2, e3, w2, h3[w2], k3), null !== x2 && (a2 && null !== x2.alternate && u2.delete(null === x2.key ? w2 : x2.key), g3 = f2(x2, g3, w2), null === m3 ? l3 = x2 : m3.sibling = x2, m3 = x2);
+        for (u2 = d2(e3, u2); w2 < h3.length; w2++) x2 = y2(u2, e3, w2, h3[w2], k3), null !== x2 && (a2 && null !== x2.alternate && u2.delete(null === x2.key ? w2 : x2.key), g3 = f2(x2, g3, w2), null === m3 ? l3 = x2 : m3.sibling = x2, m3 = x2);
         a2 && u2.forEach(function(a3) {
           return b2(e3, a3);
         });
@@ -6310,7 +6310,7 @@
           I2 && tg(e3, w2);
           return l3;
         }
-        for (m3 = d2(e3, m3); !n3.done; w2++, n3 = h3.next()) n3 = y(m3, e3, w2, n3.value, k3), null !== n3 && (a2 && null !== n3.alternate && m3.delete(null === n3.key ? w2 : n3.key), g3 = f2(n3, g3, w2), null === u2 ? l3 = n3 : u2.sibling = n3, u2 = n3);
+        for (m3 = d2(e3, m3); !n3.done; w2++, n3 = h3.next()) n3 = y2(m3, e3, w2, n3.value, k3), null !== n3 && (a2 && null !== n3.alternate && m3.delete(null === n3.key ? w2 : n3.key), g3 = f2(n3, g3, w2), null === u2 ? l3 = n3 : u2.sibling = n3, u2 = n3);
         a2 && m3.forEach(function(a3) {
           return b2(e3, a3);
         });
@@ -6508,10 +6508,10 @@
         m2 = l2 = k2 = null;
         h2 = f2;
         do {
-          var r2 = h2.lane, y = h2.eventTime;
+          var r2 = h2.lane, y2 = h2.eventTime;
           if ((d2 & r2) === r2) {
             null !== m2 && (m2 = m2.next = {
-              eventTime: y,
+              eventTime: y2,
               lane: 0,
               tag: h2.tag,
               payload: h2.payload,
@@ -6521,12 +6521,12 @@
             a: {
               var n2 = a2, t2 = h2;
               r2 = b2;
-              y = c2;
+              y2 = c2;
               switch (t2.tag) {
                 case 1:
                   n2 = t2.payload;
                   if ("function" === typeof n2) {
-                    q2 = n2.call(y, q2, r2);
+                    q2 = n2.call(y2, q2, r2);
                     break a;
                   }
                   q2 = n2;
@@ -6535,7 +6535,7 @@
                   n2.flags = n2.flags & -65537 | 128;
                 case 0:
                   n2 = t2.payload;
-                  r2 = "function" === typeof n2 ? n2.call(y, q2, r2) : n2;
+                  r2 = "function" === typeof n2 ? n2.call(y2, q2, r2) : n2;
                   if (null === r2 || void 0 === r2) break a;
                   q2 = A2({}, q2, r2);
                   break a;
@@ -6544,7 +6544,7 @@
               }
             }
             null !== h2.callback && 0 !== h2.lane && (a2.flags |= 64, r2 = e2.effects, null === r2 ? e2.effects = [h2] : r2.push(h2));
-          } else y = { eventTime: y, lane: r2, tag: h2.tag, payload: h2.payload, callback: h2.callback, next: null }, null === m2 ? (l2 = m2 = y, k2 = q2) : m2 = m2.next = y, g2 |= r2;
+          } else y2 = { eventTime: y2, lane: r2, tag: h2.tag, payload: h2.payload, callback: h2.callback, next: null }, null === m2 ? (l2 = m2 = y2, k2 = q2) : m2 = m2.next = y2, g2 |= r2;
           h2 = h2.next;
           if (null === h2) if (h2 = e2.shared.pending, null === h2) break;
           else r2 = h2, h2 = r2.next, r2.next = null, e2.lastBaseUpdate = r2, e2.shared.pending = null;
@@ -7349,14 +7349,14 @@
         r2 = g2.context;
         k2 = c2.contextType;
         "object" === typeof k2 && null !== k2 ? k2 = eh(k2) : (k2 = Zf(c2) ? Xf : H2.current, k2 = Yf(b2, k2));
-        var y = c2.getDerivedStateFromProps;
-        (m2 = "function" === typeof y || "function" === typeof g2.getSnapshotBeforeUpdate) || "function" !== typeof g2.UNSAFE_componentWillReceiveProps && "function" !== typeof g2.componentWillReceiveProps || (h2 !== q2 || r2 !== k2) && Hi(b2, g2, d2, k2);
+        var y2 = c2.getDerivedStateFromProps;
+        (m2 = "function" === typeof y2 || "function" === typeof g2.getSnapshotBeforeUpdate) || "function" !== typeof g2.UNSAFE_componentWillReceiveProps && "function" !== typeof g2.componentWillReceiveProps || (h2 !== q2 || r2 !== k2) && Hi(b2, g2, d2, k2);
         jh = false;
         r2 = b2.memoizedState;
         g2.state = r2;
         qh(b2, d2, g2, e2);
         var n2 = b2.memoizedState;
-        h2 !== q2 || r2 !== n2 || Wf.current || jh ? ("function" === typeof y && (Di(b2, c2, y, d2), n2 = b2.memoizedState), (l2 = jh || Fi(b2, c2, l2, d2, r2, n2, k2) || false) ? (m2 || "function" !== typeof g2.UNSAFE_componentWillUpdate && "function" !== typeof g2.componentWillUpdate || ("function" === typeof g2.componentWillUpdate && g2.componentWillUpdate(d2, n2, k2), "function" === typeof g2.UNSAFE_componentWillUpdate && g2.UNSAFE_componentWillUpdate(d2, n2, k2)), "function" === typeof g2.componentDidUpdate && (b2.flags |= 4), "function" === typeof g2.getSnapshotBeforeUpdate && (b2.flags |= 1024)) : ("function" !== typeof g2.componentDidUpdate || h2 === a2.memoizedProps && r2 === a2.memoizedState || (b2.flags |= 4), "function" !== typeof g2.getSnapshotBeforeUpdate || h2 === a2.memoizedProps && r2 === a2.memoizedState || (b2.flags |= 1024), b2.memoizedProps = d2, b2.memoizedState = n2), g2.props = d2, g2.state = n2, g2.context = k2, d2 = l2) : ("function" !== typeof g2.componentDidUpdate || h2 === a2.memoizedProps && r2 === a2.memoizedState || (b2.flags |= 4), "function" !== typeof g2.getSnapshotBeforeUpdate || h2 === a2.memoizedProps && r2 === a2.memoizedState || (b2.flags |= 1024), d2 = false);
+        h2 !== q2 || r2 !== n2 || Wf.current || jh ? ("function" === typeof y2 && (Di(b2, c2, y2, d2), n2 = b2.memoizedState), (l2 = jh || Fi(b2, c2, l2, d2, r2, n2, k2) || false) ? (m2 || "function" !== typeof g2.UNSAFE_componentWillUpdate && "function" !== typeof g2.componentWillUpdate || ("function" === typeof g2.componentWillUpdate && g2.componentWillUpdate(d2, n2, k2), "function" === typeof g2.UNSAFE_componentWillUpdate && g2.UNSAFE_componentWillUpdate(d2, n2, k2)), "function" === typeof g2.componentDidUpdate && (b2.flags |= 4), "function" === typeof g2.getSnapshotBeforeUpdate && (b2.flags |= 1024)) : ("function" !== typeof g2.componentDidUpdate || h2 === a2.memoizedProps && r2 === a2.memoizedState || (b2.flags |= 4), "function" !== typeof g2.getSnapshotBeforeUpdate || h2 === a2.memoizedProps && r2 === a2.memoizedState || (b2.flags |= 1024), b2.memoizedProps = d2, b2.memoizedState = n2), g2.props = d2, g2.state = n2, g2.context = k2, d2 = l2) : ("function" !== typeof g2.componentDidUpdate || h2 === a2.memoizedProps && r2 === a2.memoizedState || (b2.flags |= 4), "function" !== typeof g2.getSnapshotBeforeUpdate || h2 === a2.memoizedProps && r2 === a2.memoizedState || (b2.flags |= 1024), d2 = false);
       }
       return jj(a2, b2, c2, d2, f2, e2);
     }
@@ -8162,23 +8162,23 @@
             }
             var g2 = 0, h2 = -1, k2 = -1, l2 = 0, m2 = 0, q2 = a2, r2 = null;
             b: for (; ; ) {
-              for (var y; ; ) {
+              for (var y2; ; ) {
                 q2 !== c2 || 0 !== e2 && 3 !== q2.nodeType || (h2 = g2 + e2);
                 q2 !== f2 || 0 !== d2 && 3 !== q2.nodeType || (k2 = g2 + d2);
                 3 === q2.nodeType && (g2 += q2.nodeValue.length);
-                if (null === (y = q2.firstChild)) break;
+                if (null === (y2 = q2.firstChild)) break;
                 r2 = q2;
-                q2 = y;
+                q2 = y2;
               }
               for (; ; ) {
                 if (q2 === a2) break b;
                 r2 === c2 && ++l2 === e2 && (h2 = g2);
                 r2 === f2 && ++m2 === d2 && (k2 = g2);
-                if (null !== (y = q2.nextSibling)) break;
+                if (null !== (y2 = q2.nextSibling)) break;
                 q2 = r2;
                 r2 = q2.parentNode;
               }
-              q2 = y;
+              q2 = y2;
             }
             c2 = -1 === h2 || -1 === k2 ? null : { start: h2, end: k2 };
           } else c2 = null;
@@ -8490,8 +8490,8 @@
                 case "select":
                   var r2 = e2._wrapperState.wasMultiple;
                   e2._wrapperState.wasMultiple = !!f2.multiple;
-                  var y = f2.value;
-                  null != y ? fb(e2, !!f2.multiple, y, false) : r2 !== !!f2.multiple && (null != f2.defaultValue ? fb(
+                  var y2 = f2.value;
+                  null != y2 ? fb(e2, !!f2.multiple, y2, false) : r2 !== !!f2.multiple && (null != f2.defaultValue ? fb(
                     e2,
                     !!f2.multiple,
                     f2.defaultValue,
@@ -8547,7 +8547,7 @@
             if ((a2.stateNode.isHidden = l2) && !m2 && 0 !== (a2.mode & 1)) for (V2 = a2, m2 = a2.child; null !== m2; ) {
               for (q2 = V2 = m2; null !== V2; ) {
                 r2 = V2;
-                y = r2.child;
+                y2 = r2.child;
                 switch (r2.tag) {
                   case 0:
                   case 11:
@@ -8577,7 +8577,7 @@
                       continue;
                     }
                 }
-                null !== y ? (y.return = r2, V2 = y) : gk(q2);
+                null !== y2 ? (y2.return = r2, V2 = y2) : gk(q2);
               }
               m2 = m2.sibling;
             }
@@ -9189,12 +9189,12 @@
                 var r2 = m2.alternate;
                 r2 ? (m2.updateQueue = r2.updateQueue, m2.memoizedState = r2.memoizedState, m2.lanes = r2.lanes) : (m2.updateQueue = null, m2.memoizedState = null);
               }
-              var y = Ui(g2);
-              if (null !== y) {
-                y.flags &= -257;
-                Vi(y, g2, h2, f2, b2);
-                y.mode & 1 && Si(f2, l2, b2);
-                b2 = y;
+              var y2 = Ui(g2);
+              if (null !== y2) {
+                y2.flags &= -257;
+                Vi(y2, g2, h2, f2, b2);
+                y2.mode & 1 && Si(f2, l2, b2);
+                b2 = y2;
                 k2 = l2;
                 var n2 = b2.updateQueue;
                 if (null === n2) {
@@ -9428,18 +9428,18 @@
                       if (null !== q2) q2.return = m2, V2 = q2;
                       else for (; null !== V2; ) {
                         m2 = V2;
-                        var r2 = m2.sibling, y = m2.return;
+                        var r2 = m2.sibling, y2 = m2.return;
                         Sj(m2);
                         if (m2 === l2) {
                           V2 = null;
                           break;
                         }
                         if (null !== r2) {
-                          r2.return = y;
+                          r2.return = y2;
                           V2 = r2;
                           break;
                         }
-                        V2 = y;
+                        V2 = y2;
                       }
                     }
                   }
@@ -16290,8 +16290,8 @@
           }
           accumulateEnterLeaveTwoPhaseListeners(dispatchQueue, leave, enter, from2, to);
         }
-        function is2(x2, y) {
-          return x2 === y && (x2 !== 0 || 1 / x2 === 1 / y) || x2 !== x2 && y !== y;
+        function is2(x2, y2) {
+          return x2 === y2 && (x2 !== 0 || 1 / x2 === 1 / y2) || x2 !== x2 && y2 !== y2;
         }
         var objectIs = typeof Object.is === "function" ? Object.is : is2;
         function shallowEqual2(objA, objB) {
@@ -31826,8 +31826,8 @@
     var rule = offset === 0 ? rules : [""];
     var size = sizeof(rule);
     for (var i2 = 0, j2 = 0, k2 = 0; i2 < index2; ++i2)
-      for (var x2 = 0, y = substr(value, post2 + 1, post2 = abs(j2 = points[i2])), z2 = value; x2 < size; ++x2)
-        if (z2 = trim$2(j2 > 0 ? rule[x2] + " " + y : replace$1(y, /&\f/g, rule[x2])))
+      for (var x2 = 0, y2 = substr(value, post2 + 1, post2 = abs(j2 = points[i2])), z2 = value; x2 < size; ++x2)
+        if (z2 = trim$2(j2 > 0 ? rule[x2] + " " + y2 : replace$1(y2, /&\f/g, rule[x2])))
           props[k2++] = z2;
     return node$1(value, root2, parent, offset === 0 ? RULESET : type, props, children2, length2, siblings);
   }
@@ -32100,15 +32100,15 @@
   }
   var define_process_env_default$c = {};
   var r$1, i$1;
-  const c$1 = "undefined" != typeof process && void 0 !== define_process_env_default$c && (define_process_env_default$c.REACT_APP_SC_ATTR || define_process_env_default$c.SC_ATTR) || "data-styled", a$1 = "active", l$1 = "data-styled-version", u$1 = "6.5.3", h$1 = "/*!sc*/\n", d$1 = "undefined" != typeof window && "undefined" != typeof document;
+  const c$1 = "undefined" != typeof process && void 0 !== define_process_env_default$c && (define_process_env_default$c.REACT_APP_SC_ATTR || define_process_env_default$c.SC_ATTR) || "data-styled", a$1 = "active", l$1 = "data-styled-version", u$2 = "6.5.3", h$1 = "/*!sc*/\n", d$1 = "undefined" != typeof window && "undefined" != typeof document;
   function p(e2) {
     if ("undefined" != typeof process && void 0 !== define_process_env_default$c) {
       const t2 = define_process_env_default$c[e2];
       if (void 0 !== t2 && "" !== t2) return "false" !== t2;
     }
   }
-  const f = Boolean("boolean" == typeof SC_DISABLE_SPEEDY ? SC_DISABLE_SPEEDY : null !== (i$1 = null !== (r$1 = p("REACT_APP_SC_DISABLE_SPEEDY")) && void 0 !== r$1 ? r$1 : p("SC_DISABLE_SPEEDY")) && void 0 !== i$1 ? i$1 : "undefined" != typeof process && void 0 !== define_process_env_default$c && "production" !== define_process_env_default$c.NODE_ENV), m = "sc-keyframes-", g$1 = "production" !== define_process_env_default$c.NODE_ENV ? { 1: "Cannot create styled-component for component: %s.\n\n", 2: "Can't collect styles once you've consumed a `ServerStyleSheet`'s styles! `ServerStyleSheet` is a one off instance for each server-side render cycle.\n\n- Are you trying to reuse it across renders?\n- Are you accidentally calling collectStyles twice?\n\n", 3: "Streaming SSR is only supported in a Node.js environment; Please do not try to call this method in the browser.\n\n", 4: "The `StyleSheetManager` expects a valid target or sheet prop!\n\n- Does this error occur on the client and is your target falsy?\n- Does this error occur on the server and is the sheet falsy?\n\n", 5: "The clone method cannot be used on the client!\n\n- Are you running in a client-like environment on the server?\n- Are you trying to run SSR on the client?\n\n", 6: "Trying to insert a new style tag, but the given Node is unmounted!\n\n- Are you using a custom target that isn't mounted?\n- Does your document not have a valid head element?\n- Have you accidentally removed a style tag manually?\n\n", 7: 'ThemeProvider: Please return an object from your "theme" prop function, e.g.\n\n```js\ntheme={() => ({})}\n```\n\n', 8: 'ThemeProvider: Please make your "theme" prop an object.\n\n', 9: "Missing document `<head>`\n\n", 10: "Cannot find a StyleSheet instance. Usually this happens if there are multiple copies of styled-components loaded at once. Check out this issue for how to troubleshoot and fix the common cases where this situation can happen: https://github.com/styled-components/styled-components/issues/1941#issuecomment-417862021\n\n", 11: "_This error was replaced with a dev-time warning, it will be deleted for v4 final._ [createGlobalStyle] received children which will not be rendered. Please use the component without passing children elements.\n\n", 12: "It seems you are interpolating a keyframe declaration (%s) into an untagged string. Please wrap your string in the css\\`\\` helper which ensures the styles are injected correctly. See https://styled-components.com/docs/api#css\n\n", 13: "%s is not a styled component and cannot be referred to via component selector. See https://styled-components.com/docs/advanced#referring-to-other-components for more details.\n\n", 14: 'ThemeProvider: "theme" prop is required.\n\n', 15: "A stylis plugin has been supplied that is not named. We need a name for each plugin to be able to prevent styling collisions between different stylis configurations within the same app. Before you pass your plugin to `<StyleSheetManager stylisPlugins={[]}>`, please make sure each plugin is uniquely-named, e.g.\n\n```js\nObject.defineProperty(importedPlugin, 'name', { value: 'some-unique-name' });\n```\n\n", 16: "Reached the limit of how many styled components may be created at group %s.\nYou may only create up to 1,073,741,824 components. If you're creating components dynamically,\nas for instance in your render method then you may be running into this limitation.\n\n", 17: "CSSStyleSheet could not be found on HTMLStyleElement.\nHas styled-components' style tag been unmounted or altered by another script?\n\n", 18: "Accessing `useTheme` hook outside of a `<ThemeProvider>` element.\n\n```jsx\nimport { useTheme } from 'styled-components';\nexport function StyledCompoent({ children }) {\n  const theme = useTheme();\n  return <div style={{ width: theme.sizes.full }}>{children}</div>;\n}\n\nimport { StyledComponent } from './StyledComponent';\nimport { theme } from './theme';\nexport function App() {\n  return (\n    <ThemeProvider theme={theme}>\n      <StyledComponent />\n    </ThemeProvider>\n  );\n}\n```\n\nIf you need access to the theme in an uncertain composition scenario, `React.useContext(ThemeContext)` will not emit an error if there is no `ThemeProvider` ancestor.\n" } : {};
-  function v(e2, ...t2) {
+  const f$1 = Boolean("boolean" == typeof SC_DISABLE_SPEEDY ? SC_DISABLE_SPEEDY : null !== (i$1 = null !== (r$1 = p("REACT_APP_SC_DISABLE_SPEEDY")) && void 0 !== r$1 ? r$1 : p("SC_DISABLE_SPEEDY")) && void 0 !== i$1 ? i$1 : "undefined" != typeof process && void 0 !== define_process_env_default$c && "production" !== define_process_env_default$c.NODE_ENV), m = "sc-keyframes-", g$1 = "production" !== define_process_env_default$c.NODE_ENV ? { 1: "Cannot create styled-component for component: %s.\n\n", 2: "Can't collect styles once you've consumed a `ServerStyleSheet`'s styles! `ServerStyleSheet` is a one off instance for each server-side render cycle.\n\n- Are you trying to reuse it across renders?\n- Are you accidentally calling collectStyles twice?\n\n", 3: "Streaming SSR is only supported in a Node.js environment; Please do not try to call this method in the browser.\n\n", 4: "The `StyleSheetManager` expects a valid target or sheet prop!\n\n- Does this error occur on the client and is your target falsy?\n- Does this error occur on the server and is the sheet falsy?\n\n", 5: "The clone method cannot be used on the client!\n\n- Are you running in a client-like environment on the server?\n- Are you trying to run SSR on the client?\n\n", 6: "Trying to insert a new style tag, but the given Node is unmounted!\n\n- Are you using a custom target that isn't mounted?\n- Does your document not have a valid head element?\n- Have you accidentally removed a style tag manually?\n\n", 7: 'ThemeProvider: Please return an object from your "theme" prop function, e.g.\n\n```js\ntheme={() => ({})}\n```\n\n', 8: 'ThemeProvider: Please make your "theme" prop an object.\n\n', 9: "Missing document `<head>`\n\n", 10: "Cannot find a StyleSheet instance. Usually this happens if there are multiple copies of styled-components loaded at once. Check out this issue for how to troubleshoot and fix the common cases where this situation can happen: https://github.com/styled-components/styled-components/issues/1941#issuecomment-417862021\n\n", 11: "_This error was replaced with a dev-time warning, it will be deleted for v4 final._ [createGlobalStyle] received children which will not be rendered. Please use the component without passing children elements.\n\n", 12: "It seems you are interpolating a keyframe declaration (%s) into an untagged string. Please wrap your string in the css\\`\\` helper which ensures the styles are injected correctly. See https://styled-components.com/docs/api#css\n\n", 13: "%s is not a styled component and cannot be referred to via component selector. See https://styled-components.com/docs/advanced#referring-to-other-components for more details.\n\n", 14: 'ThemeProvider: "theme" prop is required.\n\n', 15: "A stylis plugin has been supplied that is not named. We need a name for each plugin to be able to prevent styling collisions between different stylis configurations within the same app. Before you pass your plugin to `<StyleSheetManager stylisPlugins={[]}>`, please make sure each plugin is uniquely-named, e.g.\n\n```js\nObject.defineProperty(importedPlugin, 'name', { value: 'some-unique-name' });\n```\n\n", 16: "Reached the limit of how many styled components may be created at group %s.\nYou may only create up to 1,073,741,824 components. If you're creating components dynamically,\nas for instance in your render method then you may be running into this limitation.\n\n", 17: "CSSStyleSheet could not be found on HTMLStyleElement.\nHas styled-components' style tag been unmounted or altered by another script?\n\n", 18: "Accessing `useTheme` hook outside of a `<ThemeProvider>` element.\n\n```jsx\nimport { useTheme } from 'styled-components';\nexport function StyledCompoent({ children }) {\n  const theme = useTheme();\n  return <div style={{ width: theme.sizes.full }}>{children}</div>;\n}\n\nimport { StyledComponent } from './StyledComponent';\nimport { theme } from './theme';\nexport function App() {\n  return (\n    <ThemeProvider theme={theme}>\n      <StyledComponent />\n    </ThemeProvider>\n  );\n}\n```\n\nIf you need access to the theme in an uncertain composition scenario, `React.useContext(ThemeContext)` will not emit an error if there is no `ThemeProvider` ancestor.\n" } : {};
+  function v$1(e2, ...t2) {
     return "production" === define_process_env_default$c.NODE_ENV ? new Error(`An error occurred. See https://github.com/styled-components/styled-components/blob/main/packages/styled-components/src/utils/errors.md#${e2} for more information.${t2.length > 0 ? ` Args: ${t2.join(", ")}` : ""}`) : new Error(function(...e3) {
       let t3 = e3[0];
       const n2 = [];
@@ -32118,17 +32118,17 @@
       }), t3;
     }(g$1[e2], ...t2).trim());
   }
-  const S = 1 << 30;
+  const S$1 = 1 << 30;
   let b = /* @__PURE__ */ new Map(), w = /* @__PURE__ */ new Map(), N = 1;
   const C = (e2) => {
     if (b.has(e2)) return b.get(e2);
     for (; w.has(N); ) N++;
     const t2 = N++;
-    if ("production" !== define_process_env_default$c.NODE_ENV && ((0 | t2) < 0 || t2 > S)) throw v(16, `${t2}`);
+    if ("production" !== define_process_env_default$c.NODE_ENV && ((0 | t2) < 0 || t2 > S$1)) throw v$1(16, `${t2}`);
     return b.set(e2, t2), w.set(t2, e2), t2;
   }, O$1 = (e2) => w.get(e2), E$1 = (e2, t2) => {
     N = t2 + 1, b.set(e2, t2), w.set(t2, e2);
-  }, A = /invalid hook call/i, P = /* @__PURE__ */ new Set(), _ = (e2, n2) => {
+  }, A = /invalid hook call/i, P$1 = /* @__PURE__ */ new Set(), _$1 = (e2, n2) => {
     if ("production" !== define_process_env_default$c.NODE_ENV) {
       const o2 = `The component ${e2}${n2 ? ` with the id of "${n2}"` : ""} has been created dynamically.
 You may see this warning because you've called styled inside another component.
@@ -32138,33 +32138,33 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
       try {
         let e3 = true;
         console.error = (t2, ...n3) => {
-          A.test(t2) ? (e3 = false, P.delete(o2)) : s2(t2, ...n3);
-        }, "function" == typeof React.useState && React.useState(null), e3 && !P.has(o2) && (console.warn(o2), P.add(o2));
+          A.test(t2) ? (e3 = false, P$1.delete(o2)) : s2(t2, ...n3);
+        }, "function" == typeof React.useState && React.useState(null), e3 && !P$1.has(o2) && (console.warn(o2), P$1.add(o2));
       } catch (e3) {
-        A.test(e3.message) && P.delete(o2);
+        A.test(e3.message) && P$1.delete(o2);
       } finally {
         console.error = s2;
       }
     }
-  }, I = Object.freeze([]), $ = Object.freeze({});
-  function R(e2, t2, n2 = $) {
+  }, I$1 = Object.freeze([]), $$1 = Object.freeze({});
+  function R(e2, t2, n2 = $$1) {
     return e2.theme !== n2.theme && e2.theme || t2 || n2.theme;
   }
   const j$1 = /[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~-]+/g, x = /(^-|-$)/g;
   function T(e2) {
     return e2.replace(j$1, "-").replace(x, "");
   }
-  const k$1 = /(a)(d)/gi, D$1 = (e2) => String.fromCharCode(e2 + (e2 > 25 ? 39 : 97));
+  const k$1 = /(a)(d)/gi, D$2 = (e2) => String.fromCharCode(e2 + (e2 > 25 ? 39 : 97));
   function V(e2) {
     let t2, n2 = "";
-    for (t2 = Math.abs(e2); t2 > 52; t2 = t2 / 52 | 0) n2 = D$1(t2 % 52) + n2;
-    return (D$1(t2 % 52) + n2).replace(k$1, "$1-$2");
+    for (t2 = Math.abs(e2); t2 > 52; t2 = t2 / 52 | 0) n2 = D$2(t2 % 52) + n2;
+    return (D$2(t2 % 52) + n2).replace(k$1, "$1-$2");
   }
-  const M = 5381, G$1 = (e2, t2) => {
+  const M$1 = 5381, G$1 = (e2, t2) => {
     let n2 = t2.length;
     for (; n2; ) e2 = 33 * e2 ^ t2.charCodeAt(--n2);
     return e2;
-  }, F = (e2) => G$1(M, e2);
+  }, F = (e2) => G$1(M$1, e2);
   function z(e2) {
     return V(F(e2) >>> 0);
   }
@@ -32177,9 +32177,9 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
   function B(e2) {
     return L(e2) ? `styled.${e2}` : `Styled(${W$1(e2)})`;
   }
-  const q = Symbol.for("react.memo"), H = Symbol.for("react.forward_ref"), Y = { contextType: true, defaultProps: true, displayName: true, getDerivedStateFromError: true, getDerivedStateFromProps: true, propTypes: true, type: true }, U = { name: true, length: true, prototype: true, caller: true, callee: true, arguments: true, arity: true }, J = { $$typeof: true, compare: true, defaultProps: true, displayName: true, propTypes: true, type: true }, X$1 = { [H]: { $$typeof: true, render: true, defaultProps: true, displayName: true, propTypes: true }, [q]: J };
+  const q = Symbol.for("react.memo"), H$1 = Symbol.for("react.forward_ref"), Y$1 = { contextType: true, defaultProps: true, displayName: true, getDerivedStateFromError: true, getDerivedStateFromProps: true, propTypes: true, type: true }, U = { name: true, length: true, prototype: true, caller: true, callee: true, arguments: true, arity: true }, J = { $$typeof: true, compare: true, defaultProps: true, displayName: true, propTypes: true, type: true }, X$2 = { [H$1]: { $$typeof: true, render: true, defaultProps: true, displayName: true, propTypes: true }, [q]: J };
   function K(e2) {
-    return ("type" in (t2 = e2) && t2.type.$$typeof) === q ? J : "$$typeof" in e2 ? X$1[e2.$$typeof] : Y;
+    return ("type" in (t2 = e2) && t2.type.$$typeof) === q ? J : "$$typeof" in e2 ? X$2[e2.$$typeof] : Y$1;
     var t2;
   }
   const Q = Object.defineProperty, Z$1 = Object.getOwnPropertyNames, ee = Object.getOwnPropertySymbols, te = Object.getOwnPropertyDescriptor, ne = Object.getPrototypeOf, oe = Object.prototype;
@@ -32241,7 +32241,7 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
       if (e2 >= this.groupSizes.length) {
         const t3 = this.groupSizes, n3 = t3.length;
         let o3 = n3;
-        for (; e2 >= o3; ) if (o3 <<= 1, o3 < 0) throw v(16, `${e2}`);
+        for (; e2 >= o3; ) if (o3 <<= 1, o3 < 0) throw v$1(16, `${e2}`);
         this.groupSizes = new Uint32Array(o3), this.groupSizes.set(t3), this.length = o3;
         for (let e3 = n3; e3 < o3; e3++) this.groupSizes[e3] = 0;
       }
@@ -32264,7 +32264,7 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
       for (let e3 = o2; e3 < s2; e3++) t2 += this.tag.getRule(e3) + h$1;
       return t2;
     }
-  }, fe = `style[${c$1}][${l$1}="${u$1}"]`, me = new RegExp(`^${c$1}\\.g(\\d+)\\[id="([\\w\\d-]+)"\\].*?"([^"]*)`), ye = (e2) => "undefined" != typeof ShadowRoot && e2 instanceof ShadowRoot || "host" in e2 && 11 === e2.nodeType, ge = (e2) => {
+  }, fe = `style[${c$1}][${l$1}="${u$2}"]`, me = new RegExp(`^${c$1}\\.g(\\d+)\\[id="([\\w\\d-]+)"\\].*?"([^"]*)`), ye = (e2) => "undefined" != typeof ShadowRoot && e2 instanceof ShadowRoot || "host" in e2 && 11 === e2.nodeType, ge = (e2) => {
     if (!e2) return document;
     if (ye(e2)) return e2;
     if ("getRootNode" in e2) {
@@ -32311,7 +32311,7 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
       const t3 = Array.from(e3.querySelectorAll(`style[${c$1}]`));
       return t3[t3.length - 1];
     })(o2), i2 = void 0 !== r2 ? r2.nextSibling : null;
-    s2.setAttribute(c$1, a$1), s2.setAttribute(l$1, u$1);
+    s2.setAttribute(c$1, a$1), s2.setAttribute(l$1, u$2);
     const h2 = t2 || Ne();
     return h2 && s2.setAttribute("nonce", h2), o2.insertBefore(s2, i2), s2;
   }, Oe = class {
@@ -32324,7 +32324,7 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
           const o3 = n2[t4];
           if (o3.ownerNode === e3) return o3;
         }
-        throw v(17);
+        throw v$1(17);
       })(this.element), this.length = 0;
     }
     insertRule(e2, t2) {
@@ -32360,12 +32360,12 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
     }
   };
   let Ae = d$1;
-  const Pe = { isServer: !d$1, useCSSOMInjection: !f };
+  const Pe = { isServer: !d$1, useCSSOMInjection: !f$1 };
   class _e {
     static registerId(e2) {
       return C(e2);
     }
-    constructor(e2 = $, t2 = {}, n2) {
+    constructor(e2 = $$1, t2 = {}, n2) {
       this.options = Object.assign(Object.assign({}, Pe), e2), this.gs = t2, this.keyframeIds = /* @__PURE__ */ new Set(), this.names = new Map(n2), this.server = !!e2.isServer, !this.server && d$1 && Ae && (Ae = false, be(this)), de(this, () => ((e3) => {
         const t3 = e3.getTag(), { length: n3 } = t3;
         let o2 = "";
@@ -32473,7 +32473,7 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
     }
     return ce(e2) ? (s2.push(`.${e2.styledComponentId}`), s2) : ke(e2) ? (n2 ? (e2.inject(n2, o2), s2.push(e2.getName(o2))) : s2.push(e2), s2) : Ge(e2) ? ("production" !== define_process_env_default$c.NODE_ENV && Fe(e2), s2) : ue(e2) ? e2.toString !== Object.prototype.toString ? (s2.push(e2.toString()), s2) : (ze(e2, s2), s2) : (s2.push(e2.toString()), s2);
   }
-  const Le = F(u$1);
+  const Le = F(u$2);
   class Be {
     constructor(e2, t2, n2) {
       this.rules = e2, this.componentId = t2, this.baseHash = G$1(Le, t2), this.baseStyle = n2, _e.registerId(t2);
@@ -32558,7 +32558,7 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
     }
     return e2;
   }
-  function Je({ options: e2 = $, plugins: t2 = I } = $) {
+  function Je({ options: e2 = $$1, plugins: t2 = I$1 } = $$1) {
     let n2, s2, r2;
     const i2 = (e3, t3, o2) => o2.startsWith(s2) && o2.endsWith(s2) && o2.replaceAll(s2, "").length > 0 ? `.${n2}` : e3, c2 = t2.slice();
     c2.push((e3) => {
@@ -32594,9 +32594,9 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
       let d3 = compile(c3 || i3 ? c3 + " " + i3 + " { " + h3 + " }" : h3);
       return e2.namespace && (d3 = Ue(d3, e2.namespace)), a2 = [], serialize$2(d3, l2), a2;
     }, h2 = e2;
-    let d2 = M;
-    for (let e3 = 0; e3 < t2.length; e3++) t2[e3].name || v(15), d2 = G$1(d2, t2[e3].name);
-    return (null == h2 ? void 0 : h2.namespace) && (d2 = G$1(d2, h2.namespace)), (null == h2 ? void 0 : h2.prefix) && (d2 = G$1(d2, "p")), u2.hash = d2 !== M ? d2.toString() : "", u2;
+    let d2 = M$1;
+    for (let e3 = 0; e3 < t2.length; e3++) t2[e3].name || v$1(15), d2 = G$1(d2, t2[e3].name);
+    return (null == h2 ? void 0 : h2.namespace) && (d2 = G$1(d2, h2.namespace)), (null == h2 ? void 0 : h2.prefix) && (d2 = G$1(d2, "p")), u2.hash = d2 !== M$1 ? d2.toString() : "", u2;
   }
   const Xe = new _e(), Ke = Je(), Qe = React.createContext({ shouldForwardProp: void 0, styleSheet: Xe, stylis: Ke, stylisPlugins: void 0 });
   Qe.Consumer;
@@ -32620,12 +32620,12 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
   function at(e2, t2) {
     const n2 = "string" != typeof e2 ? "sc" : T(e2);
     ct[n2] = (ct[n2] || 0) + 1;
-    const o2 = n2 + "-" + z(u$1 + n2 + ct[n2]);
+    const o2 = n2 + "-" + z(u$2 + n2 + ct[n2]);
     return t2 ? t2 + "-" + o2 : o2;
   }
   let lt;
   function ut(o2, s2, r2) {
-    const i2 = ce(o2), c2 = o2, a2 = !L(o2), { attrs: l2 = I, componentId: u2 = at(s2.displayName, s2.parentComponentId), displayName: h2 = B(o2) } = s2, d2 = s2.displayName && s2.componentId ? T(s2.displayName) + "-" + s2.componentId : s2.componentId || u2, p2 = i2 && c2.attrs ? c2.attrs.concat(l2).filter(Boolean) : l2;
+    const i2 = ce(o2), c2 = o2, a2 = !L(o2), { attrs: l2 = I$1, componentId: u2 = at(s2.displayName, s2.parentComponentId), displayName: h2 = B(o2) } = s2, d2 = s2.displayName && s2.componentId ? T(s2.displayName) + "-" + s2.componentId : s2.componentId || u2, p2 = i2 && c2.attrs ? c2.attrs.concat(l2).filter(Boolean) : l2;
     let { shouldForwardProp: f2 } = s2;
     if (i2 && c2.shouldForwardProp) {
       const e2 = c2.shouldForwardProp;
@@ -32639,7 +32639,7 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
       return function(o4, s4, r3) {
         const { attrs: i3, componentStyle: c3, defaultProps: a3, foldedComponentIds: l3, styledComponentId: u3, target: h3 } = o4, d3 = React.useContext(nt), p3 = et(), f3 = o4.shouldForwardProp || p3.shouldForwardProp;
         "production" !== define_process_env_default$c.NODE_ENV && React.useDebugValue && React.useDebugValue(u3);
-        const m3 = R(s4, d3, a3) || $;
+        const m3 = R(s4, d3, a3) || $$1;
         let y3, g3;
         {
           const e2 = React.useRef(null), n2 = e2.current;
@@ -32682,7 +32682,7 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
         for (const n2 of t2) he(e3, n2, true);
         return e3;
       }({}, c2.defaultProps, e2) : e2;
-    } }), "production" !== define_process_env_default$c.NODE_ENV && (_(h2, d2), g2.warnTooManyClasses = /* @__PURE__ */ ((e2, t2) => {
+    } }), "production" !== define_process_env_default$c.NODE_ENV && (_$1(h2, d2), g2.warnTooManyClasses = /* @__PURE__ */ ((e2, t2) => {
       let n2 = {}, o3 = false;
       return (s3) => {
         !o3 && (n2[s3] = true, Object.keys(n2).length >= 200) && (console.warn(`Over 200 classes were generated for component ${e2}${t2 ? ` with the id of "${t2}"` : ""}.
@@ -32706,12 +32706,12 @@ Example:
   }
   const pt$1 = (e2) => (Ie.add(e2), e2);
   function ft(e2, ...t2) {
-    if (re$1(e2) || ue(e2)) return pt$1(We(dt(I, [e2, ...t2])));
+    if (re$1(e2) || ue(e2)) return pt$1(We(dt(I$1, [e2, ...t2])));
     const n2 = e2;
     return 0 === t2.length && 1 === n2.length && "string" == typeof n2[0] ? We(n2) : pt$1(We(dt(n2, t2)));
   }
-  function mt(e2, t2, n2 = $) {
-    if (!t2) throw v(1, t2);
+  function mt(e2, t2, n2 = $$1) {
+    if (!t2) throw v$1(1, t2);
     const o2 = (o3, ...s2) => e2(t2, n2, ft(o3, ...s2));
     return o2.attrs = (o3) => mt(e2, t2, Object.assign(Object.assign({}, n2), { attrs: Array.prototype.concat(n2.attrs, o3).filter(Boolean) })), o2.withConfig = (o3) => mt(e2, t2, Object.assign(Object.assign({}, n2), o3)), o2;
   }
@@ -32729,7 +32729,7 @@ Example:
           e3.insertRules(this.id, n2, o2);
         }
       }, this.name = e2, this.id = m + e2, this.rules = t2, C(this.id), de(this, () => {
-        throw v(12, String(this.name));
+        throw v$1(12, String(this.name));
       });
     }
     getName(e2 = Ke) {
@@ -32762,8 +32762,8 @@ Example:
     if (hasRequiredUseSyncExternalStoreWithSelector_production) return useSyncExternalStoreWithSelector_production;
     hasRequiredUseSyncExternalStoreWithSelector_production = 1;
     var React2 = requireReact();
-    function is2(x2, y) {
-      return x2 === y && (0 !== x2 || 1 / x2 === 1 / y) || x2 !== x2 && y !== y;
+    function is2(x2, y2) {
+      return x2 === y2 && (0 !== x2 || 1 / x2 === 1 / y2) || x2 !== x2 && y2 !== y2;
     }
     var objectIs = "function" === typeof Object.is ? Object.is : is2, useSyncExternalStore = React2.useSyncExternalStore, useRef = React2.useRef, useEffect = React2.useEffect, useMemo = React2.useMemo, useDebugValue = React2.useDebugValue;
     useSyncExternalStoreWithSelector_production.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
@@ -32835,8 +32835,8 @@ Example:
      * LICENSE file in the root directory of this source tree.
      */
     "production" !== define_process_env_default2.NODE_ENV && function() {
-      function is2(x2, y) {
-        return x2 === y && (0 !== x2 || 1 / x2 === 1 / y) || x2 !== x2 && y !== y;
+      function is2(x2, y2) {
+        return x2 === y2 && (0 !== x2 || 1 / x2 === 1 / y2) || x2 !== x2 && y2 !== y2;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
       var React2 = requireReact(), objectIs = "function" === typeof Object.is ? Object.is : is2, useSyncExternalStore = React2.useSyncExternalStore, useRef = React2.useRef, useEffect = React2.useEffect, useMemo = React2.useMemo, useDebugValue = React2.useDebugValue;
@@ -33046,11 +33046,11 @@ Example:
   var isReactNative$1 = /* @__PURE__ */ isRunningInReactNative();
   var getUseIsomorphicLayoutEffect = () => isDOM || isReactNative$1 ? reactExports.useLayoutEffect : reactExports.useEffect;
   var useIsomorphicLayoutEffect = /* @__PURE__ */ getUseIsomorphicLayoutEffect();
-  function is$1(x2, y) {
-    if (x2 === y) {
-      return x2 !== 0 || y !== 0 || 1 / x2 === 1 / y;
+  function is$1(x2, y2) {
+    if (x2 === y2) {
+      return x2 !== 0 || y2 !== 0 || 1 / x2 === 1 / y2;
     } else {
-      return x2 !== x2 && y !== y;
+      return x2 !== x2 && y2 !== y2;
     }
   }
   function shallowEqual$1(objA, objB) {
@@ -40551,11 +40551,11 @@ Example:
     } else
       thing[propOrOldValue] = value;
   };
-  function is(x2, y) {
-    if (x2 === y) {
-      return x2 !== 0 || 1 / x2 === 1 / y;
+  function is(x2, y2) {
+    if (x2 === y2) {
+      return x2 !== 0 || 1 / x2 === 1 / y2;
     } else {
-      return x2 !== x2 && y !== y;
+      return x2 !== x2 && y2 !== y2;
     }
   }
   var isArray = Array.isArray;
@@ -43512,7 +43512,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       const id2 = Number(message.id);
       return Number.isFinite(id2) && id2 > 0 ? id2 : new Date(message.date).getTime();
     };
-    return merged.sort((x2, y) => num(x2) - num(y));
+    return merged.sort((x2, y2) => num(x2) - num(y2));
   };
   const initialState$4 = {
     rooms: {},
@@ -43985,6 +43985,18 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
             if (attachments !== void 0) message.attachments = attachments;
             if (pending2 !== void 0) message.pending = pending2;
             if (failed2 !== void 0) message.failed = failed2;
+          }
+        );
+      },
+      confirmMessageDelivered(state2, action) {
+        const { roomJID, messageId } = action.payload;
+        forEachMessageCopy(
+          state2,
+          roomJID,
+          (msg) => msg.id === messageId || msg.xmppId === messageId,
+          (message) => {
+            message.pending = false;
+            message.failed = false;
           }
         );
       },
@@ -44690,6 +44702,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     setEditAction,
     setMessageSendFailed,
     setMessageSendRetrying,
+    confirmMessageDelivered,
     setMediaUploadState,
     editRoomMessage,
     setMessageTranslation,
@@ -49081,7 +49094,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       const value = new Date(message.date).getTime();
       return Number.isNaN(value) ? 0 : value;
     };
-    return merged.sort((x2, y) => time(x2) - time(y));
+    return merged.sort((x2, y2) => time(x2) - time(y2));
   };
   const find$1 = (messages, id2) => (messages ?? []).find((message) => String(message.id) === id2);
   const mergeUnique = (a2, b2) => {
@@ -53148,11 +53161,11 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   }
   /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
   const _0n$2 = /* @__PURE__ */ BigInt(0), _1n$2 = /* @__PURE__ */ BigInt(1), _2n$2 = /* @__PURE__ */ BigInt(2), _4n = /* @__PURE__ */ BigInt(4), _8n$1 = /* @__PURE__ */ BigInt(8);
-  function isEdValidXY(Fp2, CURVE, x2, y) {
+  function isEdValidXY(Fp2, CURVE, x2, y2) {
     const x22 = Fp2.sqr(x2);
-    const y2 = Fp2.sqr(y);
-    const left = Fp2.add(Fp2.mul(CURVE.a, x22), y2);
-    const right = Fp2.add(Fp2.ONE, Fp2.mul(CURVE.d, Fp2.mul(x22, y2)));
+    const y22 = Fp2.sqr(y2);
+    const left = Fp2.add(Fp2.mul(CURVE.a, x22), y22);
+    const right = Fp2.add(Fp2.ONE, Fp2.mul(CURVE.d, Fp2.mul(x22, y22)));
     return Fp2.eql(left, right);
   }
   function edwards(params, extraOpts = {}) {
@@ -53220,10 +53233,10 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       static fromAffine(p2) {
         if (p2 instanceof Point)
           throw new Error("extended point not allowed");
-        const { x: x2, y } = p2 || {};
+        const { x: x2, y: y2 } = p2 || {};
         acoord("x", x2);
-        acoord("y", y);
-        return new Point(x2, y, Fp2.ONE, Fp2.mul(x2, y));
+        acoord("y", y2);
+        return new Point(x2, y2, Fp2.ONE, Fp2.mul(x2, y2));
       }
       // Uses algo from RFC8032 5.1.3.
       static fromBytes(bytes, zip215 = false) {
@@ -53234,12 +53247,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         const normed = copyBytes(bytes);
         const lastByte = bytes[len - 1];
         normed[len - 1] = lastByte & -129;
-        const y = bytesToNumberLE(normed);
+        const y2 = bytesToNumberLE(normed);
         const max = zip215 ? MASK : Fp2.ORDER;
-        aInRange("point.y", y, _0n$2, max);
-        const y2 = Fp2.sqr(y);
-        const u2 = Fp2.sub(y2, Fp2.ONE);
-        const v2 = Fp2.sub(Fp2.mulN(d2, y2), a2);
+        aInRange("point.y", y2, _0n$2, max);
+        const y22 = Fp2.sqr(y2);
+        const u2 = Fp2.sub(y22, Fp2.ONE);
+        const v2 = Fp2.sub(Fp2.mulN(d2, y22), a2);
         let { isValid, value: x2 } = uvRatio2(u2, v2);
         if (!isValid)
           throw new Error("bad point: invalid y coordinate");
@@ -53249,7 +53262,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
           throw new Error("bad point: x=0 and x_0=1");
         if (isLastByteOdd !== isXOdd)
           x2 = Fp2.neg(x2);
-        return Point.fromAffine({ x: x2, y });
+        return Point.fromAffine({ x: x2, y: y2 });
       }
       static fromHex(hex, zip215 = false) {
         return Point.fromBytes(hexToBytes(hex), zip215);
@@ -53395,13 +53408,13 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         if (iz == null)
           iz = is0 ? Fp2.create(_8n$1) : Fp2.inv(Z2);
         const x2 = Fp2.mul(X2, iz);
-        const y = Fp2.mul(Y2, iz);
+        const y2 = Fp2.mul(Y2, iz);
         const zz = Fp2.mul(Z2, iz);
         if (is0)
           return { x: Fp2.ZERO, y: Fp2.ONE };
         if (!Fp2.eql(zz, Fp2.ONE))
           throw new Error("invZ was invalid");
-        return { x: x2, y };
+        return { x: x2, y: y2 };
       }
       clearCofactor() {
         if (cofactor === _1n$2)
@@ -53415,8 +53428,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         return this.multiplyUnsafe(cofactor);
       }
       toBytes() {
-        const { x: x2, y } = this.toAffine();
-        const bytes = Fp2.toBytes(y);
+        const { x: x2, y: y2 } = this.toAffine();
+        const bytes = Fp2.toBytes(y2);
         bytes[bytes.length - 1] |= isOdd(x2) ? 128 : 0;
         return bytes;
       }
@@ -53798,8 +53811,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   const ed25519_Point = /* @__PURE__ */ edwards(ed25519_CURVE, { uvRatio });
   const Fp = /* @__PURE__ */ (() => ed25519_Point.Fp)();
   function toMontgomery(point2) {
-    const { y } = point2;
-    return Fp.toBytes(Fp.div(_1n + y, _1n - y));
+    const { y: y2 } = point2;
+    return Fp.toBytes(Fp.div(_1n + y2, _1n - y2));
   }
   function toMontgomerySecret(secretKey) {
     const size = ed25519_Point.Fp.BYTES;
@@ -56311,6 +56324,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "scheduledCall.toast.updated": "Call updated",
     "scheduledCall.toast.cancelled": "Call cancelled",
     "scheduledCall.toast.cancelFailed": "Could not cancel the call.",
+    "avatar.cropTitle": "Crop image",
+    "avatar.cropError": "Could not crop this image. Please try another file.",
     "action.send": "Send",
     "action.cancel": "Cancel",
     "action.close": "Close",
@@ -56747,6 +56762,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "scheduledCall.toast.updated": "Appel modifi\xE9",
     "scheduledCall.toast.cancelled": "Appel annul\xE9",
     "scheduledCall.toast.cancelFailed": "Impossible d'annuler l'appel.",
+    "avatar.cropTitle": "Recadrer l\u2019image",
+    "avatar.cropError": "Impossible de recadrer cette image. Essayez un autre fichier.",
     "action.send": "Envoyer",
     "action.cancel": "Annuler",
     "action.close": "Fermer",
@@ -57183,6 +57200,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "scheduledCall.toast.updated": "Llamada actualizada",
     "scheduledCall.toast.cancelled": "Llamada cancelada",
     "scheduledCall.toast.cancelFailed": "No se pudo cancelar la llamada.",
+    "avatar.cropTitle": "Recortar imagen",
+    "avatar.cropError": "No se pudo recortar esta imagen. Prueba otro archivo.",
     "action.send": "Enviar",
     "action.cancel": "Cancelar",
     "action.close": "Cerrar",
@@ -57619,6 +57638,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "scheduledCall.toast.updated": "Chamada atualizada",
     "scheduledCall.toast.cancelled": "Chamada cancelada",
     "scheduledCall.toast.cancelFailed": "N\xE3o foi poss\xEDvel cancelar a chamada.",
+    "avatar.cropTitle": "Recortar imagem",
+    "avatar.cropError": "N\xE3o foi poss\xEDvel recortar a imagem. Tente outro arquivo.",
     "action.send": "Enviar",
     "action.cancel": "Cancelar",
     "action.close": "Fechar",
@@ -58055,6 +58076,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "scheduledCall.toast.updated": "Ap\xE8l mete ajou",
     "scheduledCall.toast.cancelled": "Ap\xE8l anile",
     "scheduledCall.toast.cancelFailed": "Nou pa t kapab anile ap\xE8l la.",
+    "avatar.cropTitle": "Rek\xF2te imaj",
+    "avatar.cropError": "Nou pa t kapab rek\xF2te imaj la. Eseye yon l\xF2t fichye.",
     "action.send": "Voye",
     "action.cancel": "Anile",
     "action.close": "F\xE8men",
@@ -58491,6 +58514,8 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "scheduledCall.toast.updated": "\u901A\u8BDD\u5DF2\u66F4\u65B0",
     "scheduledCall.toast.cancelled": "\u901A\u8BDD\u5DF2\u53D6\u6D88",
     "scheduledCall.toast.cancelFailed": "\u65E0\u6CD5\u53D6\u6D88\u901A\u8BDD\u3002",
+    "avatar.cropTitle": "\u88C1\u526A\u56FE\u7247",
+    "avatar.cropError": "\u65E0\u6CD5\u88C1\u526A\u56FE\u7247\uFF0C\u8BF7\u5C1D\u8BD5\u5176\u4ED6\u6587\u4EF6\u3002",
     "action.send": "\u53D1\u9001",
     "action.cancel": "\u53D6\u6D88",
     "action.close": "\u5173\u95ED",
@@ -61530,6 +61555,23 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     } catch {
     }
   };
+  const confirmDuplicateDelivered = (stanza, roomJID, condition, client2) => {
+    const messageId = stanza.attrs.id;
+    if (condition !== "conflict" || !messageId || !roomJID) return false;
+    const isOurs = store.getState().rooms.rooms?.[roomJID]?.messages?.some(
+      (m2) => m2.id === messageId || m2.xmppId === messageId
+    );
+    if (!isOurs) return false;
+    ethoraLogger.log(
+      `[XMPP] message_error duplicate_confirmed id=${messageId} room=${roomJID}`
+    );
+    store.dispatch(confirmMessageDelivered({ roomJID, messageId }));
+    store.dispatch(removeMessageFromHeapById(messageId));
+    client2?.acknowledgeSentMessage(roomJID, messageId);
+    clearSendFailureWatchdog(messageId);
+    endSendRetry(messageId);
+    return true;
+  };
   const onMessageError = async (stanza, client2) => {
     if (stanza.name === "message" && stanza.attrs.type === "error") {
       const errorInfo = handleErrorMessageStanza(stanza);
@@ -61542,6 +61584,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       ethoraLogger.log(
         `[XMPP] message_error condition=${errorInfo?.condition || "unknown"} text="${errorInfo?.message || ""}" id=${stanza.attrs.id || ""} from=${from2} to=${stanza.attrs.to || ""}`
       );
+      if (confirmDuplicateDelivered(stanza, roomJID, condition, client2)) return;
       if (!isMucRoom) {
         ethoraLogger.log(
           `[XMPP] message_error skip_presence reason=non_muc from=${from2}`
@@ -68625,11 +68668,11 @@ ${messageId}`;
   const mixColor = (a2, b2, amount) => {
     if (!isValidHex(a2) || !isValidHex(b2)) return a2;
     const x2 = hexToRgb(a2);
-    const y = hexToRgb(b2);
+    const y2 = hexToRgb(b2);
     return rgbToHex(
-      x2.r + (y.r - x2.r) * amount,
-      x2.g + (y.g - x2.g) * amount,
-      x2.b + (y.b - x2.b) * amount
+      x2.r + (y2.r - x2.r) * amount,
+      x2.g + (y2.g - x2.g) * amount,
+      x2.b + (y2.b - x2.b) * amount
     );
   };
   const DEFAULTS = {
@@ -70232,9 +70275,9 @@ ${messageId}`;
   const bubbleBordered = (props) => !props.$deleted && !props.$isUser;
   const bubblePadding = (props) => {
     const border = bubbleBordered(props) ? 1 : 0;
-    const y = (props.$media ? MEDIA_BUBBLE_INSET_PX : TEXT_BUBBLE_INSET_Y_PX) - border;
+    const y2 = (props.$media ? MEDIA_BUBBLE_INSET_PX : TEXT_BUBBLE_INSET_Y_PX) - border;
     const x2 = (props.$media ? MEDIA_BUBBLE_INSET_PX : TEXT_BUBBLE_INSET_X_PX) - border;
-    return y === x2 ? `${y}px` : `${y}px ${x2}px`;
+    return y2 === x2 ? `${y2}px` : `${y2}px ${x2}px`;
   };
   const bubbleFill = (props) => props.$deleted ? "var(--ethora-color-bg-subtle, #dfdfdf)" : props.$isUser ? "var(--ethora-own-message-bg, var(--ethora-color-primary-soft, #E7EDF9))" : "var(--ethora-other-message-bg, var(--ethora-color-bg, #FFFFFF))";
   const BUBBLE_BORDER_CSS = "var(--ethora-color-border, #E6E8EC)";
@@ -74981,11 +75024,11 @@ ${messageId}`;
         touchY = event.touches[0]?.clientY ?? 0;
       };
       const onTouchMove = (event) => {
-        const y = event.touches[0]?.clientY ?? 0;
-        if (y > touchY && (containerRef.current?.scrollTop ?? 0) > 0) {
+        const y2 = event.touches[0]?.clientY ?? 0;
+        if (y2 > touchY && (containerRef.current?.scrollTop ?? 0) > 0) {
           isUserScrolledUp.current = true;
         }
-        touchY = y;
+        touchY = y2;
       };
       if (messagesOuter) {
         messagesOuter.addEventListener("scroll", onScroll, true);
@@ -76575,6 +76618,635 @@ ${messageId}`;
     };
   };
   const useUsersSet = () => useSelector((state2) => state2.rooms.usersSet);
+  const M = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    unit: "px"
+  }, v = (o2, e2, t2) => Math.min(Math.max(o2, e2), t2), S = (...o2) => o2.filter((e2) => e2 && typeof e2 == "string").join(" "), Y = (o2, e2) => o2 === e2 || o2.width === e2.width && o2.height === e2.height && o2.x === e2.x && o2.y === e2.y && o2.unit === e2.unit;
+  function H(o2, e2, t2, h2) {
+    const i2 = y(o2, t2, h2);
+    return o2.width && (i2.height = i2.width / e2), o2.height && (i2.width = i2.height * e2), i2.y + i2.height > h2 && (i2.height = h2 - i2.y, i2.width = i2.height * e2), i2.x + i2.width > t2 && (i2.width = t2 - i2.x, i2.height = i2.width / e2), o2.unit === "%" ? D$1(i2, t2, h2) : i2;
+  }
+  function I(o2, e2, t2) {
+    const h2 = y(o2, e2, t2);
+    return h2.x = (e2 - h2.width) / 2, h2.y = (t2 - h2.height) / 2, o2.unit === "%" ? D$1(h2, e2, t2) : h2;
+  }
+  function D$1(o2, e2, t2) {
+    return o2.unit === "%" ? { ...M, ...o2, unit: "%" } : {
+      unit: "%",
+      x: o2.x ? o2.x / e2 * 100 : 0,
+      y: o2.y ? o2.y / t2 * 100 : 0,
+      width: o2.width ? o2.width / e2 * 100 : 0,
+      height: o2.height ? o2.height / t2 * 100 : 0
+    };
+  }
+  function y(o2, e2, t2) {
+    return o2.unit ? o2.unit === "px" ? { ...M, ...o2, unit: "px" } : {
+      unit: "px",
+      x: o2.x ? o2.x * e2 / 100 : 0,
+      y: o2.y ? o2.y * t2 / 100 : 0,
+      width: o2.width ? o2.width * e2 / 100 : 0,
+      height: o2.height ? o2.height * t2 / 100 : 0
+    } : { ...M, ...o2, unit: "px" };
+  }
+  function P(o2, e2, t2, h2, i2, n2 = 0, s2 = 0, w2 = h2, a2 = i2) {
+    const r2 = { ...o2 };
+    let c2 = Math.min(n2, h2), d2 = Math.min(s2, i2), g2 = Math.min(w2, h2), l2 = Math.min(a2, i2);
+    e2 && (e2 > 1 ? (c2 = s2 ? s2 * e2 : c2, d2 = c2 / e2, g2 = w2 * e2) : (d2 = n2 ? n2 / e2 : d2, c2 = d2 * e2, l2 = a2 / e2)), r2.y < 0 && (r2.height = Math.max(r2.height + r2.y, d2), r2.y = 0), r2.x < 0 && (r2.width = Math.max(r2.width + r2.x, c2), r2.x = 0);
+    const m2 = h2 - (r2.x + r2.width);
+    m2 < 0 && (r2.x = Math.min(r2.x, h2 - c2), r2.width += m2);
+    const x2 = i2 - (r2.y + r2.height);
+    if (x2 < 0 && (r2.y = Math.min(r2.y, i2 - d2), r2.height += x2), r2.width < c2 && ((t2 === "sw" || t2 == "nw") && (r2.x -= c2 - r2.width), r2.width = c2), r2.height < d2 && ((t2 === "nw" || t2 == "ne") && (r2.y -= d2 - r2.height), r2.height = d2), r2.width > g2 && ((t2 === "sw" || t2 == "nw") && (r2.x -= g2 - r2.width), r2.width = g2), r2.height > l2 && ((t2 === "nw" || t2 == "ne") && (r2.y -= l2 - r2.height), r2.height = l2), e2) {
+      const b2 = r2.width / r2.height;
+      if (b2 < e2) {
+        const C2 = Math.max(r2.width / e2, d2);
+        (t2 === "nw" || t2 == "ne") && (r2.y -= C2 - r2.height), r2.height = C2;
+      } else if (b2 > e2) {
+        const C2 = Math.max(r2.height * e2, c2);
+        (t2 === "sw" || t2 == "nw") && (r2.x -= C2 - r2.width), r2.width = C2;
+      }
+    }
+    return r2;
+  }
+  function _(o2, e2, t2, h2) {
+    const i2 = { ...o2 };
+    return e2 === "ArrowLeft" ? h2 === "nw" ? (i2.x -= t2, i2.y -= t2, i2.width += t2, i2.height += t2) : h2 === "w" ? (i2.x -= t2, i2.width += t2) : h2 === "sw" ? (i2.x -= t2, i2.width += t2, i2.height += t2) : h2 === "ne" ? (i2.y += t2, i2.width -= t2, i2.height -= t2) : h2 === "e" ? i2.width -= t2 : h2 === "se" && (i2.width -= t2, i2.height -= t2) : e2 === "ArrowRight" && (h2 === "nw" ? (i2.x += t2, i2.y += t2, i2.width -= t2, i2.height -= t2) : h2 === "w" ? (i2.x += t2, i2.width -= t2) : h2 === "sw" ? (i2.x += t2, i2.width -= t2, i2.height -= t2) : h2 === "ne" ? (i2.y -= t2, i2.width += t2, i2.height += t2) : h2 === "e" ? i2.width += t2 : h2 === "se" && (i2.width += t2, i2.height += t2)), e2 === "ArrowUp" ? h2 === "nw" ? (i2.x -= t2, i2.y -= t2, i2.width += t2, i2.height += t2) : h2 === "n" ? (i2.y -= t2, i2.height += t2) : h2 === "ne" ? (i2.y -= t2, i2.width += t2, i2.height += t2) : h2 === "sw" ? (i2.x += t2, i2.width -= t2, i2.height -= t2) : h2 === "s" ? i2.height -= t2 : h2 === "se" && (i2.width -= t2, i2.height -= t2) : e2 === "ArrowDown" && (h2 === "nw" ? (i2.x += t2, i2.y += t2, i2.width -= t2, i2.height -= t2) : h2 === "n" ? (i2.y += t2, i2.height -= t2) : h2 === "ne" ? (i2.y += t2, i2.width -= t2, i2.height -= t2) : h2 === "sw" ? (i2.x -= t2, i2.width += t2, i2.height += t2) : h2 === "s" ? i2.height += t2 : h2 === "se" && (i2.width += t2, i2.height += t2)), i2;
+  }
+  const f = { capture: true, passive: false };
+  let $ = 0;
+  const u$1 = class u2 extends reactExports.PureComponent {
+    constructor() {
+      super(...arguments), this.docMoveBound = false, this.mouseDownOnCrop = false, this.dragStarted = false, this.evData = {
+        startClientX: 0,
+        startClientY: 0,
+        startCropX: 0,
+        startCropY: 0,
+        clientX: 0,
+        clientY: 0,
+        isResize: true
+      }, this.componentRef = reactExports.createRef(), this.mediaRef = reactExports.createRef(), this.initChangeCalled = false, this.instanceId = `rc-${$++}`, this.state = {
+        cropIsActive: false,
+        newCropIsBeingDrawn: false
+      }, this.onCropPointerDown = (e2) => {
+        const { crop: t2, disabled: h2 } = this.props, i2 = this.getBox();
+        if (!t2)
+          return;
+        const n2 = y(t2, i2.width, i2.height);
+        if (h2)
+          return;
+        e2.cancelable && e2.preventDefault(), this.bindDocMove(), this.componentRef.current.focus({ preventScroll: true });
+        const s2 = e2.target.dataset.ord, w2 = !!s2;
+        let a2 = e2.clientX, r2 = e2.clientY, c2 = n2.x, d2 = n2.y;
+        if (s2) {
+          const g2 = e2.clientX - i2.x, l2 = e2.clientY - i2.y;
+          let m2 = 0, x2 = 0;
+          s2 === "ne" || s2 == "e" ? (m2 = g2 - (n2.x + n2.width), x2 = l2 - n2.y, c2 = n2.x, d2 = n2.y + n2.height) : s2 === "se" || s2 === "s" ? (m2 = g2 - (n2.x + n2.width), x2 = l2 - (n2.y + n2.height), c2 = n2.x, d2 = n2.y) : s2 === "sw" || s2 == "w" ? (m2 = g2 - n2.x, x2 = l2 - (n2.y + n2.height), c2 = n2.x + n2.width, d2 = n2.y) : (s2 === "nw" || s2 == "n") && (m2 = g2 - n2.x, x2 = l2 - n2.y, c2 = n2.x + n2.width, d2 = n2.y + n2.height), a2 = c2 + i2.x + m2, r2 = d2 + i2.y + x2;
+        }
+        this.evData = {
+          startClientX: a2,
+          startClientY: r2,
+          startCropX: c2,
+          startCropY: d2,
+          clientX: e2.clientX,
+          clientY: e2.clientY,
+          isResize: w2,
+          ord: s2
+        }, this.mouseDownOnCrop = true, this.setState({ cropIsActive: true });
+      }, this.onComponentPointerDown = (e2) => {
+        const { crop: t2, disabled: h2, locked: i2, keepSelection: n2, onChange: s2 } = this.props, w2 = this.getBox();
+        if (h2 || i2 || n2 && t2)
+          return;
+        e2.cancelable && e2.preventDefault(), this.bindDocMove(), this.componentRef.current.focus({ preventScroll: true });
+        const a2 = e2.clientX - w2.x, r2 = e2.clientY - w2.y, c2 = {
+          unit: "px",
+          x: a2,
+          y: r2,
+          width: 0,
+          height: 0
+        };
+        this.evData = {
+          startClientX: e2.clientX,
+          startClientY: e2.clientY,
+          startCropX: a2,
+          startCropY: r2,
+          clientX: e2.clientX,
+          clientY: e2.clientY,
+          isResize: true
+        }, this.mouseDownOnCrop = true, s2(y(c2, w2.width, w2.height), D$1(c2, w2.width, w2.height)), this.setState({ cropIsActive: true, newCropIsBeingDrawn: true });
+      }, this.onDocPointerMove = (e2) => {
+        const { crop: t2, disabled: h2, onChange: i2, onDragStart: n2 } = this.props, s2 = this.getBox();
+        if (h2 || !t2 || !this.mouseDownOnCrop)
+          return;
+        e2.cancelable && e2.preventDefault(), this.dragStarted || (this.dragStarted = true, n2 && n2(e2));
+        const { evData: w2 } = this;
+        w2.clientX = e2.clientX, w2.clientY = e2.clientY;
+        let a2;
+        w2.isResize ? a2 = this.resizeCrop() : a2 = this.dragCrop(), Y(t2, a2) || i2(
+          y(a2, s2.width, s2.height),
+          D$1(a2, s2.width, s2.height)
+        );
+      }, this.onComponentKeyDown = (e2) => {
+        const { crop: t2, disabled: h2, onChange: i2, onComplete: n2 } = this.props;
+        if (h2)
+          return;
+        const s2 = e2.key;
+        let w2 = false;
+        if (!t2)
+          return;
+        const a2 = this.getBox(), r2 = this.makePixelCrop(a2), d2 = (navigator.platform.match("Mac") ? e2.metaKey : e2.ctrlKey) ? u2.nudgeStepLarge : e2.shiftKey ? u2.nudgeStepMedium : u2.nudgeStep;
+        if (s2 === "ArrowLeft" ? (r2.x -= d2, w2 = true) : s2 === "ArrowRight" ? (r2.x += d2, w2 = true) : s2 === "ArrowUp" ? (r2.y -= d2, w2 = true) : s2 === "ArrowDown" && (r2.y += d2, w2 = true), w2) {
+          e2.cancelable && e2.preventDefault(), r2.x = v(r2.x, 0, a2.width - r2.width), r2.y = v(r2.y, 0, a2.height - r2.height);
+          const g2 = y(r2, a2.width, a2.height), l2 = D$1(r2, a2.width, a2.height);
+          i2(g2, l2), n2 && n2(g2, l2);
+        }
+      }, this.onHandlerKeyDown = (e2, t2) => {
+        const {
+          aspect: h2 = 0,
+          crop: i2,
+          disabled: n2,
+          minWidth: s2 = 0,
+          minHeight: w2 = 0,
+          maxWidth: a2,
+          maxHeight: r2,
+          onChange: c2,
+          onComplete: d2
+        } = this.props, g2 = this.getBox();
+        if (n2 || !i2)
+          return;
+        if (e2.key === "ArrowUp" || e2.key === "ArrowDown" || e2.key === "ArrowLeft" || e2.key === "ArrowRight")
+          e2.stopPropagation(), e2.preventDefault();
+        else
+          return;
+        const m2 = (navigator.platform.match("Mac") ? e2.metaKey : e2.ctrlKey) ? u2.nudgeStepLarge : e2.shiftKey ? u2.nudgeStepMedium : u2.nudgeStep, x2 = y(i2, g2.width, g2.height), b2 = _(x2, e2.key, m2, t2), C2 = P(
+          b2,
+          h2,
+          t2,
+          g2.width,
+          g2.height,
+          s2,
+          w2,
+          a2,
+          r2
+        );
+        if (!Y(i2, C2)) {
+          const R2 = D$1(C2, g2.width, g2.height);
+          c2(C2, R2), d2 && d2(C2, R2);
+        }
+      }, this.onDocPointerDone = (e2) => {
+        const { crop: t2, disabled: h2, onComplete: i2, onDragEnd: n2 } = this.props, s2 = this.getBox();
+        this.unbindDocMove(), !(h2 || !t2) && this.mouseDownOnCrop && (this.mouseDownOnCrop = false, this.dragStarted = false, n2 && n2(e2), i2 && i2(y(t2, s2.width, s2.height), D$1(t2, s2.width, s2.height)), this.setState({ cropIsActive: false, newCropIsBeingDrawn: false }));
+      }, this.onDragFocus = () => {
+        var e2;
+        (e2 = this.componentRef.current) == null || e2.scrollTo(0, 0);
+      };
+    }
+    get document() {
+      return document;
+    }
+    // We unfortunately get the bounding box every time as x+y changes
+    // due to scrolling.
+    getBox() {
+      const e2 = this.mediaRef.current;
+      if (!e2)
+        return { x: 0, y: 0, width: 0, height: 0 };
+      const { x: t2, y: h2, width: i2, height: n2 } = e2.getBoundingClientRect();
+      return { x: t2, y: h2, width: i2, height: n2 };
+    }
+    componentDidUpdate(e2) {
+      const { crop: t2, onComplete: h2 } = this.props;
+      if (h2 && !e2.crop && t2) {
+        const { width: i2, height: n2 } = this.getBox();
+        i2 && n2 && h2(y(t2, i2, n2), D$1(t2, i2, n2));
+      }
+    }
+    componentWillUnmount() {
+      this.resizeObserver && this.resizeObserver.disconnect(), this.unbindDocMove();
+    }
+    bindDocMove() {
+      this.docMoveBound || (this.document.addEventListener("pointermove", this.onDocPointerMove, f), this.document.addEventListener("pointerup", this.onDocPointerDone, f), this.document.addEventListener("pointercancel", this.onDocPointerDone, f), this.docMoveBound = true);
+    }
+    unbindDocMove() {
+      this.docMoveBound && (this.document.removeEventListener("pointermove", this.onDocPointerMove, f), this.document.removeEventListener("pointerup", this.onDocPointerDone, f), this.document.removeEventListener("pointercancel", this.onDocPointerDone, f), this.docMoveBound = false);
+    }
+    getCropStyle() {
+      const { crop: e2 } = this.props;
+      if (e2)
+        return {
+          top: `${e2.y}${e2.unit}`,
+          left: `${e2.x}${e2.unit}`,
+          width: `${e2.width}${e2.unit}`,
+          height: `${e2.height}${e2.unit}`
+        };
+    }
+    dragCrop() {
+      const { evData: e2 } = this, t2 = this.getBox(), h2 = this.makePixelCrop(t2), i2 = e2.clientX - e2.startClientX, n2 = e2.clientY - e2.startClientY;
+      return h2.x = v(e2.startCropX + i2, 0, t2.width - h2.width), h2.y = v(e2.startCropY + n2, 0, t2.height - h2.height), h2;
+    }
+    getPointRegion(e2, t2, h2, i2) {
+      const { evData: n2 } = this, s2 = n2.clientX - e2.x, w2 = n2.clientY - e2.y;
+      let a2;
+      i2 && t2 ? a2 = t2 === "nw" || t2 === "n" || t2 === "ne" : a2 = w2 < n2.startCropY;
+      let r2;
+      return h2 && t2 ? r2 = t2 === "nw" || t2 === "w" || t2 === "sw" : r2 = s2 < n2.startCropX, r2 ? a2 ? "nw" : "sw" : a2 ? "ne" : "se";
+    }
+    resolveMinDimensions(e2, t2, h2 = 0, i2 = 0) {
+      const n2 = Math.min(h2, e2.width), s2 = Math.min(i2, e2.height);
+      return !t2 || !n2 && !s2 ? [n2, s2] : t2 > 1 ? n2 ? [n2, n2 / t2] : [s2 * t2, s2] : s2 ? [s2 * t2, s2] : [n2, n2 / t2];
+    }
+    resizeCrop() {
+      const { evData: e2 } = this, { aspect: t2 = 0, maxWidth: h2, maxHeight: i2 } = this.props, n2 = this.getBox(), [s2, w2] = this.resolveMinDimensions(n2, t2, this.props.minWidth, this.props.minHeight);
+      let a2 = this.makePixelCrop(n2);
+      const r2 = this.getPointRegion(n2, e2.ord, s2, w2), c2 = e2.ord || r2;
+      let d2 = e2.clientX - e2.startClientX, g2 = e2.clientY - e2.startClientY;
+      (s2 && c2 === "nw" || c2 === "w" || c2 === "sw") && (d2 = Math.min(d2, -s2)), (w2 && c2 === "nw" || c2 === "n" || c2 === "ne") && (g2 = Math.min(g2, -w2));
+      const l2 = {
+        unit: "px",
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0
+      };
+      r2 === "ne" ? (l2.x = e2.startCropX, l2.width = d2, t2 ? (l2.height = l2.width / t2, l2.y = e2.startCropY - l2.height) : (l2.height = Math.abs(g2), l2.y = e2.startCropY - l2.height)) : r2 === "se" ? (l2.x = e2.startCropX, l2.y = e2.startCropY, l2.width = d2, t2 ? l2.height = l2.width / t2 : l2.height = g2) : r2 === "sw" ? (l2.x = e2.startCropX + d2, l2.y = e2.startCropY, l2.width = Math.abs(d2), t2 ? l2.height = l2.width / t2 : l2.height = g2) : r2 === "nw" && (l2.x = e2.startCropX + d2, l2.width = Math.abs(d2), t2 ? (l2.height = l2.width / t2, l2.y = e2.startCropY - l2.height) : (l2.height = Math.abs(g2), l2.y = e2.startCropY + g2));
+      const m2 = P(
+        l2,
+        t2,
+        r2,
+        n2.width,
+        n2.height,
+        s2,
+        w2,
+        h2,
+        i2
+      );
+      return t2 || u2.xyOrds.indexOf(c2) > -1 ? a2 = m2 : u2.xOrds.indexOf(c2) > -1 ? (a2.x = m2.x, a2.width = m2.width) : u2.yOrds.indexOf(c2) > -1 && (a2.y = m2.y, a2.height = m2.height), a2.x = v(a2.x, 0, n2.width - a2.width), a2.y = v(a2.y, 0, n2.height - a2.height), a2;
+    }
+    renderCropSelection() {
+      const {
+        ariaLabels: e2 = u2.defaultProps.ariaLabels,
+        disabled: t2,
+        locked: h2,
+        renderSelectionAddon: i2,
+        ruleOfThirds: n2,
+        crop: s2
+      } = this.props, w2 = this.getCropStyle();
+      if (s2)
+        return /* @__PURE__ */ React.createElement(
+          "div",
+          {
+            style: w2,
+            className: "ReactCrop__crop-selection",
+            onPointerDown: this.onCropPointerDown,
+            "aria-label": e2.cropArea,
+            tabIndex: 0,
+            onKeyDown: this.onComponentKeyDown,
+            role: "group"
+          },
+          !t2 && !h2 && /* @__PURE__ */ React.createElement("div", { className: "ReactCrop__drag-elements", onFocus: this.onDragFocus }, /* @__PURE__ */ React.createElement("div", { className: "ReactCrop__drag-bar ord-n", "data-ord": "n" }), /* @__PURE__ */ React.createElement("div", { className: "ReactCrop__drag-bar ord-e", "data-ord": "e" }), /* @__PURE__ */ React.createElement("div", { className: "ReactCrop__drag-bar ord-s", "data-ord": "s" }), /* @__PURE__ */ React.createElement("div", { className: "ReactCrop__drag-bar ord-w", "data-ord": "w" }), /* @__PURE__ */ React.createElement(
+            "div",
+            {
+              className: "ReactCrop__drag-handle ord-nw",
+              "data-ord": "nw",
+              tabIndex: 0,
+              "aria-label": e2.nwDragHandle,
+              onKeyDown: (a2) => this.onHandlerKeyDown(a2, "nw"),
+              role: "button"
+            }
+          ), /* @__PURE__ */ React.createElement(
+            "div",
+            {
+              className: "ReactCrop__drag-handle ord-n",
+              "data-ord": "n",
+              tabIndex: 0,
+              "aria-label": e2.nDragHandle,
+              onKeyDown: (a2) => this.onHandlerKeyDown(a2, "n"),
+              role: "button"
+            }
+          ), /* @__PURE__ */ React.createElement(
+            "div",
+            {
+              className: "ReactCrop__drag-handle ord-ne",
+              "data-ord": "ne",
+              tabIndex: 0,
+              "aria-label": e2.neDragHandle,
+              onKeyDown: (a2) => this.onHandlerKeyDown(a2, "ne"),
+              role: "button"
+            }
+          ), /* @__PURE__ */ React.createElement(
+            "div",
+            {
+              className: "ReactCrop__drag-handle ord-e",
+              "data-ord": "e",
+              tabIndex: 0,
+              "aria-label": e2.eDragHandle,
+              onKeyDown: (a2) => this.onHandlerKeyDown(a2, "e"),
+              role: "button"
+            }
+          ), /* @__PURE__ */ React.createElement(
+            "div",
+            {
+              className: "ReactCrop__drag-handle ord-se",
+              "data-ord": "se",
+              tabIndex: 0,
+              "aria-label": e2.seDragHandle,
+              onKeyDown: (a2) => this.onHandlerKeyDown(a2, "se"),
+              role: "button"
+            }
+          ), /* @__PURE__ */ React.createElement(
+            "div",
+            {
+              className: "ReactCrop__drag-handle ord-s",
+              "data-ord": "s",
+              tabIndex: 0,
+              "aria-label": e2.sDragHandle,
+              onKeyDown: (a2) => this.onHandlerKeyDown(a2, "s"),
+              role: "button"
+            }
+          ), /* @__PURE__ */ React.createElement(
+            "div",
+            {
+              className: "ReactCrop__drag-handle ord-sw",
+              "data-ord": "sw",
+              tabIndex: 0,
+              "aria-label": e2.swDragHandle,
+              onKeyDown: (a2) => this.onHandlerKeyDown(a2, "sw"),
+              role: "button"
+            }
+          ), /* @__PURE__ */ React.createElement(
+            "div",
+            {
+              className: "ReactCrop__drag-handle ord-w",
+              "data-ord": "w",
+              tabIndex: 0,
+              "aria-label": e2.wDragHandle,
+              onKeyDown: (a2) => this.onHandlerKeyDown(a2, "w"),
+              role: "button"
+            }
+          )),
+          i2 && /* @__PURE__ */ React.createElement("div", { className: "ReactCrop__selection-addon", onPointerDown: (a2) => a2.stopPropagation() }, i2(this.state)),
+          n2 && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "ReactCrop__rule-of-thirds-hz" }), /* @__PURE__ */ React.createElement("div", { className: "ReactCrop__rule-of-thirds-vt" }))
+        );
+    }
+    makePixelCrop(e2) {
+      const t2 = { ...M, ...this.props.crop || {} };
+      return y(t2, e2.width, e2.height);
+    }
+    render() {
+      const { aspect: e2, children: t2, circularCrop: h2, className: i2, crop: n2, disabled: s2, locked: w2, style: a2, ruleOfThirds: r2 } = this.props, { cropIsActive: c2, newCropIsBeingDrawn: d2 } = this.state, g2 = n2 ? this.renderCropSelection() : null, l2 = S(
+        "ReactCrop",
+        i2,
+        c2 && "ReactCrop--active",
+        s2 && "ReactCrop--disabled",
+        w2 && "ReactCrop--locked",
+        d2 && "ReactCrop--new-crop",
+        n2 && e2 && "ReactCrop--fixed-aspect",
+        n2 && h2 && "ReactCrop--circular-crop",
+        n2 && r2 && "ReactCrop--rule-of-thirds",
+        !this.dragStarted && n2 && !n2.width && !n2.height && "ReactCrop--invisible-crop",
+        h2 && "ReactCrop--no-animate"
+      );
+      return /* @__PURE__ */ React.createElement("div", { ref: this.componentRef, className: l2, style: a2 }, /* @__PURE__ */ React.createElement("div", { ref: this.mediaRef, className: "ReactCrop__child-wrapper", onPointerDown: this.onComponentPointerDown }, t2), n2 ? /* @__PURE__ */ React.createElement("svg", { className: "ReactCrop__crop-mask", width: "100%", height: "100%" }, /* @__PURE__ */ React.createElement("defs", null, /* @__PURE__ */ React.createElement("mask", { id: `hole-${this.instanceId}` }, /* @__PURE__ */ React.createElement("rect", { width: "100%", height: "100%", fill: "white" }), h2 ? /* @__PURE__ */ React.createElement(
+        "ellipse",
+        {
+          cx: `${n2.x + n2.width / 2}${n2.unit}`,
+          cy: `${n2.y + n2.height / 2}${n2.unit}`,
+          rx: `${n2.width / 2}${n2.unit}`,
+          ry: `${n2.height / 2}${n2.unit}`,
+          fill: "black"
+        }
+      ) : /* @__PURE__ */ React.createElement(
+        "rect",
+        {
+          x: `${n2.x}${n2.unit}`,
+          y: `${n2.y}${n2.unit}`,
+          width: `${n2.width}${n2.unit}`,
+          height: `${n2.height}${n2.unit}`,
+          fill: "black"
+        }
+      ))), /* @__PURE__ */ React.createElement("rect", { fill: "black", fillOpacity: 0.5, width: "100%", height: "100%", mask: `url(#hole-${this.instanceId})` })) : void 0, g2);
+    }
+  };
+  u$1.xOrds = ["e", "w"], u$1.yOrds = ["n", "s"], u$1.xyOrds = ["nw", "ne", "se", "sw"], u$1.nudgeStep = 1, u$1.nudgeStepMedium = 10, u$1.nudgeStepLarge = 100, u$1.defaultProps = {
+    ariaLabels: {
+      cropArea: "Use the arrow keys to move the crop selection area",
+      nwDragHandle: "Use the arrow keys to move the north west drag handle to change the crop selection area",
+      nDragHandle: "Use the up and down arrow keys to move the north drag handle to change the crop selection area",
+      neDragHandle: "Use the arrow keys to move the north east drag handle to change the crop selection area",
+      eDragHandle: "Use the up and down arrow keys to move the east drag handle to change the crop selection area",
+      seDragHandle: "Use the arrow keys to move the south east drag handle to change the crop selection area",
+      sDragHandle: "Use the up and down arrow keys to move the south drag handle to change the crop selection area",
+      swDragHandle: "Use the arrow keys to move the south west drag handle to change the crop selection area",
+      wDragHandle: "Use the up and down arrow keys to move the west drag handle to change the crop selection area"
+    }
+  };
+  let X$1 = u$1;
+  const cropStyles = '@keyframes marching-ants{0%{background-position:0 0,0 100%,0 0,100% 0}to{background-position:20px 0,-20px 100%,0 -20px,100% 20px}}:root{--rc-drag-handle-size: 12px;--rc-drag-handle-mobile-size: 24px;--rc-drag-handle-bg-colour: rgba(0, 0, 0, .2);--rc-drag-bar-size: 6px;--rc-border-color: rgba(255, 255, 255, .7);--rc-focus-color: #0088ff}.ReactCrop{position:relative;display:inline-block;cursor:crosshair;max-width:100%}.ReactCrop *,.ReactCrop *:before,.ReactCrop *:after{box-sizing:border-box}.ReactCrop--disabled,.ReactCrop--locked{cursor:inherit}.ReactCrop__child-wrapper{overflow:hidden;max-height:inherit}.ReactCrop__child-wrapper>img,.ReactCrop__child-wrapper>video{display:block;max-width:100%;max-height:inherit}.ReactCrop:not(.ReactCrop--disabled) .ReactCrop__child-wrapper>img,.ReactCrop:not(.ReactCrop--disabled) .ReactCrop__child-wrapper>video{touch-action:none}.ReactCrop:not(.ReactCrop--disabled) .ReactCrop__crop-selection{touch-action:none}.ReactCrop__crop-mask{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}.ReactCrop__crop-selection{position:absolute;top:0;left:0;transform:translateZ(0);cursor:move}.ReactCrop--disabled .ReactCrop__crop-selection{cursor:inherit}.ReactCrop--circular-crop .ReactCrop__crop-selection{border-radius:50%}.ReactCrop--circular-crop .ReactCrop__crop-selection:after{pointer-events:none;content:"";position:absolute;top:-1px;right:-1px;bottom:-1px;left:-1px;border:1px solid var(--rc-border-color);opacity:.3}.ReactCrop--no-animate .ReactCrop__crop-selection{outline:1px dashed white}.ReactCrop__crop-selection:not(.ReactCrop--no-animate .ReactCrop__crop-selection){animation:marching-ants 1s;background-image:linear-gradient(to right,#fff 50%,#444 50%),linear-gradient(to right,#fff 50%,#444 50%),linear-gradient(to bottom,#fff 50%,#444 50%),linear-gradient(to bottom,#fff 50%,#444 50%);background-size:10px 1px,10px 1px,1px 10px,1px 10px;background-position:0 0,0 100%,0 0,100% 0;background-repeat:repeat-x,repeat-x,repeat-y,repeat-y;color:#fff;animation-play-state:running;animation-timing-function:linear;animation-iteration-count:infinite}.ReactCrop__crop-selection:focus{outline:2px solid var(--rc-focus-color);outline-offset:-1px}.ReactCrop--invisible-crop .ReactCrop__crop-mask,.ReactCrop--invisible-crop .ReactCrop__crop-selection{display:none}.ReactCrop__rule-of-thirds-vt:before,.ReactCrop__rule-of-thirds-vt:after,.ReactCrop__rule-of-thirds-hz:before,.ReactCrop__rule-of-thirds-hz:after{content:"";display:block;position:absolute;background-color:#fff6}.ReactCrop__rule-of-thirds-vt:before,.ReactCrop__rule-of-thirds-vt:after{width:1px;height:100%}.ReactCrop__rule-of-thirds-vt:before{left:33.3333333333%}.ReactCrop__rule-of-thirds-vt:after{left:66.6666666667%}.ReactCrop__rule-of-thirds-hz:before,.ReactCrop__rule-of-thirds-hz:after{width:100%;height:1px}.ReactCrop__rule-of-thirds-hz:before{top:33.3333333333%}.ReactCrop__rule-of-thirds-hz:after{top:66.6666666667%}.ReactCrop__drag-handle{position:absolute;width:var(--rc-drag-handle-size);height:var(--rc-drag-handle-size);background-color:var(--rc-drag-handle-bg-colour);border:1px solid var(--rc-border-color)}.ReactCrop__drag-handle:focus{background:var(--rc-focus-color)}.ReactCrop .ord-nw{top:0;left:0;transform:translate(-50%,-50%);cursor:nw-resize}.ReactCrop .ord-n{top:0;left:50%;transform:translate(-50%,-50%);cursor:n-resize}.ReactCrop .ord-ne{top:0;right:0;transform:translate(50%,-50%);cursor:ne-resize}.ReactCrop .ord-e{top:50%;right:0;transform:translate(50%,-50%);cursor:e-resize}.ReactCrop .ord-se{bottom:0;right:0;transform:translate(50%,50%);cursor:se-resize}.ReactCrop .ord-s{bottom:0;left:50%;transform:translate(-50%,50%);cursor:s-resize}.ReactCrop .ord-sw{bottom:0;left:0;transform:translate(-50%,50%);cursor:sw-resize}.ReactCrop .ord-w{top:50%;left:0;transform:translate(-50%,-50%);cursor:w-resize}.ReactCrop__disabled .ReactCrop__drag-handle{cursor:inherit}.ReactCrop__drag-bar{position:absolute}.ReactCrop__drag-bar.ord-n{top:0;left:0;width:100%;height:var(--rc-drag-bar-size);transform:translateY(-50%)}.ReactCrop__drag-bar.ord-e{right:0;top:0;width:var(--rc-drag-bar-size);height:100%;transform:translate(50%)}.ReactCrop__drag-bar.ord-s{bottom:0;left:0;width:100%;height:var(--rc-drag-bar-size);transform:translateY(50%)}.ReactCrop__drag-bar.ord-w{top:0;left:0;width:var(--rc-drag-bar-size);height:100%;transform:translate(-50%)}.ReactCrop--new-crop .ReactCrop__drag-bar,.ReactCrop--new-crop .ReactCrop__drag-handle,.ReactCrop--fixed-aspect .ReactCrop__drag-bar,.ReactCrop--fixed-aspect .ReactCrop__drag-handle.ord-n,.ReactCrop--fixed-aspect .ReactCrop__drag-handle.ord-e,.ReactCrop--fixed-aspect .ReactCrop__drag-handle.ord-s,.ReactCrop--fixed-aspect .ReactCrop__drag-handle.ord-w{display:none}@media (pointer: coarse){.ReactCrop .ord-n,.ReactCrop .ord-e,.ReactCrop .ord-s,.ReactCrop .ord-w{display:none}.ReactCrop__drag-handle{width:var(--rc-drag-handle-mobile-size);height:var(--rc-drag-handle-mobile-size)}}\n';
+  const openLayerStack = [];
+  const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const useModalDismiss = ({
+    onClose,
+    enabled: enabled2 = true,
+    containerRef,
+    kind = "modal",
+    closeOnOutsidePress = false,
+    insideRefs
+  }) => {
+    const onCloseRef = reactExports.useRef(onClose);
+    onCloseRef.current = onClose;
+    const insideRefsRef = reactExports.useRef(insideRefs);
+    insideRefsRef.current = insideRefs;
+    reactExports.useEffect(() => {
+      if (!enabled2 || typeof document === "undefined") return;
+      const token2 = Symbol("dismiss-layer");
+      const layer = {
+        token: token2,
+        kind,
+        superseded: false,
+        close: () => {
+          layer.superseded = true;
+          onCloseRef.current?.();
+        }
+      };
+      const supersededMenus = openLayerStack.filter((l2) => l2.kind === "menu");
+      openLayerStack.push(layer);
+      supersededMenus.forEach((l2) => l2.close());
+      const previouslyFocused = document.activeElement;
+      const container = containerRef?.current;
+      if (container) {
+        const first = container.querySelector(FOCUSABLE_SELECTOR);
+        if (first) {
+          first.focus();
+        } else {
+          if (!container.hasAttribute("tabindex")) {
+            container.setAttribute("tabindex", "-1");
+          }
+          container.focus();
+        }
+      }
+      const isInsideLayer = (node2) => {
+        if (!node2) return false;
+        if (containerRef?.current?.contains(node2)) return true;
+        return (insideRefsRef.current ?? []).some(
+          (ref) => ref.current?.contains(node2)
+        );
+      };
+      const onKeyDown = (event) => {
+        if (event.key !== "Escape") return;
+        if (event.defaultPrevented) return;
+        if (openLayerStack[openLayerStack.length - 1] !== layer) return;
+        event.stopPropagation();
+        onCloseRef.current?.();
+      };
+      const onOutsidePress = (event) => {
+        if (isInsideLayer(event.target)) return;
+        onCloseRef.current?.();
+      };
+      document.addEventListener("keydown", onKeyDown);
+      if (closeOnOutsidePress) {
+        document.addEventListener("pointerdown", onOutsidePress, true);
+        document.addEventListener("mousedown", onOutsidePress, true);
+        document.addEventListener("touchstart", onOutsidePress, true);
+      }
+      return () => {
+        document.removeEventListener("keydown", onKeyDown);
+        if (closeOnOutsidePress) {
+          document.removeEventListener("pointerdown", onOutsidePress, true);
+          document.removeEventListener("mousedown", onOutsidePress, true);
+          document.removeEventListener("touchstart", onOutsidePress, true);
+        }
+        const index2 = openLayerStack.indexOf(layer);
+        if (index2 !== -1) openLayerStack.splice(index2, 1);
+        if (layer.superseded) return;
+        if (previouslyFocused && typeof previouslyFocused.focus === "function") {
+          previouslyFocused.focus();
+        }
+      };
+    }, [enabled2]);
+  };
+  const Backdrop = gt.div`
+  position: fixed; inset: 0; z-index: 2147483647;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, .55); padding: 16px;
+`;
+  const Panel$1 = gt.div`
+  box-sizing: border-box; width: min(100%, 640px); max-height: 100%; overflow: auto;
+  background: var(--ethora-color-bg, #fff); color: var(--ethora-color-text, #171717);
+  border-radius: 16px; padding: 20px;
+  h2 { margin: 0 0 16px; font-size: 18px; }
+  .crop-image { display: flex; justify-content: center; }
+  .crop-image img { display: block; max-width: 100%; max-height: 60vh; }
+  .crop-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; }
+  button { font: inherit; cursor: pointer; padding: 8px 16px; border-radius: 8px; }
+`;
+  function AvatarCropDialog({ file, onCancel, onSave }) {
+    const t2 = useT();
+    const titleId = reactExports.useId();
+    const panelRef = reactExports.useRef(null);
+    const imageRef = reactExports.useRef(null);
+    const mounted = reactExports.useRef(true);
+    const [url, setUrl] = reactExports.useState("");
+    const [crop, setCrop] = reactExports.useState();
+    const [error2, setError] = reactExports.useState(false);
+    const [saving, setSaving] = reactExports.useState(false);
+    useModalDismiss({ onClose: onCancel, containerRef: panelRef });
+    reactExports.useEffect(() => {
+      mounted.current = true;
+      const objectUrl = URL.createObjectURL(file);
+      setUrl(objectUrl);
+      return () => {
+        mounted.current = false;
+        URL.revokeObjectURL(objectUrl);
+      };
+    }, [file]);
+    const save = () => {
+      const image2 = imageRef.current;
+      if (!image2 || !crop || !crop.width || !crop.height) return;
+      const selected = y(crop, image2.width, image2.height);
+      const scaleX = image2.naturalWidth / image2.width;
+      const scaleY = image2.naturalHeight / image2.height;
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(selected.width * scaleX));
+      canvas.height = Math.max(1, Math.round(selected.height * scaleY));
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        setError(true);
+        return;
+      }
+      ctx.drawImage(
+        image2,
+        selected.x * scaleX,
+        selected.y * scaleY,
+        selected.width * scaleX,
+        selected.height * scaleY,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+      setSaving(true);
+      canvas.toBlob((blob) => {
+        if (!mounted.current) return;
+        setSaving(false);
+        if (!blob) {
+          setError(true);
+          return;
+        }
+        onSave(new File([blob], "avatar.png", { type: "image/png" }));
+      }, "image/png");
+    };
+    return reactDomExports.createPortal(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Backdrop, { onMouseDown: (event) => {
+        if (event.target === event.currentTarget) onCancel();
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: cropStyles }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Panel$1,
+          {
+            ref: panelRef,
+            role: "dialog",
+            "aria-modal": "true",
+            "aria-labelledby": titleId,
+            onKeyDown: (event) => {
+              if (event.key !== "Tab") return;
+              const controls = Array.from(panelRef.current?.querySelectorAll(FOCUSABLE_SELECTOR) ?? []);
+              if (!controls.length) return;
+              const first = controls[0], last = controls[controls.length - 1];
+              if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+              } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+              }
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { id: titleId, children: t2("avatar.cropTitle") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "crop-image", children: url && /* @__PURE__ */ jsxRuntimeExports.jsx(X$1, { crop, aspect: 1, circularCrop: true, keepSelection: true, onChange: (_2, percent) => setCrop(percent), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "img",
+                {
+                  ref: imageRef,
+                  src: url,
+                  alt: t2("avatar.cropTitle"),
+                  onError: () => setError(true),
+                  onLoad: (event) => {
+                    const { width, height } = event.currentTarget;
+                    setCrop(I(H({ unit: "%", width: 100 }, 1, width, height), width, height));
+                  }
+                }
+              ) }) }),
+              error2 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", children: t2("avatar.cropError") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "crop-actions", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onCancel, children: t2("action.cancel") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", disabled: !crop || error2 || saving, onClick: save, children: t2("action.save") })
+              ] })
+            ]
+          }
+        )
+      ] }),
+      document.body
+    );
+  }
   const ProfileImagePlaceholder = ({
     name: name2,
     icon,
@@ -76592,6 +77264,8 @@ ${messageId}`;
       (state2) => state2.chatSettingStore.config?.colors
     );
     const t2 = useT();
+    const inputRef = reactExports.useRef(null);
+    const [cropFile, setCropFile] = reactExports.useState(null);
     const iconsBg = colors?.iconsBg;
     const iconColor = colors?.icons;
     const { backgroundColor: hashedBg } = nameToColor(name2);
@@ -76629,12 +77303,13 @@ ${messageId}`;
     const handleFileChange = (event) => {
       const file = event.target.files?.[0];
       if (file && upload?.onUpload) {
-        upload.onUpload(file);
+        setCropFile(file);
       }
+      event.target.value = "";
     };
     const handleAvatarClick = () => {
       if (upload?.active) {
-        document.getElementById(fileInputId)?.click();
+        inputRef.current?.click();
       }
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -76683,6 +77358,7 @@ ${messageId}`;
                     FileInput,
                     {
                       type: "file",
+                      ref: inputRef,
                       id: fileInputId,
                       accept: "image/png, image/jpeg",
                       onChange: handleFileChange
@@ -76693,6 +77369,10 @@ ${messageId}`;
               ]
             }
           ),
+          cropFile && /* @__PURE__ */ jsxRuntimeExports.jsx(AvatarCropDialog, { file: cropFile, onCancel: () => setCropFile(null), onSave: (file) => {
+            setCropFile(null);
+            upload?.onUpload(file);
+          } }),
           online && /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
             {
@@ -76887,88 +77567,6 @@ ${messageId}`;
       ] }) })
     ] });
   };
-  const openLayerStack = [];
-  const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-  const useModalDismiss = ({
-    onClose,
-    enabled: enabled2 = true,
-    containerRef,
-    kind = "modal",
-    closeOnOutsidePress = false,
-    insideRefs
-  }) => {
-    const onCloseRef = reactExports.useRef(onClose);
-    onCloseRef.current = onClose;
-    const insideRefsRef = reactExports.useRef(insideRefs);
-    insideRefsRef.current = insideRefs;
-    reactExports.useEffect(() => {
-      if (!enabled2 || typeof document === "undefined") return;
-      const token2 = Symbol("dismiss-layer");
-      const layer = {
-        token: token2,
-        kind,
-        superseded: false,
-        close: () => {
-          layer.superseded = true;
-          onCloseRef.current?.();
-        }
-      };
-      const supersededMenus = openLayerStack.filter((l2) => l2.kind === "menu");
-      openLayerStack.push(layer);
-      supersededMenus.forEach((l2) => l2.close());
-      const previouslyFocused = document.activeElement;
-      const container = containerRef?.current;
-      if (container) {
-        const first = container.querySelector(FOCUSABLE_SELECTOR);
-        if (first) {
-          first.focus();
-        } else {
-          if (!container.hasAttribute("tabindex")) {
-            container.setAttribute("tabindex", "-1");
-          }
-          container.focus();
-        }
-      }
-      const isInsideLayer = (node2) => {
-        if (!node2) return false;
-        if (containerRef?.current?.contains(node2)) return true;
-        return (insideRefsRef.current ?? []).some(
-          (ref) => ref.current?.contains(node2)
-        );
-      };
-      const onKeyDown = (event) => {
-        if (event.key !== "Escape") return;
-        if (event.defaultPrevented) return;
-        if (openLayerStack[openLayerStack.length - 1] !== layer) return;
-        event.stopPropagation();
-        onCloseRef.current?.();
-      };
-      const onOutsidePress = (event) => {
-        if (isInsideLayer(event.target)) return;
-        onCloseRef.current?.();
-      };
-      document.addEventListener("keydown", onKeyDown);
-      if (closeOnOutsidePress) {
-        document.addEventListener("pointerdown", onOutsidePress, true);
-        document.addEventListener("mousedown", onOutsidePress, true);
-        document.addEventListener("touchstart", onOutsidePress, true);
-      }
-      return () => {
-        document.removeEventListener("keydown", onKeyDown);
-        if (closeOnOutsidePress) {
-          document.removeEventListener("pointerdown", onOutsidePress, true);
-          document.removeEventListener("mousedown", onOutsidePress, true);
-          document.removeEventListener("touchstart", onOutsidePress, true);
-        }
-        const index2 = openLayerStack.indexOf(layer);
-        if (index2 !== -1) openLayerStack.splice(index2, 1);
-        if (layer.superseded) return;
-        if (previouslyFocused && typeof previouslyFocused.focus === "function") {
-          previouslyFocused.focus();
-        }
-      };
-    }, [enabled2]);
-  };
   const MentionPickerModal = ({
     members,
     selfId,
@@ -77127,7 +77725,7 @@ ${messageId}`;
     const dispatch = useAppDispatch();
     const fetchedMembersForRoomRef = reactExports.useRef(null);
     reactExports.useEffect(() => {
-      if (!mentionsEnabled) return;
+      if (!mentionsEnabled || !selfUser?.token?.trim()) return;
       const jid2 = activeRoom?.jid;
       if (!jid2) return;
       if (Array.isArray(activeRoom?.members) && activeRoom.members.length > 0) return;
@@ -77138,7 +77736,7 @@ ${messageId}`;
         dispatch(updateRoom({ jid: jid2, updates: { members: room.members } }));
       }).catch(() => {
       });
-    }, [mentionsEnabled, activeRoom?.jid, activeRoom?.members, dispatch]);
+    }, [mentionsEnabled, selfUser?.token, activeRoom?.jid, activeRoom?.members, dispatch]);
     const requestCaret = reactExports.useCallback((position2) => {
       pendingCaretRef.current = position2;
     }, []);
@@ -84381,7 +84979,7 @@ ${messageId}`;
   const ACTIVE_ROOM_PRESENCE_TIMEOUT_MS = 1200;
   const ACTIVE_ROOM_FAST_PRESENCE_TIMEOUT_MS = 3e3;
   const ACTIVE_ROOM_LOADER_HARD_CAP_MS = 3e3;
-  const JOIN_SYNC_RETRY_DELAYS_MS = [1e3, 2500, 5e3];
+  const JOIN_SYNC_RETRY_DELAYS_MS = [1e3, 2500, 5e3, 8e3];
   const useRoomInitialization = (activeRoomJID, config, messageLength) => {
     const { client: client2 } = useXmppClient();
     const dispatch = useDispatch();
@@ -84520,7 +85118,21 @@ ${messageId}`;
             const items = await syncRooms(client2, config, { force: true }).catch(
               () => []
             );
-            const alreadyThere = items?.some((item) => item?.name === wantedName);
+            const addJoinedRoom = async () => {
+              try {
+                const res = await getRoomByName(wantedName);
+                const room = createRoomFromApi(
+                  { ...res?.result || res, name: wantedName },
+                  config?.xmppSettings?.conference
+                );
+                if (!room) return false;
+                dispatch(addRoomViaApi({ room, xmpp: client2 }));
+                return true;
+              } catch {
+                return false;
+              }
+            };
+            const alreadyThere = items?.some((item) => item?.name === wantedName) || await addJoinedRoom();
             if (alreadyThere) endJoin();
             if (!alreadyThere && !joinReconcileRef.current.has(targetJid)) {
               joinReconcileRef.current.add(targetJid);
@@ -84532,6 +85144,7 @@ ${messageId}`;
                       force: true
                     }).catch(() => []);
                     if (retried?.some((item) => item?.name === wantedName)) return;
+                    if (await addJoinedRoom()) return;
                   }
                 } finally {
                   endJoin();
@@ -86186,7 +86799,7 @@ ${messageId}`;
   };
   const contrastRatio = (a2, b2) => {
     const [light, dark] = [relativeLuminance(a2), relativeLuminance(b2)].sort(
-      (x2, y) => y - x2
+      (x2, y2) => y2 - x2
     );
     return (light + 0.05) / (dark + 0.05);
   };
@@ -88827,6 +89440,156 @@ ${messageId}`;
       )
     ] });
   };
+  const QR_CHAT_STORAGE_KEY = localStorageConstants.ETHORA_QR_CHAT_ID;
+  const CHAT_ID_PARAMS = ["qrChatId", "chatId"];
+  const STRIPPED_PARAMS = ["qrChatId"];
+  const readStorage = () => {
+    if (typeof localStorage === "undefined") return null;
+    try {
+      return localStorage.getItem(QR_CHAT_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  };
+  const clearStorage = () => {
+    if (typeof localStorage === "undefined") return;
+    try {
+      localStorage.removeItem(QR_CHAT_STORAGE_KEY);
+    } catch {
+    }
+  };
+  const handleQRChatId = () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      let qrChatId = null;
+      for (const param of CHAT_ID_PARAMS) {
+        const value = urlParams.get(param);
+        if (value) {
+          qrChatId = value;
+          break;
+        }
+      }
+      if (!qrChatId) return;
+      if (typeof localStorage !== "undefined") {
+        try {
+          localStorage.setItem(QR_CHAT_STORAGE_KEY, qrChatId);
+        } catch {
+        }
+      }
+      let stripped = false;
+      for (const param of STRIPPED_PARAMS) {
+        if (urlParams.has(param)) {
+          urlParams.delete(param);
+          stripped = true;
+        }
+      }
+      if (!stripped) return;
+      const newUrl = window.location.pathname + (urlParams.toString() ? `?${urlParams.toString()}` : "") + window.location.hash;
+      window.history.replaceState({}, "", newUrl);
+    } catch (error2) {
+      console.error("Error handling QR chat ID:", error2);
+    }
+  };
+  const resolveQrChatRoomJid = (qrChatId, conferenceServer) => {
+    const raw = (qrChatId || "").trim();
+    if (!raw) return "";
+    if (raw.includes("@")) {
+      const [node2, domain2] = raw.split("@");
+      return node2 && domain2 ? raw : "";
+    }
+    const conference = (conferenceServer || "").trim();
+    if (!conference) return "";
+    return `${raw}@${conference}`;
+  };
+  const useQRCodeChat = (setCurrentRoom2, conferenceServer, options) => {
+    const [wasAutoSelected, setWasAutoSelected] = reactExports.useState(false);
+    const [notFoundRoomJID, setNotFoundRoomJID] = reactExports.useState(null);
+    const rooms = options?.rooms;
+    const activeRoomJID = options?.activeRoomJID;
+    const isReady2 = options?.isReady;
+    const setCurrentRoomRef = reactExports.useRef(setCurrentRoom2);
+    setCurrentRoomRef.current = setCurrentRoom2;
+    reactExports.useEffect(() => {
+      if (typeof window !== "undefined") {
+        handleQRChatId();
+      }
+    }, []);
+    reactExports.useEffect(() => {
+      if (typeof window === "undefined") {
+        return;
+      }
+      try {
+        const qrChatId = readStorage();
+        if (!qrChatId) return;
+        const roomJID = resolveQrChatRoomJid(qrChatId, conferenceServer);
+        if (!roomJID) {
+          return;
+        }
+        if (activeRoomJID !== roomJID) {
+          setCurrentRoomRef.current({ roomJID });
+        }
+        setWasAutoSelected(true);
+        const isOpened = Boolean(rooms && rooms[roomJID]) && activeRoomJID === roomJID;
+        if (isOpened) {
+          clearStorage();
+          setNotFoundRoomJID(null);
+          return;
+        }
+        if (isReady2) {
+          clearStorage();
+          setNotFoundRoomJID(roomJID);
+        }
+      } catch (error2) {
+        console.error("Error using QR chat selection:", error2);
+      }
+    }, [conferenceServer, rooms, activeRoomJID, isReady2]);
+    return { wasAutoSelected, notFoundRoomJID };
+  };
+  const CHAT_LINK_PARAMS = ["chatId", "qrChatId"];
+  const MESSAGE_LINK_PARAMS = ["messageId", "msgId"];
+  const getChatLinkTarget = (href, conferenceServer) => {
+    if (!href) return null;
+    let url;
+    try {
+      const base = typeof window !== "undefined" ? window.location.href : "http://localhost/";
+      url = new URL(href, base);
+    } catch {
+      return null;
+    }
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    let chatId = "";
+    for (const param of CHAT_LINK_PARAMS) {
+      const value = url.searchParams.get(param)?.trim();
+      if (value) {
+        chatId = value;
+        break;
+      }
+    }
+    const roomJID = resolveQrChatRoomJid(chatId, conferenceServer);
+    if (!roomJID) return null;
+    let messageId = null;
+    for (const param of MESSAGE_LINK_PARAMS) {
+      const value = url.searchParams.get(param)?.trim();
+      if (value) {
+        messageId = value;
+        break;
+      }
+    }
+    return { roomJID, messageId };
+  };
+  const handleChatLinkClick = (event, href) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    const conference = store.getState().chatSettingStore?.config?.xmppSettings?.conference;
+    const target = getChatLinkTarget(href, conference);
+    if (!target) return;
+    event.preventDefault();
+    openRoomAtMessage(store.dispatch, target.roomJID, target.messageId);
+  };
   const PreviewContainer = gt.div`
   border: 1px solid var(--ethora-color-border, #e1e1e1);
   border-radius: var(--ethora-radius-sm, 8px);
@@ -88941,7 +89704,16 @@ ${messageId}`;
       previewData.image && /* @__PURE__ */ jsxRuntimeExports.jsx(PreviewImage, { src: safeImageUrl(previewData.image), alt: "Preview" }),
       previewData.title && /* @__PURE__ */ jsxRuntimeExports.jsx(PreviewTitle, { children: previewData.title }),
       previewData.description && /* @__PURE__ */ jsxRuntimeExports.jsx(PreviewDescription, { children: previewData.description }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(PreviewUrl, { href: url, target: "_blank", rel: "noopener noreferrer", children: displayHostname })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        PreviewUrl,
+        {
+          href: url,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          onClick: (event) => handleChatLinkClick(event, url),
+          children: displayHostname
+        }
+      )
     ] });
   };
   const useMessageHeapState = () => {
@@ -89450,11 +90222,11 @@ ${messageId}`;
       if (interactionsDisabled) return;
       event.preventDefault();
       const x2 = "touches" in event ? event.touches[0].clientX : event.clientX;
-      const y = "touches" in event ? event.touches[0].clientY : event.clientY;
+      const y2 = "touches" in event ? event.touches[0].clientY : event.clientY;
       setContextMenu({
         visible: true,
         x: x2,
-        y
+        y: y2
       });
     };
     const timerRef = reactExports.useRef(null);
@@ -91066,114 +91838,6 @@ ${messageId}`;
         ]
       }
     );
-  };
-  const QR_CHAT_STORAGE_KEY = localStorageConstants.ETHORA_QR_CHAT_ID;
-  const CHAT_ID_PARAMS = ["qrChatId", "chatId"];
-  const STRIPPED_PARAMS = ["qrChatId"];
-  const readStorage = () => {
-    if (typeof localStorage === "undefined") return null;
-    try {
-      return localStorage.getItem(QR_CHAT_STORAGE_KEY);
-    } catch {
-      return null;
-    }
-  };
-  const clearStorage = () => {
-    if (typeof localStorage === "undefined") return;
-    try {
-      localStorage.removeItem(QR_CHAT_STORAGE_KEY);
-    } catch {
-    }
-  };
-  const handleQRChatId = () => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      let qrChatId = null;
-      for (const param of CHAT_ID_PARAMS) {
-        const value = urlParams.get(param);
-        if (value) {
-          qrChatId = value;
-          break;
-        }
-      }
-      if (!qrChatId) return;
-      if (typeof localStorage !== "undefined") {
-        try {
-          localStorage.setItem(QR_CHAT_STORAGE_KEY, qrChatId);
-        } catch {
-        }
-      }
-      let stripped = false;
-      for (const param of STRIPPED_PARAMS) {
-        if (urlParams.has(param)) {
-          urlParams.delete(param);
-          stripped = true;
-        }
-      }
-      if (!stripped) return;
-      const newUrl = window.location.pathname + (urlParams.toString() ? `?${urlParams.toString()}` : "") + window.location.hash;
-      window.history.replaceState({}, "", newUrl);
-    } catch (error2) {
-      console.error("Error handling QR chat ID:", error2);
-    }
-  };
-  const resolveQrChatRoomJid = (qrChatId, conferenceServer) => {
-    const raw = (qrChatId || "").trim();
-    if (!raw) return "";
-    if (raw.includes("@")) {
-      const [node2, domain2] = raw.split("@");
-      return node2 && domain2 ? raw : "";
-    }
-    const conference = (conferenceServer || "").trim();
-    if (!conference) return "";
-    return `${raw}@${conference}`;
-  };
-  const useQRCodeChat = (setCurrentRoom2, conferenceServer, options) => {
-    const [wasAutoSelected, setWasAutoSelected] = reactExports.useState(false);
-    const [notFoundRoomJID, setNotFoundRoomJID] = reactExports.useState(null);
-    const rooms = options?.rooms;
-    const activeRoomJID = options?.activeRoomJID;
-    const isReady2 = options?.isReady;
-    const setCurrentRoomRef = reactExports.useRef(setCurrentRoom2);
-    setCurrentRoomRef.current = setCurrentRoom2;
-    reactExports.useEffect(() => {
-      if (typeof window !== "undefined") {
-        handleQRChatId();
-      }
-    }, []);
-    reactExports.useEffect(() => {
-      if (typeof window === "undefined") {
-        return;
-      }
-      try {
-        const qrChatId = readStorage();
-        if (!qrChatId) return;
-        const roomJID = resolveQrChatRoomJid(qrChatId, conferenceServer);
-        if (!roomJID) {
-          return;
-        }
-        if (activeRoomJID !== roomJID) {
-          setCurrentRoomRef.current({ roomJID });
-        }
-        setWasAutoSelected(true);
-        const isOpened = Boolean(rooms && rooms[roomJID]) && activeRoomJID === roomJID;
-        if (isOpened) {
-          clearStorage();
-          setNotFoundRoomJID(null);
-          return;
-        }
-        if (isReady2) {
-          clearStorage();
-          setNotFoundRoomJID(roomJID);
-        }
-      } catch (error2) {
-        console.error("Error using QR chat selection:", error2);
-      }
-    }, [conferenceServer, rooms, activeRoomJID, isReady2]);
-    return { wasAutoSelected, notFoundRoomJID };
   };
   const chatAutoEnterer = ({
     roomJID,
@@ -94413,6 +95077,26 @@ ${CHROME_KEYFRAMES}
 .ew-dock-left .ew-panel { transform-origin: 0% 100%; }
 .ew-panel.ew-closing { animation: ew-panel-out 180ms ease-in both; }
 .ew-panel.ew-expanded { animation-name: ew-fade-in; animation-duration: 220ms; }
+.ew-powered-by {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 30px;
+  box-sizing: border-box;
+  padding: 6px 12px;
+  text-align: center;
+  color: var(--ew-text-2);
+  background: var(--ew-surface);
+  border-top: 1px solid var(--ew-hair);
+  font-size: 11px;
+  line-height: 17px;
+  text-decoration: none;
+}
+.ew-powered-by strong { color: var(--ew-text); font-weight: 600; }
+.ew-powered-by:hover { color: var(--ew-primary); text-decoration: underline; }
+.ew-powered-by:focus-visible { outline: 2px solid var(--ew-primary); outline-offset: -3px; }
 
 /* Small screens: the panel becomes a bottom sheet across the full width. */
 @media (max-width: 520px) {
@@ -94905,6 +95589,7 @@ ${CHROME_KEYFRAMES}
     const code2 = e2?.code;
     if (code2 === "AI_BOT_NOT_CONFIGURED") return "AI assistant is not configured for this site yet.";
     if (code2 === "APP_NOT_FOUND") return "Chat configuration error: app not recognised.";
+    if (code2 === "INVALID_APP_ID") return "Chat configuration error: invalid application ID.";
     return "Chat is temporarily unavailable. Please try again in a moment.";
   }
   function Assistant({
@@ -94916,26 +95601,40 @@ ${CHROME_KEYFRAMES}
   }) {
     const [envelope, setEnvelope] = reactExports.useState(null);
     const [provisionError, setProvisionError] = reactExports.useState(null);
+    const [permanentError, setPermanentError] = reactExports.useState(false);
+    const [retryReady, setRetryReady] = reactExports.useState(false);
     const provisionInFlight = reactExports.useRef(null);
+    const failedRef = reactExports.useRef(false);
+    const nextRetryRef = reactExports.useRef(0);
+    const retryTimerRef = reactExports.useRef();
+    const refreshBlockedRef = reactExports.useRef(false);
     const lastSessionCallAt = reactExports.useRef(0);
-    const startProvision = reactExports.useCallback(() => {
+    const startProvision = reactExports.useCallback((manual = false) => {
       if (envelope || provisionInFlight.current) return;
+      if (failedRef.current && (!manual || permanentError || Date.now() < nextRetryRef.current)) return;
+      failedRef.current = false;
       setProvisionError(null);
       lastSessionCallAt.current = Date.now();
       provisionInFlight.current = provision().then((env2) => {
         setEnvelope(env2);
       }).catch((e2) => {
         console.error("[ethora-widget] session provisioning failed:", e2);
+        failedRef.current = true;
+        setPermanentError(e2?.status >= 400 && e2?.status < 500);
+        nextRetryRef.current = Date.now() + 5e3;
+        setRetryReady(false);
+        retryTimerRef.current = setTimeout(() => setRetryReady(true), 5e3);
         setProvisionError(provisionErrorMessage(e2));
       }).finally(() => {
         provisionInFlight.current = null;
       });
-    }, [envelope, provision]);
+    }, [envelope, permanentError, provision]);
     const refreshSession = reactExports.useCallback(() => {
-      if (!envelope || provisionInFlight.current) return;
+      if (!envelope || provisionInFlight.current || refreshBlockedRef.current) return;
       if (Date.now() - lastSessionCallAt.current < SESSION_REFRESH_MS) return;
       lastSessionCallAt.current = Date.now();
       provision().catch((e2) => {
+        if (e2?.status >= 400 && e2?.status < 500) refreshBlockedRef.current = true;
         console.warn("[ethora-widget] session refresh failed:", e2);
       });
     }, [envelope, provision]);
@@ -94984,6 +95683,7 @@ ${CHROME_KEYFRAMES}
     reactExports.useEffect(
       () => () => {
         if (closeTimer.current) window.clearTimeout(closeTimer.current);
+        if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
       },
       []
     );
@@ -95335,6 +96035,7 @@ ${CHROME_KEYFRAMES}
     const glowSoft = `color-mix(in srgb, ${glowColor} 36%, transparent)`;
     const glowStrong = `color-mix(in srgb, ${glowColor} 60%, transparent)`;
     const panelVisible = open || closing;
+    const showPoweredBy = !(envelope?.branding?.paymentStatus === "paid" && envelope.branding.showPoweredBy === false);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
@@ -95387,8 +96088,8 @@ ${CHROME_KEYFRAMES}
                 className: appearance.launcherGlow ? "ew-launcher ew-launcher--glow" : "ew-launcher",
                 "aria-label": t2("widget.open", { name: headerTitle }),
                 onClick: () => setOpen(true),
-                onMouseEnter: startProvision,
-                onFocus: startProvision,
+                onMouseEnter: () => startProvision(),
+                onFocus: () => startProvision(),
                 style: {
                   width: launcherSize,
                   height: launcherSize,
@@ -95521,8 +96222,12 @@ ${CHROME_KEYFRAMES}
                   }
                 ) }) : provisionError ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ew-status", role: "status", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ew-status-title", children: provisionError }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "ew-retry", onClick: startProvision, children: "Try again" })
-                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(StatusScreen, { color: appearance.primaryColor, mode: "connecting" }) })
+                  !permanentError && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "ew-retry", disabled: !retryReady, onClick: () => startProvision(true), children: "Try again" })
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(StatusScreen, { color: appearance.primaryColor, mode: "connecting" }) }),
+                showPoweredBy && /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { className: "ew-powered-by", href: "https://ethora.com", target: "_blank", rel: "noopener noreferrer nofollow", children: [
+                  "Powered by ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Ethora" })
+                ] })
               ]
             }
           )
@@ -95660,6 +96365,19 @@ ${CHROME_KEYFRAMES}
       }
     )
   ] });
+  const RETRY_DELAYS_MS = [1e3, 2e3];
+  async function fetchWidgetSession(url, options, request = fetch, wait = (ms) => new Promise((resolve2) => setTimeout(resolve2, ms))) {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const response = await request(url, options);
+        if (response.status < 500 || attempt >= RETRY_DELAYS_MS.length) return response;
+      } catch (error2) {
+        if (attempt >= RETRY_DELAYS_MS.length) throw error2;
+      }
+      await wait(RETRY_DELAYS_MS[attempt]);
+    }
+  }
+  const isValidAppId = (appId) => /^[a-f\d]{24}$/i.test(appId);
   const VISITOR_STORAGE_KEY = "ethora-widget-visitor";
   function readPersistedVisitor(appId) {
     if (typeof window === "undefined") return null;
@@ -95701,6 +96419,12 @@ ${CHROME_KEYFRAMES}
     if (!appId) {
       throw new Error("provisionWidgetSession: appId is required");
     }
+    if (!isValidAppId(appId)) {
+      const error2 = new Error("Widget configuration error: appId must be a 24-character application ID.");
+      error2.status = 422;
+      error2.code = "INVALID_APP_ID";
+      throw error2;
+    }
     if (!apiBase) {
       throw new Error("provisionWidgetSession: apiBase is required");
     }
@@ -95722,7 +96446,7 @@ ${CHROME_KEYFRAMES}
       if (typeof window !== "undefined" && window.location?.href) body.pageUrl = window.location.href;
     } catch {
     }
-    const response = await fetch(url, {
+    const response = await fetchWidgetSession(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body)
@@ -95860,7 +96584,7 @@ ${CHROME_KEYFRAMES}
     }
   }
   async function fetchStoredAppearance({ appId, apiBase }) {
-    if (!appId || !apiBase || typeof fetch !== "function") return null;
+    if (!isValidAppId(appId) || !apiBase || typeof fetch !== "function") return null;
     const controller = typeof AbortController === "function" ? new AbortController() : null;
     const timer = controller ? setTimeout(() => controller.abort(), TIMEOUT_MS) : null;
     try {
@@ -109572,6 +110296,7 @@ ${CHROME_KEYFRAMES}
                   href,
                   target: "_blank",
                   rel: "noopener noreferrer",
+                  onClick: (event) => handleChatLinkClick(event, href),
                   style: {
                     color: "var(--ethora-color-primary-text, var(--ethora-color-primary, #0a66c2))",
                     textDecoration: "none"
@@ -111898,7 +112623,7 @@ ${CHROME_KEYFRAMES}
   function requireReactIs_production_min() {
     if (hasRequiredReactIs_production_min) return reactIs_production_min;
     hasRequiredReactIs_production_min = 1;
-    var b2 = "function" === typeof Symbol && Symbol.for, c2 = b2 ? Symbol.for("react.element") : 60103, d2 = b2 ? Symbol.for("react.portal") : 60106, e2 = b2 ? Symbol.for("react.fragment") : 60107, f2 = b2 ? Symbol.for("react.strict_mode") : 60108, g2 = b2 ? Symbol.for("react.profiler") : 60114, h2 = b2 ? Symbol.for("react.provider") : 60109, k2 = b2 ? Symbol.for("react.context") : 60110, l2 = b2 ? Symbol.for("react.async_mode") : 60111, m2 = b2 ? Symbol.for("react.concurrent_mode") : 60111, n2 = b2 ? Symbol.for("react.forward_ref") : 60112, p2 = b2 ? Symbol.for("react.suspense") : 60113, q2 = b2 ? Symbol.for("react.suspense_list") : 60120, r2 = b2 ? Symbol.for("react.memo") : 60115, t2 = b2 ? Symbol.for("react.lazy") : 60116, v2 = b2 ? Symbol.for("react.block") : 60121, w2 = b2 ? Symbol.for("react.fundamental") : 60117, x2 = b2 ? Symbol.for("react.responder") : 60118, y = b2 ? Symbol.for("react.scope") : 60119;
+    var b2 = "function" === typeof Symbol && Symbol.for, c2 = b2 ? Symbol.for("react.element") : 60103, d2 = b2 ? Symbol.for("react.portal") : 60106, e2 = b2 ? Symbol.for("react.fragment") : 60107, f2 = b2 ? Symbol.for("react.strict_mode") : 60108, g2 = b2 ? Symbol.for("react.profiler") : 60114, h2 = b2 ? Symbol.for("react.provider") : 60109, k2 = b2 ? Symbol.for("react.context") : 60110, l2 = b2 ? Symbol.for("react.async_mode") : 60111, m2 = b2 ? Symbol.for("react.concurrent_mode") : 60111, n2 = b2 ? Symbol.for("react.forward_ref") : 60112, p2 = b2 ? Symbol.for("react.suspense") : 60113, q2 = b2 ? Symbol.for("react.suspense_list") : 60120, r2 = b2 ? Symbol.for("react.memo") : 60115, t2 = b2 ? Symbol.for("react.lazy") : 60116, v2 = b2 ? Symbol.for("react.block") : 60121, w2 = b2 ? Symbol.for("react.fundamental") : 60117, x2 = b2 ? Symbol.for("react.responder") : 60118, y2 = b2 ? Symbol.for("react.scope") : 60119;
     function z2(a2) {
       if ("object" === typeof a2 && null !== a2) {
         var u2 = a2.$$typeof;
@@ -111983,7 +112708,7 @@ ${CHROME_KEYFRAMES}
       return z2(a2) === p2;
     };
     reactIs_production_min.isValidElementType = function(a2) {
-      return "string" === typeof a2 || "function" === typeof a2 || a2 === e2 || a2 === m2 || a2 === g2 || a2 === f2 || a2 === p2 || a2 === q2 || "object" === typeof a2 && null !== a2 && (a2.$$typeof === t2 || a2.$$typeof === r2 || a2.$$typeof === h2 || a2.$$typeof === k2 || a2.$$typeof === n2 || a2.$$typeof === w2 || a2.$$typeof === x2 || a2.$$typeof === y || a2.$$typeof === v2);
+      return "string" === typeof a2 || "function" === typeof a2 || a2 === e2 || a2 === m2 || a2 === g2 || a2 === f2 || a2 === p2 || a2 === q2 || "object" === typeof a2 && null !== a2 && (a2.$$typeof === t2 || a2.$$typeof === r2 || a2.$$typeof === h2 || a2.$$typeof === k2 || a2.$$typeof === n2 || a2.$$typeof === w2 || a2.$$typeof === x2 || a2.$$typeof === y2 || a2.$$typeof === v2);
     };
     reactIs_production_min.typeOf = z2;
     return reactIs_production_min;
@@ -112378,11 +113103,11 @@ ${CHROME_KEYFRAMES}
         shape: createShapeTypeChecker,
         exact: createStrictShapeTypeChecker
       };
-      function is2(x2, y) {
-        if (x2 === y) {
-          return x2 !== 0 || 1 / x2 === 1 / y;
+      function is2(x2, y2) {
+        if (x2 === y2) {
+          return x2 !== 0 || 1 / x2 === 1 / y2;
         } else {
-          return x2 !== x2 && y !== y;
+          return x2 !== x2 && y2 !== y2;
         }
       }
       function PropTypeError(message, data) {
@@ -113597,16 +114322,16 @@ ${CHROME_KEYFRAMES}
       var cs = 1;
       this.make();
       for (var row = 0; row < this.modules.length; row++) {
-        var y = row * cs;
+        var y2 = row * cs;
         for (var col = 0; col < this.modules[row].length; col++) {
           var x2 = col * cs;
           var dark = this.modules[row][col];
           if (dark) {
             qr_mc.beginFill(0, 100);
-            qr_mc.moveTo(x2, y);
-            qr_mc.lineTo(x2 + cs, y);
-            qr_mc.lineTo(x2 + cs, y + cs);
-            qr_mc.lineTo(x2, y + cs);
+            qr_mc.moveTo(x2, y2);
+            qr_mc.lineTo(x2 + cs, y2);
+            qr_mc.lineTo(x2 + cs, y2 + cs);
+            qr_mc.lineTo(x2, y2 + cs);
             qr_mc.endFill();
           }
         }
@@ -114114,6 +114839,11 @@ ${CHROME_KEYFRAMES}
       ] })
     ] }) });
   };
+  const AddUsersButton = gt(ActionButton)`
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 8px 16px;
+`;
   const SelectUsersModal = () => {
     const { showToast } = useToast();
     const dispatch = useDispatch();
@@ -114172,7 +114902,7 @@ ${CHROME_KEYFRAMES}
       setIsLoading2(false);
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(ActionButton, { variant: "filled", unstyled: true, onClick: handleOpenModal, children: t2("action.addMoreUsers") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(AddUsersButton, { variant: "filled", onClick: handleOpenModal, children: t2("action.addMoreUsers") }),
       isModalOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(ModalBackground, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ModalContainer, { ref: containerRef, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           CloseButton,
@@ -114401,6 +115131,8 @@ ${CHROME_KEYFRAMES}
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  justify-content: center;
+  max-width: 100%;
   border: 0;
   border-radius: var(--ethora-radius-md, 10px);
   padding: 6px 10px;
@@ -114412,6 +115144,10 @@ ${CHROME_KEYFRAMES}
   &:hover { background: var(--ethora-color-bg-hover, rgba(127, 127, 127, 0.12)); }
   &:focus-visible { outline: 2px solid var(--ethora-color-primary, #168fc4); }
   svg { width: 16px; height: 16px; }
+`;
+  const RoomIdentity = gt.div`
+  width: 100%;
+  min-width: 0;
 `;
   const RoomInfoInput = gt.input`
   width: 100%;
@@ -114743,31 +115479,29 @@ ${CHROME_KEYFRAMES}
                 size: 96
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 4 }, children: [
-                editingRoomInfo ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  RoomInfoInput,
-                  {
-                    "aria-label": t2("modal.chatProfile.chatName"),
-                    value: roomTitleDraft,
-                    maxLength: 120,
-                    onChange: (event) => setRoomTitleDraft(event.target.value)
-                  }
-                ) : /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileHeroName, { children: activeRoom.title || activeRoom.name }),
-                canEditRoomInfo && !editingRoomInfo && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  RoomInfoEditButton,
-                  {
-                    type: "button",
-                    "aria-label": t2("action.editProfile"),
-                    onClick: startEditingRoomInfo,
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(EditIcon, {}),
-                      t2("action.editProfile")
-                    ]
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileHeroSubtitle, { children: memberCountLabel })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(RoomIdentity, { children: [
+              editingRoomInfo ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                RoomInfoInput,
+                {
+                  "aria-label": t2("modal.chatProfile.chatName"),
+                  value: roomTitleDraft,
+                  maxLength: 120,
+                  onChange: (event) => setRoomTitleDraft(event.target.value)
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileHeroName, { children: activeRoom.title || activeRoom.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileHeroSubtitle, { children: memberCountLabel }),
+              canEditRoomInfo && !editingRoomInfo && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                RoomInfoEditButton,
+                {
+                  type: "button",
+                  "aria-label": t2("action.editProfile"),
+                  onClick: startEditingRoomInfo,
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(EditIcon, {}),
+                    t2("action.editProfile")
+                  ]
+                }
+              )
             ] })
           ] }),
           !editingRoomInfo && activeRoom.role === "moderator" && activeRoom.type === "group" && !roomConfigDisabled && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectUsersModal, {}),
@@ -116029,7 +116763,7 @@ ${CHROME_KEYFRAMES}
     const [z2, m2, s2] = reactExports.useMemo(() => {
       const r2 = () => {
         if (!e2.current.element) return;
-        const { left: y, top: C2, width: H2, height: O2, bottom: S2, right: x2, x: B2, y: R2 } = e2.current.element.getBoundingClientRect(), l2 = { left: y, top: C2, width: H2, height: O2, bottom: S2, right: x2, x: B2, y: R2 };
+        const { left: y2, top: C2, width: H2, height: O2, bottom: S2, right: x2, x: B2, y: R2 } = e2.current.element.getBoundingClientRect(), l2 = { left: y2, top: C2, width: H2, height: O2, bottom: S2, right: x2, x: B2, y: R2 };
         e2.current.element instanceof HTMLElement && i2 && (l2.height = e2.current.element.offsetHeight, l2.width = e2.current.element.offsetWidth), Object.freeze(l2), w2.current && !D(e2.current.lastBounds, l2) && h2(e2.current.lastBounds = l2);
       };
       return [r2, f2 ? g(r2, f2) : r2, d2 ? g(r2, d2) : r2];
@@ -116432,14 +117166,14 @@ ${CHROME_KEYFRAMES}
       const stageWidth = Math.max(layoutWidth, pageWidth + SIDE_GUTTER * 2);
       const tops = [];
       const heights = [];
-      let y = TOP_GUTTER;
+      let y2 = TOP_GUTTER;
       pageSizes.forEach((size) => {
         const height = pageWidth * size.height / (size.width || 1);
-        tops.push(y);
+        tops.push(y2);
         heights.push(height);
-        y += height + PAGE_GAP;
+        y2 += height + PAGE_GAP;
       });
-      const contentHeight = y - PAGE_GAP;
+      const contentHeight = y2 - PAGE_GAP;
       return {
         pageWidth,
         stageWidth,
