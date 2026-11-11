@@ -160,6 +160,9 @@ The widget is produced with a standard `npm install` + Vite build from the sourc
 
 = 1.8.2 =
 * Updated: bundled widget rebuilt from widget release v26.11.11.
+* Added: Powered by Ethora attribution in the chat window.
+* Fixed: invalid app IDs and repeated session requests on errors.
+* Fixed: unnecessary member lookup for anonymous widget visitors.
 
 = 1.8.1 =
 * Updated: bundled widget rebuilt from widget release v26.10.30.
