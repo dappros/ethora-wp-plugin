@@ -33612,7 +33612,7 @@ Example:
       }
       return this;
     };
-    function _listeners(target, type, unwrap) {
+    function _listeners(target, type, unwrap2) {
       var events2 = target._events;
       if (events2 === void 0)
         return [];
@@ -33620,8 +33620,8 @@ Example:
       if (evlistener === void 0)
         return [];
       if (typeof evlistener === "function")
-        return unwrap ? [evlistener.listener || evlistener] : [evlistener];
-      return unwrap ? unwrapListeners(evlistener) : arrayClone(evlistener, evlistener.length);
+        return unwrap2 ? [evlistener.listener || evlistener] : [evlistener];
+      return unwrap2 ? unwrapListeners(evlistener) : arrayClone(evlistener, evlistener.length);
     }
     EventEmitter.prototype.listeners = function listeners2(type) {
       return _listeners(this, type, true);
@@ -38845,23 +38845,23 @@ Example:
     signal.unsubscribe = () => utils$1.asap(unsubscribe);
     return signal;
   };
-  const streamChunk = function* (chunk, chunkSize) {
-    let len = chunk.byteLength;
+  const streamChunk = function* (chunk2, chunkSize) {
+    let len = chunk2.byteLength;
     if (len < chunkSize) {
-      yield chunk;
+      yield chunk2;
       return;
     }
     let pos = 0;
     let end;
     while (pos < len) {
       end = pos + chunkSize;
-      yield chunk.slice(pos, end);
+      yield chunk2.slice(pos, end);
       pos = end;
     }
   };
   const readBytes = async function* (iterable, chunkSize) {
-    for await (const chunk of readStream(iterable)) {
-      yield* streamChunk(chunk, chunkSize);
+    for await (const chunk2 of readStream(iterable)) {
+      yield* streamChunk(chunk2, chunkSize);
     }
   };
   const readStream = async function* (stream) {
@@ -42887,7 +42887,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   const GOOGLE_FAMILY_RE = /^[A-Za-z0-9 +]{1,80}$/;
   const SIZE_RE = /^(\d+(?:\.\d+)?)(px|rem|em)?$/i;
   const CONTROL_RE = /[\u0000-\u001f\u007f]/;
-  const asBool = (v2) => {
+  const asBool$1 = (v2) => {
     if (typeof v2 === "boolean") return v2;
     const t2 = String(v2).trim().toLowerCase();
     if (["true", "1", "yes"].includes(t2)) return true;
@@ -42921,24 +42921,24 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "typography.googleFontsFamily": asPattern(GOOGLE_FAMILY_RE),
     "backgroundChat.color": asColor,
     // Layout
-    disableHeader: asBool,
-    disableMedia: asBool,
-    disableRooms: asBool,
-    disableRoomMenu: asBool,
-    disableNewChatButton: asBool,
-    disableUserCount: asBool,
-    disableTypingIndicator: asBool,
-    disableProfilesInteractions: asBool,
-    chatHeaderBurgerMenu: asBool,
-    "chatHeaderSettings.hideSearch": asBool,
+    disableHeader: asBool$1,
+    disableMedia: asBool$1,
+    disableRooms: asBool$1,
+    disableRoomMenu: asBool$1,
+    disableNewChatButton: asBool$1,
+    disableUserCount: asBool$1,
+    disableTypingIndicator: asBool$1,
+    disableProfilesInteractions: asBool$1,
+    chatHeaderBurgerMenu: asBool$1,
+    "chatHeaderSettings.hideSearch": asBool$1,
     // AI agents
-    blockMessageSendingWhenProcessing: asBool,
-    "customTypingIndicator.enabled": asBool,
+    blockMessageSendingWhenProcessing: asBool$1,
+    "customTypingIndicator.enabled": asBool$1,
     "customTypingIndicator.text": asText(80),
     "customTypingIndicator.position": asOneOf("bottom", "top", "overlay", "floating"),
-    "translates.enabled": asBool,
+    "translates.enabled": asBool$1,
     // B2B
-    "secondarySendButton.enabled": asBool
+    "secondarySendButton.enabled": asBool$1
   };
   const LIVE_FAMILIES = ["colors", "typography", "backgroundChat"];
   const isLiveConfigPath = (path2) => Object.prototype.hasOwnProperty.call(LIVE_CONFIG_KEYS, path2) || LIVE_FAMILIES.some((f2) => path2 === f2 || path2.startsWith(`${f2}.`));
@@ -43011,6 +43011,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     }
     return out;
   }
+  const userKeyOf = (user) => user?.xmppUsername || walletToUsername(user?.defaultWallet?.walletAddress) || "";
   const unpackAndTransform = (input) => {
     return {
       description: "",
@@ -43044,7 +43045,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       isAgreeWithTerms: input?.isAgreeWithTerms || false
     };
   };
-  const initialState$5 = {
+  const initialState$6 = {
     user: {
       description: "",
       token: "",
@@ -43083,13 +43084,23 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     },
     config: { colors: { primary: "#0052CD", secondary: "#F3F6FC" } },
     appId: "",
-    blockedUserIds: []
+    blockedUserIds: [],
+    accountStatus: null
   };
   const chatSlice = createSlice({
     name: "chatSettingStore",
-    initialState: initialState$5,
+    initialState: initialState$6,
     reducers: {
       setUser: (state2, action) => {
+        const blocked = state2.accountStatus;
+        if (blocked) {
+          const incomingKey = userKeyOf(action.payload);
+          if (!blocked.userKey) {
+            blocked.userKey = incomingKey;
+          } else if (incomingKey && incomingKey !== blocked.userKey) {
+            state2.accountStatus = null;
+          }
+        }
         state2.user = unpackAndTransform(action.payload);
         state2.appId = action.payload.appId || state2.appId;
         persistUserSession(state2.user);
@@ -43170,7 +43181,19 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
           (id2) => id2 !== action.payload
         );
       },
+      setAccountBlocked: (state2, action) => {
+        state2.accountStatus = {
+          ...action.payload,
+          // Keep the identity of the first report: a later report for the
+          // same session must not move the block onto someone else.
+          userKey: state2.accountStatus?.userKey || userKeyOf(state2.user)
+        };
+      },
+      clearAccountBlocked: (state2) => {
+        state2.accountStatus = null;
+      },
       logout: (state2) => {
+        state2.accountStatus = null;
         state2.user = unpackAndTransform();
         state2.config = void 0;
         state2.blockedUserIds = [];
@@ -43195,7 +43218,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     setTranslateMode,
     setBlockedUserIds,
     addBlockedUserId,
-    removeBlockedUserId
+    removeBlockedUserId,
+    setAccountBlocked,
+    clearAccountBlocked
   } = chatSlice.actions;
   const chatSettingsReducer = chatSlice.reducer;
   const isDateBefore = (date1, date2) => {
@@ -43420,6 +43445,158 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     const rest = id2.slice(id2.indexOf("_") + 1);
     return !isReservedName(rest);
   };
+  const MODERATION_XMLNS$1 = "urn:ethora:moderation";
+  const str$1 = (value) => {
+    if (typeof value !== "string") return void 0;
+    const trimmed = value.trim();
+    return trimmed || void 0;
+  };
+  const normalizeModerationAction = (raw) => {
+    switch (String(raw ?? "").trim().toLowerCase()) {
+      case "blur":
+      case "blurred":
+        return "blur";
+      case "hide":
+      case "hidden":
+        return "hidden";
+      case "delete":
+      case "deleted":
+        return "deleted";
+      case "restore":
+      case "restored":
+      case "keep":
+        return "restore";
+      case "mask":
+      case "masked":
+        return "masked";
+      default:
+        return null;
+    }
+  };
+  const moderationChild = (element2) => {
+    if (!element2 || typeof element2.getChild !== "function") return void 0;
+    return element2.getChild("moderation", MODERATION_XMLNS$1) || (element2.getChildren?.("moderation") || []).find(
+      (child) => child?.attrs?.xmlns === MODERATION_XMLNS$1
+    );
+  };
+  const hasTargetAttrs = (element2) => Boolean(
+    str$1(element2.attrs?.["stanza-id"]) || str$1(element2.attrs?.["origin-id"]) || str$1(element2.attrs?.user)
+  );
+  const hasText = (element2) => Boolean(element2?.getChild?.("body")?.getText?.()?.trim());
+  const isModerationNotice = (stanza) => {
+    if (!stanza || stanza.name !== "message") return false;
+    const child = moderationChild(stanza);
+    if (!child || !hasTargetAttrs(child)) return false;
+    return !hasText(stanza);
+  };
+  const parseModerationMarker = (message) => {
+    if (!message || isModerationNotice(message)) return void 0;
+    const child = moderationChild(message);
+    if (!child) return void 0;
+    const action = normalizeModerationAction(child.attrs?.action);
+    if (!action || action === "restore" || action === "masked") return void 0;
+    const category = str$1(child.attrs?.category);
+    const by = str$1(child.attrs?.by);
+    return {
+      action,
+      ...category ? { category } : {},
+      ...by ? { by } : {}
+    };
+  };
+  const parseModerationNotice = (stanza) => {
+    if (!isModerationNotice(stanza)) return null;
+    const child = moderationChild(stanza);
+    const action = normalizeModerationAction(child.attrs?.action);
+    const roomJID = String(stanza?.attrs?.from || "").split("/")[0];
+    if (!action || !roomJID) return null;
+    const notice = { roomJID, action };
+    const category = str$1(child.attrs?.category);
+    const by = str$1(child.attrs?.by);
+    const stanzaId = str$1(child.attrs?.["stanza-id"]);
+    const originId = str$1(child.attrs?.["origin-id"]);
+    const user = str$1(child.attrs?.user);
+    if (String(child.attrs?.["mask-name"] ?? "").trim().toLowerCase() === "true") {
+      notice.maskName = true;
+    }
+    if (category) notice.category = category;
+    if (by) notice.by = by;
+    if (stanzaId) notice.stanzaId = stanzaId;
+    if (originId) notice.originId = originId;
+    if (user) notice.user = user;
+    return notice;
+  };
+  const senderLocalpart = (message) => String(message?.user?.id || "").split("@")[0].trim().toLowerCase();
+  const noticeTargets = (message, notice) => {
+    if (!message || message.id === "delimiter-new") return false;
+    const { stanzaId, originId, user } = notice;
+    if (stanzaId || originId) {
+      const ids = [message.id, message.xmppId].filter(Boolean).map(String);
+      return Boolean(
+        stanzaId && ids.includes(stanzaId) || originId && ids.includes(originId)
+      );
+    }
+    if (user) {
+      return senderLocalpart(message) === user.toLowerCase();
+    }
+    return false;
+  };
+  const tombstoneMessage = (message) => {
+    message.isDeleted = true;
+    message.body = "";
+    message.isMediafile = "false";
+    message.location = void 0;
+    message.locationPreview = void 0;
+    message.mimetype = void 0;
+    message.fileName = void 0;
+    message.attachments = void 0;
+    message.reaction = void 0;
+  };
+  const stripContent = (message) => {
+    message.body = "";
+    message.isMediafile = "false";
+    message.location = void 0;
+    message.locationPreview = void 0;
+    message.mimetype = void 0;
+    message.fileName = void 0;
+    message.originalName = void 0;
+    message.attachments = void 0;
+    message.caption = void 0;
+    message.captionMentions = void 0;
+    message.mentions = void 0;
+    message.translations = void 0;
+    message.quickReplies = void 0;
+    message.isSensitive = void 0;
+  };
+  const applyModeration = (message, action, category, by, options = {}) => {
+    if (action === "restore") {
+      if (message.moderation?.action === "blur") delete message.moderation;
+      delete message.senderMasked;
+      return;
+    }
+    if (action === "masked" || options.maskName) {
+      message.senderMasked = true;
+    }
+    if (action === "masked") return;
+    const moderation = {
+      action,
+      ...category ? { category } : {},
+      ...by ? { by } : {}
+    };
+    if (action === "deleted") {
+      tombstoneMessage(message);
+    } else if (action === "hidden") {
+      stripContent(message);
+    }
+    message.moderation = moderation;
+  };
+  const isPersonalInfoCategory = (category) => {
+    const value = String(category || "").toLowerCase();
+    return value === "pii" || value === "phi";
+  };
+  const isMaskedSenderName = (first, last, fullName2) => String(first ?? "").trim().toLowerCase() === "suspended" && String(last ?? "").trim().toLowerCase() === "account" || String(fullName2 ?? "").trim().toLowerCase() === "suspended account";
+  const needsArchiveRefresh = (message) => Boolean(
+    message && (message.moderation?.action === "hidden" || message.moderation?.action === "deleted" || message.moderation && message.isDeleted)
+  );
   const USERS_SET_CAP = 5e3;
   const capUsersSet = (usersSet, cap2 = USERS_SET_CAP) => {
     const keys2 = Object.keys(usersSet);
@@ -43514,7 +43691,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     };
     return merged.sort((x2, y2) => num(x2) - num(y2));
   };
-  const initialState$4 = {
+  const initialState$5 = {
     rooms: {},
     activeRoomJID: null,
     isChatUiVisible: false,
@@ -43721,7 +43898,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   };
   const roomsStore = createSlice({
     name: "roomMessages",
-    initialState: initialState$4,
+    initialState: initialState$5,
     reducers: {
       addRoom(state2, action) {
         const { roomData } = action.payload;
@@ -43895,18 +44072,60 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       deleteRoomMessage(state2, action) {
         const { roomJID, messageId } = action.payload;
         if (!isSafeKey(roomJID)) return;
-        const tombstone = (message) => {
-          message.isDeleted = true;
-          message.body = "";
-          message.isMediafile = "false";
-          message.location = void 0;
-          message.locationPreview = void 0;
-          message.mimetype = void 0;
-          message.fileName = void 0;
-          message.attachments = void 0;
-          message.reaction = void 0;
-        };
-        forEachMessageCopy(state2, roomJID, messageId, tombstone);
+        forEachMessageCopy(state2, roomJID, messageId, tombstoneMessage);
+      },
+      /**
+       * Trust & Safety: a live moderation notice (see helpers/moderation.ts).
+       * Applied in place to every matching copy, like `<replace>` and
+       * `<delete>`; a notice that names a sender (and no message) applies to
+       * all of that sender's messages in the room. Nothing is inserted, so a
+       * notice never shows as a bubble or moves the unread count.
+       */
+      applyModerationNotice(state2, action) {
+        const notice = action.payload;
+        if (!notice?.roomJID || !isSafeKey(notice.roomJID)) return;
+        forEachMessageCopy(
+          state2,
+          notice.roomJID,
+          (message) => noticeTargets(message, notice),
+          (message) => applyModeration(message, notice.action, notice.category, notice.by, {
+            maskName: notice.maskName
+          })
+        );
+      },
+      /**
+       * Trust & Safety `restore`: archive copies re-read after a restore notice
+       * replace the stored copies of the same messages (and only those: nothing
+       * is inserted, so no hole in the history is papered over). Client-side
+       * state the archive does not carry (reactions, receipts, the open thread)
+       * is kept.
+       */
+      refreshArchivedMessages(state2, action) {
+        const { roomJID, messages } = action.payload;
+        if (!isSafeKey(roomJID) || !Array.isArray(messages)) return;
+        for (const incoming of messages) {
+          if (!incoming?.id) continue;
+          const fresh = enrichMessageAuthor(incoming, state2.usersSet);
+          forEachMessageCopy(state2, roomJID, String(incoming.id), (message) => {
+            const keep = {
+              reaction: message.reaction,
+              receivedBy: message.receivedBy,
+              activeMessage: message.activeMessage,
+              reply: message.reply,
+              numberOfReplies: message.numberOfReplies,
+              xmppId: message.xmppId
+            };
+            for (const key of Object.keys(message)) {
+              delete message[key];
+            }
+            Object.assign(message, fresh);
+            for (const [key, value] of Object.entries(keep)) {
+              if (value !== void 0 && message[key] === void 0) {
+                message[key] = value;
+              }
+            }
+          });
+        }
       },
       /**
        * Hard removal, unlike `deleteRoomMessage`'s tombstone. For optimistic
@@ -43970,6 +44189,26 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
             message.failed = true;
           }
         );
+      },
+      // The chat server bounced this message for good (the recipient is
+      // suspended). The bounce names the recipient, not the room, so every
+      // room is searched; it is rare and only touches our own pending sends.
+      markMessageUndeliverable(state2, action) {
+        const { messageId, reason, roomJID } = action.payload;
+        if (!messageId) return;
+        const jids = roomJID ? [roomJID] : Object.keys(state2.rooms);
+        for (const jid2 of jids) {
+          forEachMessageCopy(
+            state2,
+            jid2,
+            (msg) => msg.id === messageId || msg.xmppId === messageId,
+            (message) => {
+              message.pending = false;
+              message.failed = true;
+              message.failedReason = reason;
+            }
+          );
+        }
       },
       // Multi-file send in flight: replaces the optimistic attachment list
       // (per-file progress / failed state) and the message's sending flags.
@@ -44100,11 +44339,29 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       // edit won the race) simply win - there is no "already edited" branch
       // to get out of sync.
       editRoomMessage(state2, action) {
-        const { roomJID, messageId, text: text2, isEdited = true } = action.payload;
+        const {
+          roomJID,
+          messageId,
+          text: text2,
+          isEdited = true,
+          translations,
+          translationPending,
+          receivedAt
+        } = action.payload;
         forEachMessageCopy(state2, roomJID, messageId, (message) => {
           message.body = text2;
           message.isEdited = isEdited;
-          delete message.translations;
+          if (translations) {
+            message.translations = translations;
+          } else {
+            delete message.translations;
+          }
+          message.translationPending = !translations && !!translationPending;
+          if (message.translationPending) {
+            message.translationPendingSince = receivedAt;
+          } else {
+            delete message.translationPendingSince;
+          }
         });
       },
       // Caches a single on-demand translation (manual mode's "Translate"
@@ -44133,10 +44390,23 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
           message.translations[locale] = entry;
         });
       },
+      applyTranslationUpdate(state2, action) {
+        const { roomJID, ids, translations } = action.payload;
+        if (!isSafeKey(roomJID) || !Array.isArray(ids) || !ids.length) return;
+        forEachMessageCopy(
+          state2,
+          roomJID,
+          (message) => ids.includes(String(message.id)) || !!message.xmppId && ids.includes(String(message.xmppId)),
+          (message) => {
+            if (translations) message.translations = translations;
+            message.translationPending = false;
+          }
+        );
+      },
       addRoomMessage(state2, action) {
         const { roomJID, message, start } = action.payload;
         if (!isSafeKey(roomJID)) return;
-        if (!message?.body) return;
+        if (!message?.body && !message?.moderation) return;
         if (isCallSignalMessage(message)) return;
         const roomMessages = state2.rooms[roomJID]?.messages;
         const roomsExist = Object.keys(state2.rooms).length > 0;
@@ -44698,14 +44968,18 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     replaceRoomMessages,
     addRoomMessage,
     deleteRoomMessage,
+    applyModerationNotice,
+    refreshArchivedMessages,
     removeRoomMessage,
     setEditAction,
     setMessageSendFailed,
+    markMessageUndeliverable,
     setMessageSendRetrying,
     confirmMessageDelivered,
     setMediaUploadState,
     editRoomMessage,
     setMessageTranslation,
+    applyTranslationUpdate,
     setComposing,
     setIsLoading,
     setLastViewedTimestamp,
@@ -44747,12 +45021,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     setRoomMuted
   } = roomsStore.actions;
   const roomsSlice = roomsStore.reducer;
-  const initialState$3 = {
+  const initialState$4 = {
     messageHeap: []
   };
   const roomHeapSlice = createSlice({
     name: "roomHeapStore",
-    initialState: initialState$3,
+    initialState: initialState$4,
     reducers: {
       // Enqueue a message to the end of the queue
       addMessageToHeap: (state2, action) => {
@@ -44799,7 +45073,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     const local = text2.split("/")[0];
     return /^[A-Za-z0-9_-]{1,128}(?:@[A-Za-z0-9.-]+)?$/.test(local) ? local : null;
   };
-  const initialState$2 = {
+  const initialState$3 = {
     phase: "idle",
     direction: null,
     kind: "video",
@@ -44821,7 +45095,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     callerName: null,
     callerXmppUsername: null
   };
-  const resetState = () => ({ ...initialState$2 });
+  const resetState = () => ({ ...initialState$3 });
   const shouldIgnoreIncomingToken = (state2, next2) => {
     if (state2.phase === "idle" || state2.phase === "error") return false;
     if (state2.phase !== "ringing-incoming" || state2.direction !== "incoming") {
@@ -44833,7 +45107,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   };
   const callSlice = createSlice({
     name: "call",
-    initialState: initialState$2,
+    initialState: initialState$3,
     reducers: {
       startOutgoingCall(state2, action) {
         state2.phase = "requesting";
@@ -44972,7 +45246,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     resetCall
   } = callSlice.actions;
   const callSlice$1 = callSlice.reducer;
-  const initialState$1 = {
+  const initialState$2 = {
     openRequest: null,
     preJoin: null,
     scheduleModal: null,
@@ -44982,7 +45256,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   };
   const scheduledCallSlice = createSlice({
     name: "scheduledCall",
-    initialState: initialState$1,
+    initialState: initialState$2,
     reducers: {
       requestOpenScheduledCall(state2, action) {
         state2.openRequest = { slug: action.payload, requestedAt: Date.now() };
@@ -45048,7 +45322,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     },
     extraReducers: (builder) => {
       builder.addCase("chatSettingStore/logout", () => ({
-        ...initialState$1,
+        ...initialState$2,
         details: {}
       }));
     }
@@ -45069,6 +45343,98 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     forgetDetails
   } = scheduledCallSlice.actions;
   const scheduledCallSlice$1 = scheduledCallSlice.reducer;
+  const initialAgeState = {
+    status: "idle",
+    birthYear: null,
+    isAdult: null,
+    declaredAt: null,
+    canDeclareAdult: true
+  };
+  const initialState$1 = {
+    policy: {},
+    age: initialAgeState,
+    revealed: {},
+    blocked: {},
+    peers: {}
+  };
+  const isPlainKey = (key) => Boolean(key) && key !== "__proto__" && key !== "constructor" && key !== "prototype";
+  const trustSafetySlice = createSlice({
+    name: "trustSafety",
+    initialState: initialState$1,
+    reducers: {
+      setAppPolicy(state2, action) {
+        const { appId, ...entry } = action.payload;
+        if (!isPlainKey(appId)) return;
+        state2.policy[appId] = entry;
+      },
+      setAgeLoading(state2) {
+        state2.age.status = "loading";
+      },
+      setAge(state2, action) {
+        state2.age = { ...action.payload, status: "loaded" };
+      },
+      setAgeFailed(state2) {
+        state2.age.status = "error";
+      },
+      revealMessageMedia(state2, action) {
+        if (!isPlainKey(action.payload)) return;
+        state2.revealed[action.payload] = true;
+      },
+      concealMessageMedia(state2, action) {
+        delete state2.revealed[action.payload];
+      },
+      markMediaBlocked(state2, action) {
+        const { messageId, reason } = action.payload;
+        if (!isPlainKey(messageId)) return;
+        state2.blocked[messageId] = reason;
+        if (reason === "moderation") delete state2.revealed[messageId];
+      },
+      clearMediaBlocked(state2, action) {
+        delete state2.blocked[action.payload];
+      },
+      /**
+       * One status lookup answered: every name in `checked` is suspended when
+       * it is in `suspended`, and not suspended otherwise.
+       */
+      setPeerStatuses(state2, action) {
+        const { checked, suspended, checkedAt } = action.payload;
+        const suspendedSet = new Set(suspended);
+        for (const key of checked) {
+          if (!isPlainKey(key)) continue;
+          state2.peers[key] = { suspended: suspendedSet.has(key), checkedAt };
+        }
+      },
+      /** The chat server or the API refused something because of it. */
+      markPeerSuspended(state2, action) {
+        const { xmppUsername, at: at2 } = action.payload;
+        if (!isPlainKey(xmppUsername)) return;
+        state2.peers[xmppUsername] = { suspended: true, checkedAt: at2 };
+      },
+      resetTrustSafety() {
+        return initialState$1;
+      }
+    },
+    extraReducers: (builder) => {
+      builder.addMatcher(
+        (action) => action.type === "chatSettingStore/logout",
+        () => initialState$1
+      );
+    }
+  });
+  const {
+    setAppPolicy,
+    setAgeLoading,
+    setAge,
+    setAgeFailed,
+    revealMessageMedia,
+    concealMessageMedia,
+    markMediaBlocked,
+    clearMediaBlocked,
+    setPeerStatuses,
+    markPeerSuspended,
+    resetTrustSafety
+  } = trustSafetySlice.actions;
+  const trustSafetySlice$1 = trustSafetySlice.reducer;
   const normalizeXmppUsername = (value) => {
     if (!value) return "";
     let result = String(value).trim();
@@ -45174,7 +45540,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     switch (action.type) {
       case "roomMessages/addRoomMessage":
       case "roomMessages/setRoomMessages":
-      case "roomMessages/deleteRoomMessage": {
+      case "roomMessages/deleteRoomMessage":
+      case "roomMessages/applyModerationNotice":
+      case "roomMessages/refreshArchivedMessages": {
         const roomJID = action?.payload?.roomJID;
         if (roomJID) touched.add(roomJID);
         break;
@@ -46174,6 +46542,55 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     }
     return result;
   };
+  const ACCOUNT_BLOCKED_EVENT = "ethora-account-blocked";
+  const toInfo = (status) => {
+    if (!status) return null;
+    const info = { blocked: status.blocked, code: status.code };
+    if (status.suspension) info.suspension = status.suspension;
+    return info;
+  };
+  const accountBlockedMiddleware = (storeAPI) => (next2) => (action) => {
+    if (action?.type !== "chatSettingStore/setAccountBlocked") {
+      return next2(action);
+    }
+    const before = storeAPI.getState()?.chatSettingStore?.accountStatus;
+    const result = next2(action);
+    const after = storeAPI.getState()?.chatSettingStore?.accountStatus;
+    if (before || !after) return result;
+    const client2 = getGlobalXmppClient();
+    if (client2 && typeof client2.disconnect === "function") {
+      try {
+        ethoraLogger.log("[accountBlocked] closing XMPP connection");
+        void client2.disconnect({ suppressReconnect: true });
+      } catch (error2) {
+        console.warn("[accountBlocked] XMPP disconnect failed", error2);
+      }
+    }
+    setGlobalXmppClient(null);
+    if (typeof window !== "undefined") {
+      try {
+        window.dispatchEvent(
+          new CustomEvent(ACCOUNT_BLOCKED_EVENT, { detail: toInfo(after) })
+        );
+      } catch (error2) {
+        console.warn("[accountBlocked] event dispatch failed", error2);
+      }
+    }
+    const handler = storeAPI.getState()?.chatSettingStore?.config?.onAccountBlocked;
+    if (typeof handler === "function") {
+      try {
+        const maybePromise = handler(toInfo(after));
+        if (maybePromise && typeof maybePromise.catch === "function") {
+          maybePromise.catch(
+            (error2) => console.warn("[accountBlocked] onAccountBlocked rejected", error2)
+          );
+        }
+      } catch (error2) {
+        console.warn("[accountBlocked] onAccountBlocked threw", error2);
+      }
+    }
+    return result;
+  };
   var sha256$1 = { exports: {} };
   /**
    * [js-sha256]{@link https://github.com/emn178/js-sha256}
@@ -46766,7 +47183,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
           }();
           var C2 = {};
           var C_lib = C2.lib = {};
-          var Base = C_lib.Base = /* @__PURE__ */ function() {
+          var Base2 = C_lib.Base = /* @__PURE__ */ function() {
             return {
               /**
                * Creates a new object that inherits from this object.
@@ -46866,7 +47283,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
               }
             };
           }();
-          var WordArray = C_lib.WordArray = Base.extend({
+          var WordArray = C_lib.WordArray = Base2.extend({
             /**
              * Initializes a newly created word array.
              *
@@ -46956,7 +47373,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
              *     var clone = wordArray.clone();
              */
             clone: function() {
-              var clone = Base.clone.call(this);
+              var clone = Base2.clone.call(this);
               clone.words = this.words.slice(0);
               return clone;
             },
@@ -47113,7 +47530,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
               return Latin1.parse(unescape(encodeURIComponent(utf8Str)));
             }
           };
-          var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
+          var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base2.extend({
             /**
              * Resets this block algorithm's data buffer to its initial state.
              *
@@ -47190,7 +47607,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
              *     var clone = bufferedBlockAlgorithm.clone();
              */
             clone: function() {
-              var clone = Base.clone.call(this);
+              var clone = Base2.clone.call(this);
               clone._data = this._data.clone();
               return clone;
             },
@@ -47200,7 +47617,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
             /**
              * Configuration options.
              */
-            cfg: Base.extend(),
+            cfg: Base2.extend(),
             /**
              * Initializes a newly created hasher.
              *
@@ -47703,11 +48120,11 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         (function() {
           var C2 = CryptoJS;
           var C_lib = C2.lib;
-          var Base = C_lib.Base;
+          var Base2 = C_lib.Base;
           var C_enc = C2.enc;
           var Utf8 = C_enc.Utf8;
           var C_algo = C2.algo;
-          C_algo.HMAC = Base.extend({
+          C_algo.HMAC = Base2.extend({
             /**
              * Initializes a newly created HMAC.
              *
@@ -47809,11 +48226,11 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         (function() {
           var C2 = CryptoJS;
           var C_lib = C2.lib;
-          var Base = C_lib.Base;
+          var Base2 = C_lib.Base;
           var WordArray = C_lib.WordArray;
           var C_algo = C2.algo;
           var MD5 = C_algo.MD5;
-          var EvpKDF = C_algo.EvpKDF = Base.extend({
+          var EvpKDF = C_algo.EvpKDF = Base2.extend({
             /**
              * Configuration options.
              *
@@ -47821,7 +48238,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
              * @property {Hasher} hasher The hash algorithm to use. Default: MD5
              * @property {number} iterations The number of iterations to perform. Default: 1
              */
-            cfg: Base.extend({
+            cfg: Base2.extend({
               keySize: 128 / 32,
               hasher: MD5,
               iterations: 1
@@ -47900,7 +48317,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         CryptoJS.lib.Cipher || function(undefined$1) {
           var C2 = CryptoJS;
           var C_lib = C2.lib;
-          var Base = C_lib.Base;
+          var Base2 = C_lib.Base;
           var WordArray = C_lib.WordArray;
           var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm;
           var C_enc = C2.enc;
@@ -47914,7 +48331,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
              *
              * @property {WordArray} iv The IV to use for this operation.
              */
-            cfg: Base.extend(),
+            cfg: Base2.extend(),
             /**
              * Creates this cipher in encryption mode.
              *
@@ -48059,7 +48476,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
             blockSize: 1
           });
           var C_mode = C2.mode = {};
-          var BlockCipherMode = C_lib.BlockCipherMode = Base.extend({
+          var BlockCipherMode = C_lib.BlockCipherMode = Base2.extend({
             /**
              * Creates this mode for encryption.
              *
@@ -48249,7 +48666,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
             },
             blockSize: 128 / 32
           });
-          var CipherParams = C_lib.CipherParams = Base.extend({
+          var CipherParams = C_lib.CipherParams = Base2.extend({
             /**
              * Initializes a newly created cipher params object.
              *
@@ -48342,13 +48759,13 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
               return CipherParams.create({ ciphertext, salt });
             }
           };
-          var SerializableCipher = C_lib.SerializableCipher = Base.extend({
+          var SerializableCipher = C_lib.SerializableCipher = Base2.extend({
             /**
              * Configuration options.
              *
              * @property {Formatter} format The formatting strategy to convert cipher param objects to and from a string. Default: OpenSSL
              */
-            cfg: Base.extend({
+            cfg: Base2.extend({
               format: OpenSSLFormatter
             }),
             /**
@@ -49353,7 +49770,14 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     // re-fetched (the latest page is merged onto it and the backfill continues
     // from the cache's oldest message), so a cached bubble whose reaction stanza
     // sits in the skipped middle would otherwise repaint with no reaction chip.
-    "reaction"
+    "reaction",
+    // Trust & Safety: a cached sensitive attachment must repaint blurred, a
+    // moderated message must repaint hidden or blurred, and a masked sender
+    // must stay masked (its <data> name attributes are not persisted).
+    "isSensitive",
+    "sensitiveCategory",
+    "moderation",
+    "senderMasked"
   ];
   const PERSISTED_MESSAGE_USER_FIELDS = ["id", "name"];
   const pickDefined = (source, fields) => {
@@ -49525,7 +49949,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       "refreshTokens",
       "client",
       "config",
-      "remoteConfig"
+      "remoteConfig",
+      // A suspension can be lifted at any time; a reload asks the server.
+      "accountStatus"
     ],
     transforms: [scrubSensitiveChatStateTransform, encryptor]
   };
@@ -49581,7 +50007,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     rooms: persistReducer(roomsPersistConfig, roomsSlice),
     roomHeapSlice: roomHeapSlice$1,
     call: callSlice$1,
-    scheduledCall: scheduledCallSlice$1
+    scheduledCall: scheduledCallSlice$1,
+    // Session-only (age, App policy, what the viewer revealed): never persisted.
+    trustSafety: trustSafetySlice$1
   });
   const persistedReducer = rootReducer;
   const getActiveRoom = (state2) => {
@@ -49616,7 +50044,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         ],
         ignoredActionPaths: ["result", "register"]
       }
-    }).concat(unreadMiddleware).concat(newMessageMidlleware).concat(logoutMiddleware).concat(reactionsMiddleware).concat(jumpThreadMiddleware).concat(blockedHydrationMiddleware)
+    }).concat(unreadMiddleware).concat(newMessageMidlleware).concat(logoutMiddleware).concat(accountBlockedMiddleware).concat(reactionsMiddleware).concat(jumpThreadMiddleware).concat(blockedHydrationMiddleware)
     // .concat(testMiddleware)
     // .concat(debugMiddleware)
     // .concat(actionLoggerMiddleware),
@@ -49644,6 +50072,157 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   const VITE_APP_XMPP_BASEDOMAIN$1 = VITE_APP_XMPP_BASEDOMAIN_OLD;
   const VITE_APP_XMPP_CONFERENCE = runtimeHostConfig.xmppConference;
   const SERVICE = runtimeHostConfig.service;
+  const SUSPENSION_REASON_CODES = [
+    "child_safety",
+    "terms_violation",
+    "spam",
+    "security",
+    "other"
+  ];
+  const CODE_TO_KIND = {
+    USER_SUSPENDED: "suspended",
+    USER_ARCHIVED: "archived"
+  };
+  const isBlockedCode = (value) => value === "USER_SUSPENDED" || value === "USER_ARCHIVED";
+  const stringOrNull = (value) => {
+    if (typeof value !== "string") return null;
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  };
+  const readSuspension = (raw) => {
+    const source = raw && typeof raw === "object" ? raw : {};
+    return {
+      reasonCode: stringOrNull(source.reasonCode) || "other",
+      message: stringOrNull(source.message),
+      suspendedAt: stringOrNull(source.suspendedAt),
+      until: stringOrNull(source.until),
+      supportContact: stringOrNull(source.supportContact)
+    };
+  };
+  const parseAccountBlockedError = (error2) => {
+    const response = error2?.response;
+    const data = response?.data;
+    if (!data || typeof data !== "object") return null;
+    const code2 = [
+      data.code,
+      data.error && typeof data.error === "object" ? data.error.code : void 0,
+      Array.isArray(data.errors) ? data.errors[0]?.code : void 0
+    ].find(isBlockedCode);
+    if (!code2) return null;
+    const info = { blocked: CODE_TO_KIND[code2], code: code2 };
+    if (code2 === "USER_SUSPENDED") {
+      info.suspension = readSuspension(
+        data.details?.suspension ?? data.suspension
+      );
+    }
+    return info;
+  };
+  const suspensionReasonKey = (reasonCode) => {
+    const known = SUSPENSION_REASON_CODES.includes(
+      reasonCode || ""
+    ) ? reasonCode : "other";
+    return `account.suspended.reason.${known}`;
+  };
+  const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
+  const supportContactHref = (contact) => {
+    const value = stringOrNull(contact);
+    if (!value) return null;
+    if (/^https?:\/\//i.test(value)) {
+      return isParsableUrl(value) ? value : null;
+    }
+    if (/^mailto:/i.test(value)) {
+      return value.includes("@") ? value : null;
+    }
+    if (value.includes("@")) {
+      return HAS_SCHEME.test(value) ? null : `mailto:${value}`;
+    }
+    if (HAS_SCHEME.test(value)) return null;
+    const withScheme = `https://${value}`;
+    return isParsableUrl(withScheme) ? withScheme : null;
+  };
+  const supportContactLabel = (contact) => (stringOrNull(contact) || "").replace(/^mailto:/i, "");
+  function isParsableUrl(value) {
+    try {
+      const parsed = new URL(value);
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+  const formatSuspensionUntil = (until, locale) => {
+    if (!until) return null;
+    const date = new Date(until);
+    if (Number.isNaN(date.getTime())) return null;
+    try {
+      return date.toLocaleString(locale, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+    } catch {
+      return date.toLocaleString(void 0, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+    }
+  };
+  const getAccountBlockedInfo = () => {
+    try {
+      const status = store.getState().chatSettingStore?.accountStatus;
+      if (!status) return null;
+      const info = { blocked: status.blocked, code: status.code };
+      if (status.suspension) info.suspension = status.suspension;
+      return info;
+    } catch {
+      return null;
+    }
+  };
+  const isAccountBlocked = () => getAccountBlockedInfo() !== null;
+  const reportAccountBlockedError = (error2) => {
+    const info = parseAccountBlockedError(error2);
+    if (!info) return null;
+    const current2 = getAccountBlockedInfo();
+    if (!current2 || JSON.stringify(current2) !== JSON.stringify(info)) {
+      try {
+        store.dispatch(setAccountBlocked(info));
+      } catch (dispatchError) {
+        console.warn("[accountBlocked] failed to record block", dispatchError);
+      }
+    }
+    return info;
+  };
+  class AccountBlockedError extends Error {
+    code;
+    info;
+    response;
+    config;
+    /** Never sent: refused on the client because the account is blocked. */
+    isLocalAccountBlock = true;
+    constructor(info, config) {
+      const message = info.blocked === "suspended" ? "This account has been suspended." : "This account is no longer active.";
+      super(message);
+      this.name = "AccountBlockedError";
+      this.code = info.code;
+      this.info = info;
+      this.config = config;
+      this.response = {
+        status: 403,
+        data: {
+          code: info.code,
+          error: message,
+          ...info.suspension ? { details: { suspension: info.suspension } } : {}
+        }
+      };
+      Object.setPrototypeOf(this, AccountBlockedError.prototype);
+    }
+  }
+  const accountBlockedRejection = (config) => {
+    const info = getAccountBlockedInfo();
+    return info ? new AccountBlockedError(info, config) : null;
+  };
+  const SESSION_START_PATH = /\/v[12]\/users\/(login-with-email|login|client)\/?$/i;
+  const pathOf = (url) => (url || "").replace(/^[a-z][a-z0-9+.-]*:\/\/[^/]+/i, "").split(/[?#]/)[0].replace(/^\/*/, "/");
+  const isSessionStartRequest = (url) => SESSION_START_PATH.test(pathOf(url));
+  const isRequestAllowedWhileBlocked = (url) => isSessionStartRequest(url);
   class RefreshFatalError extends Error {
     code;
     constructor(code2, message) {
@@ -49741,7 +50320,13 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     return result;
   };
   const runConsumerRefresh = async (refreshFunction) => {
-    const refreshed = await refreshFunction();
+    let refreshed;
+    try {
+      refreshed = await refreshFunction();
+    } catch (error2) {
+      reportAccountBlockedError(error2);
+      throw error2;
+    }
     if (!refreshed?.accessToken) {
       throw new Error("Custom refresh function did not return an access token");
     }
@@ -49838,18 +50423,22 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     }
     return locks2.request(LOCK_NAME, callback);
   };
-  let inflight$1 = null;
+  let inflight$2 = null;
   function refreshAuthTokens(options) {
-    if (inflight$1) {
-      return inflight$1;
+    const blocked = accountBlockedRejection();
+    if (blocked) {
+      return Promise.reject(blocked);
+    }
+    if (inflight$2) {
+      return inflight$2;
     }
     const tokenBeforeLock = readCurrentRefreshToken();
-    inflight$1 = withLock(
+    inflight$2 = withLock(
       () => performRefresh(tokenBeforeLock, options?.refreshToken)
     ).finally(() => {
-      inflight$1 = null;
+      inflight$2 = null;
     });
-    return inflight$1;
+    return inflight$2;
   }
   async function refreshAuthTokensQuietly() {
     try {
@@ -49870,7 +50459,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         return;
       }
       if (!event.newValue) return;
-      if (inflight$1) return;
+      if (inflight$2) return;
       try {
         adoptStoredTokens();
       } catch (error2) {
@@ -49960,11 +50549,26 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       appToken = customAppToken;
     }
   }
+  http.interceptors.request.use((config) => {
+    if (isAccountBlocked() && !isRequestAllowedWhileBlocked(config?.url)) {
+      const rejection = accountBlockedRejection(config);
+      if (rejection) return Promise.reject(rejection);
+    }
+    return config;
+  });
   http.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      if (isSessionStartRequest(response?.config?.url) && store.getState().chatSettingStore?.accountStatus) {
+        store.dispatch(clearAccountBlocked());
+      }
+      return response;
+    },
     async (error2) => {
       const originalRequest = error2.config;
       const refreshConfig = store.getState().chatSettingStore?.config?.refreshTokens;
+      if (reportAccountBlockedError(error2)) {
+        return Promise.reject(error2);
+      }
       if (!error2.response || error2.response.status !== 401 || !originalRequest) {
         return Promise.reject(error2);
       }
@@ -50138,7 +50742,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
   const INSERT_BUFFER_MS = 100;
   let generation = 0;
   const pending = /* @__PURE__ */ new Set();
-  const inflight = /* @__PURE__ */ new Set();
+  const inflight$1 = /* @__PURE__ */ new Set();
   const negative = /* @__PURE__ */ new Map();
   let debounceTimer = null;
   let activeWorkers = 0;
@@ -50245,7 +50849,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     if (store.getState().rooms?.usersSet?.[id2]) return "resolved";
     const n2 = negative.get(id2);
     if (n2 && isNegative(id2)) return n2.kind === "error" ? "failed" : n2.kind;
-    if (pending.has(id2) || inflight.has(id2) || queue.includes(id2)) {
+    if (pending.has(id2) || inflight$1.has(id2) || queue.includes(id2)) {
       return "pending";
     }
     if (n2 && n2.kind === "error") return "failed";
@@ -50290,10 +50894,10 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     while (activeWorkers < CONCURRENCY && queue.length) {
       const id2 = queue.shift();
       activeWorkers++;
-      inflight.add(id2);
+      inflight$1.add(id2);
       void fetchOne(id2, gen).finally(() => {
         if (gen !== generation) return;
-        inflight.delete(id2);
+        inflight$1.delete(id2);
         activeWorkers--;
         if (refreshAgain.delete(id2) && !queue.includes(id2)) queue.push(id2);
         if (queue.length) pump(gen);
@@ -50330,7 +50934,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     const gen = generation;
     const users = knownUsers();
     const ids = [...pending].filter(
-      (id2) => !users[id2] && !inflight.has(id2) && !isNegative(id2)
+      (id2) => !users[id2] && !inflight$1.has(id2) && !isNegative(id2)
     );
     pending.clear();
     if (!ids.length) return;
@@ -50355,7 +50959,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     for (const raw of ids) {
       const id2 = normalizeId(raw);
       if (!isLookupable(id2)) continue;
-      if (users[id2] || inflight.has(id2) || pending.has(id2) || isNegative(id2)) {
+      if (users[id2] || inflight$1.has(id2) || pending.has(id2) || isNegative(id2)) {
         continue;
       }
       pending.add(id2);
@@ -50383,7 +50987,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         if (gen !== generation) return;
         negative.delete(id2);
         refreshForced.add(id2);
-        if (inflight.has(id2)) {
+        if (inflight$1.has(id2)) {
           refreshAgain.add(id2);
           return;
         }
@@ -50467,7 +51071,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     generation++;
     sessionIdentity = "";
     pending.clear();
-    inflight.clear();
+    inflight$1.clear();
     negative.clear();
     resetUserLookupRoute();
     queue.length = 0;
@@ -51670,10 +52274,10 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       sum += a2.length;
     }
     const res = new Uint8Array(sum);
-    for (let i2 = 0, pad = 0; i2 < arrays.length; i2++) {
+    for (let i2 = 0, pad3 = 0; i2 < arrays.length; i2++) {
       const a2 = arrays[i2];
-      res.set(a2, pad);
-      pad += a2.length;
+      res.set(a2, pad3);
+      pad3 += a2.length;
     }
     return res;
   }
@@ -53863,16 +54467,16 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       this.blockLen = this.iHash.blockLen;
       this.outputLen = this.iHash.outputLen;
       const blockLen = this.blockLen;
-      const pad = new Uint8Array(blockLen);
-      pad.set(key.length > blockLen ? hash2.create().update(key).digest() : key);
-      for (let i2 = 0; i2 < pad.length; i2++)
-        pad[i2] ^= 54;
-      this.iHash.update(pad);
+      const pad3 = new Uint8Array(blockLen);
+      pad3.set(key.length > blockLen ? hash2.create().update(key).digest() : key);
+      for (let i2 = 0; i2 < pad3.length; i2++)
+        pad3[i2] ^= 54;
+      this.iHash.update(pad3);
       this.oHash = hash2.create();
-      for (let i2 = 0; i2 < pad.length; i2++)
-        pad[i2] ^= 54 ^ 92;
-      this.oHash.update(pad);
-      clean$1(pad);
+      for (let i2 = 0; i2 < pad3.length; i2++)
+        pad3[i2] ^= 54 ^ 92;
+      this.oHash.update(pad3);
+      clean$1(pad3);
     }
     update(buf) {
       aexists(this);
@@ -55539,7 +56143,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       fileName: message.fileName,
       size: message.size,
       duration: message.duration,
-      mediaDuration: message.mediaDuration
+      mediaDuration: message.mediaDuration,
+      width: message.width,
+      height: message.height
     });
     return legacy ? [legacy] : [];
   };
@@ -55753,6 +56359,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     });
     if (data?.attachments) {
       dataToSend.attachments = data.attachments;
+    }
+    if (data?.isSensitive === "true" || data?.isSensitive === true) {
+      dataToSend.isSensitive = "true";
+      if (typeof data?.sensitiveCategory === "string" && data.sensitiveCategory) {
+        dataToSend.sensitiveCategory = data.sensitiveCategory;
+      }
     }
     const keys2 = data?.e2eeKeys;
     if (keys2?.length) {
@@ -56576,7 +57188,47 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "notification.audio": "Voice message",
     "notification.file": "File",
     "notification.photos": "{count} photos",
-    "notification.attachments": "{count} attachments"
+    "notification.attachments": "{count} attachments",
+    "account.suspended.title": "Account suspended",
+    "account.suspended.description": "This account has been suspended.",
+    "account.suspended.descriptionUntil": "This account has been suspended until {date}.",
+    "account.suspended.reasonLabel": "Reason",
+    "account.suspended.reason.child_safety": "Child safety",
+    "account.suspended.reason.terms_violation": "Violation of the Terms of Service",
+    "account.suspended.reason.spam": "Spam or abuse",
+    "account.suspended.reason.security": "Security reasons",
+    "account.suspended.reason.other": "Other",
+    "account.suspended.messageLabel": "Message from the administrator",
+    "account.suspended.supportLabel": "Contact support",
+    "account.archived.title": "Account unavailable",
+    "account.archived.description": "This account is no longer active.",
+    "account.blocked.signOut": "Sign out",
+    // Trust & Safety
+    "ts.sensitive.overlay": "Sensitive content. Tap to view",
+    "ts.sensitive.checking": "Checking...",
+    "ts.sensitive.hide": "Hide",
+    "ts.sensitive.hideAgain": "Blur this content again",
+    "ts.sensitive.unavailable": "This content is not available for your account.",
+    "ts.media.removed": "Removed by moderators",
+    "ts.upload.blockedTitle": "File not sent",
+    "ts.upload.blocked": "This file can't be sent because it may contain explicit content.",
+    "ts.age.title": "Confirm your age",
+    "ts.age.description": "Some content is only shown to adults. Enter your date of birth to continue. Only your birth year is kept.",
+    "ts.age.dateOfBirth": "Date of birth",
+    "ts.age.confirm": "Confirm",
+    "ts.age.cancel": "Cancel",
+    "ts.age.invalid": "Enter a valid date of birth.",
+    "ts.age.locked": "Your age is already set and cannot be changed here. Contact an administrator.",
+    "ts.age.error": "Could not save your date of birth. Try again.",
+    "ts.message.blurred": "Hidden: may be offensive. Tap to view",
+    "ts.message.blurredPersonal": "Hidden: may contain personal or health information. Tap to view",
+    "ts.message.blurredShort": "Hidden: may be offensive",
+    "ts.message.blurredPersonalShort": "Hidden: may contain personal or health information",
+    "ts.message.hidden": "Message hidden by moderators",
+    "user.suspendedAccount": "Suspended account",
+    "peer.suspended.badge": "Suspended",
+    "peer.suspended.notice": "This account is suspended. You can't message or call it.",
+    "peer.suspended.notDelivered": "Not delivered: this account is suspended"
   };
   const fr = {
     "tabs.chats": "Discussions",
@@ -57014,7 +57666,47 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "notification.audio": "Message vocal",
     "notification.file": "Fichier",
     "notification.photos": "{count} photos",
-    "notification.attachments": "{count} pi\xE8ces jointes"
+    "notification.attachments": "{count} pi\xE8ces jointes",
+    "account.suspended.title": "Compte suspendu",
+    "account.suspended.description": "Ce compte a \xE9t\xE9 suspendu.",
+    "account.suspended.descriptionUntil": "Ce compte est suspendu jusqu'au {date}.",
+    "account.suspended.reasonLabel": "Motif",
+    "account.suspended.reason.child_safety": "Protection des enfants",
+    "account.suspended.reason.terms_violation": "Violation des conditions d'utilisation",
+    "account.suspended.reason.spam": "Spam ou abus",
+    "account.suspended.reason.security": "Raisons de s\xE9curit\xE9",
+    "account.suspended.reason.other": "Autre",
+    "account.suspended.messageLabel": "Message de l'administrateur",
+    "account.suspended.supportLabel": "Contacter le support",
+    "account.archived.title": "Compte indisponible",
+    "account.archived.description": "Ce compte n'est plus actif.",
+    "account.blocked.signOut": "Se d\xE9connecter",
+    // Trust & Safety
+    "ts.sensitive.overlay": "Contenu sensible. Touchez pour afficher",
+    "ts.sensitive.checking": "V\xE9rification...",
+    "ts.sensitive.hide": "Masquer",
+    "ts.sensitive.hideAgain": "Flouter \xE0 nouveau ce contenu",
+    "ts.sensitive.unavailable": "Ce contenu n'est pas disponible pour votre compte.",
+    "ts.media.removed": "Supprim\xE9 par les mod\xE9rateurs",
+    "ts.upload.blockedTitle": "Fichier non envoy\xE9",
+    "ts.upload.blocked": "Ce fichier ne peut pas \xEAtre envoy\xE9, car il pourrait contenir du contenu explicite.",
+    "ts.age.title": "Confirmez votre \xE2ge",
+    "ts.age.description": "Certains contenus ne sont affich\xE9s qu'aux adultes. Saisissez votre date de naissance pour continuer. Seule votre ann\xE9e de naissance est conserv\xE9e.",
+    "ts.age.dateOfBirth": "Date de naissance",
+    "ts.age.confirm": "Confirmer",
+    "ts.age.cancel": "Annuler",
+    "ts.age.invalid": "Saisissez une date de naissance valide.",
+    "ts.age.locked": "Votre \xE2ge est d\xE9j\xE0 d\xE9fini et ne peut pas \xEAtre modifi\xE9 ici. Contactez un administrateur.",
+    "ts.age.error": "Impossible d'enregistrer votre date de naissance. R\xE9essayez.",
+    "ts.message.blurred": "Masqu\xE9 : peut \xEAtre offensant. Touchez pour afficher",
+    "ts.message.blurredPersonal": "Masqu\xE9 : peut contenir des informations personnelles ou de sant\xE9. Touchez pour afficher",
+    "ts.message.blurredShort": "Masqu\xE9 : peut \xEAtre offensant",
+    "ts.message.blurredPersonalShort": "Masqu\xE9 : peut contenir des informations personnelles ou de sant\xE9",
+    "ts.message.hidden": "Message masqu\xE9 par les mod\xE9rateurs",
+    "user.suspendedAccount": "Compte suspendu",
+    "peer.suspended.badge": "Suspendu",
+    "peer.suspended.notice": "Ce compte est suspendu. Vous ne pouvez ni lui \xE9crire ni l'appeler.",
+    "peer.suspended.notDelivered": "Non envoy\xE9 : ce compte est suspendu"
   };
   const es = {
     "tabs.chats": "Chats",
@@ -57452,7 +58144,47 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "notification.audio": "Mensaje de voz",
     "notification.file": "Archivo",
     "notification.photos": "{count} fotos",
-    "notification.attachments": "{count} archivos adjuntos"
+    "notification.attachments": "{count} archivos adjuntos",
+    "account.suspended.title": "Cuenta suspendida",
+    "account.suspended.description": "Esta cuenta ha sido suspendida.",
+    "account.suspended.descriptionUntil": "Esta cuenta est\xE1 suspendida hasta el {date}.",
+    "account.suspended.reasonLabel": "Motivo",
+    "account.suspended.reason.child_safety": "Protecci\xF3n infantil",
+    "account.suspended.reason.terms_violation": "Incumplimiento de los T\xE9rminos del servicio",
+    "account.suspended.reason.spam": "Spam o abuso",
+    "account.suspended.reason.security": "Motivos de seguridad",
+    "account.suspended.reason.other": "Otro",
+    "account.suspended.messageLabel": "Mensaje del administrador",
+    "account.suspended.supportLabel": "Contactar con soporte",
+    "account.archived.title": "Cuenta no disponible",
+    "account.archived.description": "Esta cuenta ya no est\xE1 activa.",
+    "account.blocked.signOut": "Cerrar sesi\xF3n",
+    // Trust & Safety
+    "ts.sensitive.overlay": "Contenido sensible. Toca para ver",
+    "ts.sensitive.checking": "Comprobando...",
+    "ts.sensitive.hide": "Ocultar",
+    "ts.sensitive.hideAgain": "Volver a difuminar este contenido",
+    "ts.sensitive.unavailable": "Este contenido no est\xE1 disponible para tu cuenta.",
+    "ts.media.removed": "Eliminado por los moderadores",
+    "ts.upload.blockedTitle": "Archivo no enviado",
+    "ts.upload.blocked": "Este archivo no se puede enviar porque podr\xEDa contener contenido expl\xEDcito.",
+    "ts.age.title": "Confirma tu edad",
+    "ts.age.description": "Parte del contenido solo se muestra a personas adultas. Introduce tu fecha de nacimiento para continuar. Solo se guarda tu a\xF1o de nacimiento.",
+    "ts.age.dateOfBirth": "Fecha de nacimiento",
+    "ts.age.confirm": "Confirmar",
+    "ts.age.cancel": "Cancelar",
+    "ts.age.invalid": "Introduce una fecha de nacimiento v\xE1lida.",
+    "ts.age.locked": "Tu edad ya est\xE1 establecida y no se puede cambiar aqu\xED. Contacta con un administrador.",
+    "ts.age.error": "No se pudo guardar tu fecha de nacimiento. Int\xE9ntalo de nuevo.",
+    "ts.message.blurred": "Oculto: puede ser ofensivo. Toca para ver",
+    "ts.message.blurredPersonal": "Oculto: puede contener informaci\xF3n personal o de salud. Toca para ver",
+    "ts.message.blurredShort": "Oculto: puede ser ofensivo",
+    "ts.message.blurredPersonalShort": "Oculto: puede contener informaci\xF3n personal o de salud",
+    "ts.message.hidden": "Mensaje ocultado por los moderadores",
+    "user.suspendedAccount": "Cuenta suspendida",
+    "peer.suspended.badge": "Suspendida",
+    "peer.suspended.notice": "Esta cuenta est\xE1 suspendida. No puedes enviarle mensajes ni llamarla.",
+    "peer.suspended.notDelivered": "No enviado: esta cuenta est\xE1 suspendida"
   };
   const pt = {
     "tabs.chats": "Conversas",
@@ -57890,7 +58622,47 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "notification.audio": "Mensagem de voz",
     "notification.file": "Arquivo",
     "notification.photos": "{count} fotos",
-    "notification.attachments": "{count} anexos"
+    "notification.attachments": "{count} anexos",
+    "account.suspended.title": "Conta suspensa",
+    "account.suspended.description": "Esta conta foi suspensa.",
+    "account.suspended.descriptionUntil": "Esta conta est\xE1 suspensa at\xE9 {date}.",
+    "account.suspended.reasonLabel": "Motivo",
+    "account.suspended.reason.child_safety": "Prote\xE7\xE3o de menores",
+    "account.suspended.reason.terms_violation": "Viola\xE7\xE3o dos Termos de Servi\xE7o",
+    "account.suspended.reason.spam": "Spam ou abuso",
+    "account.suspended.reason.security": "Motivos de seguran\xE7a",
+    "account.suspended.reason.other": "Outro",
+    "account.suspended.messageLabel": "Mensagem do administrador",
+    "account.suspended.supportLabel": "Contactar o suporte",
+    "account.archived.title": "Conta indispon\xEDvel",
+    "account.archived.description": "Esta conta j\xE1 n\xE3o est\xE1 ativa.",
+    "account.blocked.signOut": "Terminar sess\xE3o",
+    // Trust & Safety
+    "ts.sensitive.overlay": "Conte\xFAdo sens\xEDvel. Toque para ver",
+    "ts.sensitive.checking": "A verificar...",
+    "ts.sensitive.hide": "Ocultar",
+    "ts.sensitive.hideAgain": "Desfocar este conte\xFAdo novamente",
+    "ts.sensitive.unavailable": "Este conte\xFAdo n\xE3o est\xE1 dispon\xEDvel para a sua conta.",
+    "ts.media.removed": "Removido pelos moderadores",
+    "ts.upload.blockedTitle": "Ficheiro n\xE3o enviado",
+    "ts.upload.blocked": "Este ficheiro n\xE3o pode ser enviado porque pode conter conte\xFAdo expl\xEDcito.",
+    "ts.age.title": "Confirme a sua idade",
+    "ts.age.description": "Algum conte\xFAdo s\xF3 \xE9 mostrado a adultos. Introduza a sua data de nascimento para continuar. Apenas o ano de nascimento \xE9 guardado.",
+    "ts.age.dateOfBirth": "Data de nascimento",
+    "ts.age.confirm": "Confirmar",
+    "ts.age.cancel": "Cancelar",
+    "ts.age.invalid": "Introduza uma data de nascimento v\xE1lida.",
+    "ts.age.locked": "A sua idade j\xE1 est\xE1 definida e n\xE3o pode ser alterada aqui. Contacte um administrador.",
+    "ts.age.error": "N\xE3o foi poss\xEDvel guardar a sua data de nascimento. Tente novamente.",
+    "ts.message.blurred": "Oculto: pode ser ofensivo. Toque para ver",
+    "ts.message.blurredPersonal": "Oculto: pode conter informa\xE7\xF5es pessoais ou de sa\xFAde. Toque para ver",
+    "ts.message.blurredShort": "Oculto: pode ser ofensivo",
+    "ts.message.blurredPersonalShort": "Oculto: pode conter informa\xE7\xF5es pessoais ou de sa\xFAde",
+    "ts.message.hidden": "Mensagem ocultada pelos moderadores",
+    "user.suspendedAccount": "Conta suspensa",
+    "peer.suspended.badge": "Suspensa",
+    "peer.suspended.notice": "Esta conta est\xE1 suspensa. Voc\xEA n\xE3o pode enviar mensagens nem ligar para ela.",
+    "peer.suspended.notDelivered": "N\xE3o enviado: esta conta est\xE1 suspensa"
   };
   const ht = {
     "tabs.chats": "Chat",
@@ -58328,7 +59100,47 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "notification.audio": "Mesaj vokal",
     "notification.file": "Fichye",
     "notification.photos": "{count} foto",
-    "notification.attachments": "{count} atachman"
+    "notification.attachments": "{count} atachman",
+    "account.suspended.title": "Kont sispann",
+    "account.suspended.description": "Kont sa a sispann.",
+    "account.suspended.descriptionUntil": "Kont sa a sispann jiska {date}.",
+    "account.suspended.reasonLabel": "Rezon",
+    "account.suspended.reason.child_safety": "Sekirite timoun",
+    "account.suspended.reason.terms_violation": "Vyolasyon Kondisyon Itilizasyon yo",
+    "account.suspended.reason.spam": "Spam oswa abi",
+    "account.suspended.reason.security": "Rezon sekirite",
+    "account.suspended.reason.other": "L\xF2t",
+    "account.suspended.messageLabel": "Mesaj administrat\xE8 a",
+    "account.suspended.supportLabel": "Kontakte sip\xF2",
+    "account.archived.title": "Kont pa disponib",
+    "account.archived.description": "Kont sa a pa aktif ank\xF2.",
+    "account.blocked.signOut": "Dekonekte",
+    // Trust & Safety
+    "ts.sensitive.overlay": "Kontni sansib. Tape pou w\xE8",
+    "ts.sensitive.checking": "N ap verifye...",
+    "ts.sensitive.hide": "Kache",
+    "ts.sensitive.hideAgain": "Twouble kontni sa a ank\xF2",
+    "ts.sensitive.unavailable": "Kontni sa a pa disponib pou kont ou.",
+    "ts.media.removed": "Moderat\xE8 yo retire l",
+    "ts.upload.blockedTitle": "Fichye a pa voye",
+    "ts.upload.blocked": "Yo pa ka voye fichye sa a paske li ka gen kontni eksplisit.",
+    "ts.age.title": "Konfime laj ou",
+    "ts.age.description": "Gen k\xE8k kontni ki par\xE8t s\xE8lman pou granmoun. Antre dat nesans ou pou kontinye. Se ane nesans ou s\xE8lman yo kenbe.",
+    "ts.age.dateOfBirth": "Dat nesans",
+    "ts.age.confirm": "Konfime",
+    "ts.age.cancel": "Anile",
+    "ts.age.invalid": "Antre yon dat nesans ki valab.",
+    "ts.age.locked": "Laj ou deja anrejistre epi ou pa ka chanje l isit la. Kontakte yon administrat\xE8.",
+    "ts.age.error": "Nou pa t ka anrejistre dat nesans ou. Eseye ank\xF2.",
+    "ts.message.blurred": "Kache: ka ofansan. Tape pou w\xE8",
+    "ts.message.blurredPersonal": "Kache: ka gen enf\xF2masyon p\xE8son\xE8l oswa enf\xF2masyon sou sante. Tape pou w\xE8",
+    "ts.message.blurredShort": "Kache: ka ofansan",
+    "ts.message.blurredPersonalShort": "Kache: ka gen enf\xF2masyon p\xE8son\xE8l oswa enf\xF2masyon sou sante",
+    "ts.message.hidden": "Moderat\xE8 yo kache mesaj sa a",
+    "user.suspendedAccount": "Kont sispann",
+    "peer.suspended.badge": "Sispann",
+    "peer.suspended.notice": "Kont sa a sispann. Ou pa ka voye mesaj ba li ni rele li.",
+    "peer.suspended.notDelivered": "Pa voye: kont sa a sispann"
   };
   const zh = {
     "tabs.chats": "\u804A\u5929",
@@ -58766,7 +59578,47 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     "notification.audio": "\u8BED\u97F3\u6D88\u606F",
     "notification.file": "\u6587\u4EF6",
     "notification.photos": "{count} \u5F20\u7167\u7247",
-    "notification.attachments": "{count} \u4E2A\u9644\u4EF6"
+    "notification.attachments": "{count} \u4E2A\u9644\u4EF6",
+    "account.suspended.title": "\u8D26\u6237\u5DF2\u88AB\u6682\u505C",
+    "account.suspended.description": "\u6B64\u8D26\u6237\u5DF2\u88AB\u6682\u505C\u3002",
+    "account.suspended.descriptionUntil": "\u6B64\u8D26\u6237\u5DF2\u88AB\u6682\u505C\u81F3 {date}\u3002",
+    "account.suspended.reasonLabel": "\u539F\u56E0",
+    "account.suspended.reason.child_safety": "\u513F\u7AE5\u5B89\u5168",
+    "account.suspended.reason.terms_violation": "\u8FDD\u53CD\u670D\u52A1\u6761\u6B3E",
+    "account.suspended.reason.spam": "\u5783\u573E\u4FE1\u606F\u6216\u6EE5\u7528",
+    "account.suspended.reason.security": "\u5B89\u5168\u539F\u56E0",
+    "account.suspended.reason.other": "\u5176\u4ED6",
+    "account.suspended.messageLabel": "\u7BA1\u7406\u5458\u7559\u8A00",
+    "account.suspended.supportLabel": "\u8054\u7CFB\u652F\u6301",
+    "account.archived.title": "\u8D26\u6237\u4E0D\u53EF\u7528",
+    "account.archived.description": "\u6B64\u8D26\u6237\u5DF2\u4E0D\u518D\u6709\u6548\u3002",
+    "account.blocked.signOut": "\u9000\u51FA\u767B\u5F55",
+    // Trust & Safety
+    "ts.sensitive.overlay": "\u654F\u611F\u5185\u5BB9\u3002\u70B9\u51FB\u67E5\u770B",
+    "ts.sensitive.checking": "\u6B63\u5728\u68C0\u67E5...",
+    "ts.sensitive.hide": "\u9690\u85CF",
+    "ts.sensitive.hideAgain": "\u91CD\u65B0\u6A21\u7CCA\u6B64\u5185\u5BB9",
+    "ts.sensitive.unavailable": "\u60A8\u7684\u8D26\u6237\u65E0\u6CD5\u67E5\u770B\u6B64\u5185\u5BB9\u3002",
+    "ts.media.removed": "\u5DF2\u88AB\u7BA1\u7406\u5458\u79FB\u9664",
+    "ts.upload.blockedTitle": "\u6587\u4EF6\u672A\u53D1\u9001",
+    "ts.upload.blocked": "\u6B64\u6587\u4EF6\u53EF\u80FD\u5305\u542B\u9732\u9AA8\u5185\u5BB9\uFF0C\u65E0\u6CD5\u53D1\u9001\u3002",
+    "ts.age.title": "\u786E\u8BA4\u60A8\u7684\u5E74\u9F84",
+    "ts.age.description": "\u90E8\u5206\u5185\u5BB9\u4EC5\u5411\u6210\u5E74\u4EBA\u663E\u793A\u3002\u8BF7\u8F93\u5165\u60A8\u7684\u51FA\u751F\u65E5\u671F\u4EE5\u7EE7\u7EED\u3002\u7CFB\u7EDF\u53EA\u4F1A\u4FDD\u5B58\u60A8\u7684\u51FA\u751F\u5E74\u4EFD\u3002",
+    "ts.age.dateOfBirth": "\u51FA\u751F\u65E5\u671F",
+    "ts.age.confirm": "\u786E\u8BA4",
+    "ts.age.cancel": "\u53D6\u6D88",
+    "ts.age.invalid": "\u8BF7\u8F93\u5165\u6709\u6548\u7684\u51FA\u751F\u65E5\u671F\u3002",
+    "ts.age.locked": "\u60A8\u7684\u5E74\u9F84\u5DF2\u8BBE\u7F6E\uFF0C\u65E0\u6CD5\u5728\u6B64\u66F4\u6539\u3002\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u3002",
+    "ts.age.error": "\u65E0\u6CD5\u4FDD\u5B58\u60A8\u7684\u51FA\u751F\u65E5\u671F\uFF0C\u8BF7\u91CD\u8BD5\u3002",
+    "ts.message.blurred": "\u5DF2\u9690\u85CF\uFF1A\u53EF\u80FD\u542B\u6709\u5192\u72AF\u6027\u5185\u5BB9\u3002\u70B9\u51FB\u67E5\u770B",
+    "ts.message.blurredPersonal": "\u5DF2\u9690\u85CF\uFF1A\u53EF\u80FD\u5305\u542B\u4E2A\u4EBA\u6216\u5065\u5EB7\u4FE1\u606F\u3002\u70B9\u51FB\u67E5\u770B",
+    "ts.message.blurredShort": "\u5DF2\u9690\u85CF\uFF1A\u53EF\u80FD\u542B\u6709\u5192\u72AF\u6027\u5185\u5BB9",
+    "ts.message.blurredPersonalShort": "\u5DF2\u9690\u85CF\uFF1A\u53EF\u80FD\u5305\u542B\u4E2A\u4EBA\u6216\u5065\u5EB7\u4FE1\u606F",
+    "ts.message.hidden": "\u6D88\u606F\u5DF2\u88AB\u7BA1\u7406\u5458\u9690\u85CF",
+    "user.suspendedAccount": "\u5DF2\u505C\u7528\u7684\u8D26\u6237",
+    "peer.suspended.badge": "\u5DF2\u6682\u505C",
+    "peer.suspended.notice": "\u6B64\u8D26\u6237\u5DF2\u88AB\u6682\u505C\u3002\u60A8\u65E0\u6CD5\u7ED9\u5176\u53D1\u6D88\u606F\u6216\u901A\u8BDD\u3002",
+    "peer.suspended.notDelivered": "\u672A\u53D1\u9001\uFF1A\u6B64\u8D26\u6237\u5DF2\u88AB\u6682\u505C"
   };
   const BUILTIN_STRINGS = {
     en,
@@ -59165,6 +60017,894 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       return null;
     }
   };
+  const ICE_URL_RE = /^(stun|stuns|turn|turns):/i;
+  const normalizeIceServers = (raw) => {
+    let value = raw;
+    if (typeof value === "string") {
+      const text2 = value.trim();
+      if (!text2) return [];
+      try {
+        value = JSON.parse(text2);
+      } catch {
+        return [];
+      }
+    }
+    if (value && !Array.isArray(value) && typeof value === "object" && Array.isArray(value.iceServers)) {
+      value = value.iceServers;
+    }
+    if (!Array.isArray(value)) return [];
+    const out = [];
+    for (const entry of value) {
+      if (!entry || typeof entry !== "object") continue;
+      const e2 = entry;
+      const rawUrls = e2.urls ?? e2.url;
+      const candidates = Array.isArray(rawUrls) ? rawUrls : [rawUrls];
+      const list2 = candidates.filter((u2) => typeof u2 === "string").map((u2) => u2.trim()).filter((u2) => ICE_URL_RE.test(u2));
+      if (list2.length === 0) continue;
+      const server = {
+        urls: typeof rawUrls === "string" ? list2[0] : list2
+      };
+      if (typeof e2.username === "string" && e2.username) {
+        server.username = e2.username;
+      }
+      if (typeof e2.credential === "string" && e2.credential) {
+        server.credential = e2.credential;
+      }
+      out.push(server);
+    }
+    return out;
+  };
+  const normalizeLivekitUrl = (raw) => {
+    const text2 = typeof raw === "string" ? raw.trim() : "";
+    return /^(wss?|https?):\/\/[^\s]+$/i.test(text2) ? text2 : null;
+  };
+  const isTrueish = (value) => {
+    const text2 = String(value ?? "").trim().toLowerCase();
+    return text2 === "true" || text2 === "1";
+  };
+  const parseCallTokenAttrs = (attrs) => {
+    const a2 = attrs || {};
+    const kindRaw = String(a2.kind || "").trim().toLowerCase();
+    const mode2 = String(a2.mode || "").trim().toLowerCase() === "p2p" ? "p2p" : "livekit";
+    const iceList = mode2 === "p2p" ? normalizeIceServers(a2.ice) : [];
+    return {
+      token: String(a2.token || "").trim(),
+      room: String(a2.room || "").trim(),
+      callId: String(a2.callId || a2.callid || "").trim() || null,
+      kind: kindRaw === "audio" || kindRaw === "video" ? kindRaw : null,
+      mode: mode2,
+      // A p2p call is 1:1 by construction; never let a stray attribute flip it.
+      group: mode2 === "livekit" && isTrueish(a2.group),
+      iceServers: mode2 === "p2p" && iceList.length > 0 ? iceList : null,
+      livekitUrl: mode2 === "livekit" ? normalizeLivekitUrl(a2.livekitUrl) : null,
+      callerName: sanitizeCallName(a2.callerName),
+      caller: sanitizeXmppUsername(a2.caller)
+    };
+  };
+  const parseCallCreateResponse = (data, fallbackKind) => {
+    const root2 = data && typeof data === "object" ? data : {};
+    const d2 = root2.result && typeof root2.result === "object" && !root2.mode ? root2.result : root2;
+    const mode2 = String(d2.mode || "").trim().toLowerCase() === "p2p" ? "p2p" : "livekit";
+    const kindRaw = String(d2.kind || "").trim().toLowerCase();
+    const callId = String(d2.callId || d2.callid || "").trim() || null;
+    if (mode2 === "p2p" && !callId) {
+      throw new Error("Call response is missing callId");
+    }
+    const ttl = Number(d2.ttlSeconds);
+    const livekitUrl = normalizeLivekitUrl(d2.livekitUrl);
+    return {
+      callId,
+      mode: mode2,
+      kind: kindRaw === "audio" || kindRaw === "video" ? kindRaw : fallbackKind,
+      group: typeof d2.group === "boolean" ? d2.group : null,
+      livekitUrl,
+      iceServers: mode2 === "p2p" ? normalizeIceServers(d2.iceServers) : [],
+      ttlSeconds: Number.isFinite(ttl) && ttl > 0 ? ttl : null
+    };
+  };
+  const DEFAULT_CALL_ROOM_TYPES = ["private", "group"];
+  const isCallRoomTypeAllowed = (roomType, allowedRoomTypes) => {
+    if (roomType !== "private" && roomType !== "group") return false;
+    const allowed = allowedRoomTypes || DEFAULT_CALL_ROOM_TYPES;
+    return allowed.includes(roomType);
+  };
+  const decideIncomingWhileBusy = (current2, incoming) => {
+    if (current2.phase === "idle") return "accept";
+    if (incoming.callId && current2.callId === incoming.callId) return "duplicate";
+    if (current2.mode !== "p2p" && incoming.mode !== "p2p") return "replace";
+    const sameRoom = !!incoming.roomBareName && current2.roomBareName === incoming.roomBareName;
+    if (sameRoom && current2.direction === "outgoing" && current2.phase === "requesting" && incoming.mode === "p2p" && current2.mode === "p2p" && current2.callId && incoming.callId) {
+      return incoming.callId < current2.callId ? "glare-yield" : "glare-keep";
+    }
+    return "busy";
+  };
+  const createSharedRequest = (start) => {
+    const controller = new AbortController();
+    let activeSubscribers = 0;
+    let permanentSubscribers = 0;
+    const promise2 = start(controller.signal);
+    promise2.catch(() => {
+    });
+    return {
+      join(signal) {
+        if (!signal) {
+          permanentSubscribers += 1;
+          return promise2;
+        }
+        if (signal.aborted) {
+          return Promise.reject(new axios.CanceledError("canceled"));
+        }
+        activeSubscribers += 1;
+        return new Promise((resolve2, reject) => {
+          let settled = false;
+          const onAbort = () => {
+            if (settled) return;
+            settled = true;
+            activeSubscribers -= 1;
+            if (activeSubscribers === 0 && permanentSubscribers === 0) {
+              controller.abort();
+            }
+            reject(new axios.CanceledError("canceled"));
+          };
+          signal.addEventListener("abort", onAbort, { once: true });
+          promise2.then(
+            (value) => {
+              if (settled) return;
+              settled = true;
+              signal.removeEventListener("abort", onAbort);
+              resolve2(value);
+            },
+            (error2) => {
+              if (settled) return;
+              settled = true;
+              signal.removeEventListener("abort", onAbort);
+              reject(error2);
+            }
+          );
+        });
+      }
+    };
+  };
+  const SUSPENDED_STATUS_TTL_MS = 5 * 60 * 1e3;
+  const SUSPENDED_STATUS_MAX_BATCH = 500;
+  const MODERATION_XMLNS = "urn:ethora:moderation";
+  const PEER_SUSPENDED = "PEER_SUSPENDED";
+  class PeerSuspendedError extends Error {
+    code = PEER_SUSPENDED;
+    constructor(message = "This account is suspended") {
+      super(message);
+      this.name = "PeerSuspendedError";
+    }
+  }
+  const isPeerSuspendedError = (error2) => error2?.code === PEER_SUSPENDED;
+  const PEER_SUSPENDED_FAILURE = "peer-suspended";
+  const toPeerKey = (value) => {
+    if (typeof value !== "string") return "";
+    return toLocalPart(value.trim()).split("/")[0].trim();
+  };
+  const getPrivatePeerXmppUsername = (room, myXmppUsername) => {
+    if (!room || room.type !== "private") return "";
+    const me2 = toPeerKey(myXmppUsername || "");
+    const members = Array.isArray(room.members) ? room.members : [];
+    for (const member of members) {
+      const key = toPeerKey(member?.xmppUsername);
+      if (key && key !== me2) return key;
+    }
+    return "";
+  };
+  const collectSuspendedLookupTargets = (rooms, activeRoomJID, myXmppUsername) => {
+    const me2 = toPeerKey(myXmppUsername || "");
+    const out = /* @__PURE__ */ new Set();
+    const add2 = (value) => {
+      const key = toPeerKey(value);
+      if (key && key !== me2) out.add(key);
+    };
+    for (const room of Object.values(rooms || {})) {
+      const peer = getPrivatePeerXmppUsername(room, me2);
+      if (peer) out.add(peer);
+    }
+    const active = activeRoomJID ? rooms?.[activeRoomJID] : void 0;
+    if (active) {
+      for (const member of Array.isArray(active.members) ? active.members : []) {
+        add2(member?.xmppUsername);
+      }
+      for (const message of Array.isArray(active.messages) ? active.messages : []) {
+        if (!message || message.isSystemMessage === "true" || message.senderMasked) {
+          continue;
+        }
+        add2(message.user?.id);
+      }
+    }
+    return [...out];
+  };
+  const selectStalePeerKeys = (keys2, statuses, now, ttlMs = SUSPENDED_STATUS_TTL_MS) => keys2.filter((key) => {
+    const status = statuses?.[key];
+    return !status || now - status.checkedAt >= ttlMs;
+  });
+  const chunk = (items, size) => {
+    const out = [];
+    for (let i2 = 0; i2 < items.length; i2 += size) {
+      out.push(items.slice(i2, i2 + size));
+    }
+    return out;
+  };
+  const isPeerSuspendedBounce = (stanza) => {
+    if (!stanza || stanza.name !== "message" || stanza.attrs?.type !== "error") {
+      return false;
+    }
+    const error2 = stanza.getChild?.("error");
+    if (!error2) return false;
+    return Boolean(error2.getChild("suspended", MODERATION_XMLNS));
+  };
+  const peerSuspendedTargetsFromResults = (results) => {
+    if (!Array.isArray(results)) return [];
+    const out = [];
+    for (const item of results) {
+      if (!item || typeof item !== "object") continue;
+      const record = item;
+      const error2 = record.error && typeof record.error === "object" ? record.error : void 0;
+      const code2 = String(record.code ?? error2?.code ?? "");
+      if (code2 !== PEER_SUSPENDED) continue;
+      const key = toPeerKey(
+        record.xmppUsername ?? record.username ?? record.member ?? record.jid
+      );
+      if (key) out.push(key);
+    }
+    return out;
+  };
+  const authHeaders$2 = () => ({
+    Authorization: store.getState().chatSettingStore?.user?.token || ""
+  });
+  const unwrap = (data) => {
+    if (!data || typeof data !== "object") return {};
+    const record = data;
+    for (const key of ["data", "result"]) {
+      const inner = record[key];
+      if (inner && typeof inner === "object" && !Array.isArray(inner)) {
+        return inner;
+      }
+    }
+    return record;
+  };
+  const asBool = (value) => value === true || value === "true" ? true : value === false || value === "false" ? false : null;
+  const normalizeAppTrustSafety = (data) => {
+    const record = unwrap(data);
+    const effective = record.effective && typeof record.effective === "object" ? record.effective : void 0;
+    const ageGate = asBool(record.ageGate) ?? asBool(effective?.ageGate) ?? true;
+    return {
+      enabled: asBool(record.enabled) ?? false,
+      ageGate,
+      ...effective ? { effective } : {}
+    };
+  };
+  const normalizeUserAge = (data) => {
+    const record = unwrap(data);
+    const age = record.age && typeof record.age === "object" ? record.age : record;
+    const birthYear = Number(age.birthYear);
+    return {
+      birthYear: Number.isFinite(birthYear) && birthYear > 0 ? birthYear : null,
+      isAdult: asBool(age.isAdult),
+      declaredAt: typeof age.declaredAt === "string" ? age.declaredAt : null,
+      canDeclareAdult: asBool(age.canDeclareAdult ?? record.canDeclareAdult) ?? true
+    };
+  };
+  async function getAppTrustSafety(appId) {
+    const response = await http.get(
+      `/v2/apps/${encodeURIComponent(appId)}/trust-safety`,
+      { headers: authHeaders$2() }
+    );
+    return normalizeAppTrustSafety(response.data);
+  }
+  async function getMyAge() {
+    const response = await http.get("/v2/users/me/age", { headers: authHeaders$2() });
+    return normalizeUserAge(response.data);
+  }
+  async function putMyAge(dateOfBirth) {
+    const response = await http.put(
+      "/v2/users/me/age",
+      { dateOfBirth },
+      { headers: authHeaders$2() }
+    );
+    return normalizeUserAge(response.data);
+  }
+  const normalizeSuspendedStatus = (data) => {
+    const record = unwrap(data);
+    const list2 = Array.isArray(data) ? data : Array.isArray(record.suspended) ? record.suspended : [];
+    return list2.filter(
+      (value) => typeof value === "string" && value.length > 0
+    );
+  };
+  async function postSuspendedStatus(xmppUsernames) {
+    const response = await http.post(
+      "/v2/users/suspended-status",
+      { xmppUsernames },
+      { headers: authHeaders$2() }
+    );
+    return normalizeSuspendedStatus(response.data);
+  }
+  const AGE_LOCKED = "AGE_LOCKED";
+  const errorCodeOf = (error2) => {
+    const data = error2?.response?.data;
+    if (!data || typeof data !== "object") return "";
+    const record = data;
+    const nested = record.error && typeof record.error === "object" ? record.error : void 0;
+    return String(record.code ?? nested?.code ?? "");
+  };
+  const statusOf$2 = (error2) => error2?.response?.status;
+  const UNSUPPORTED_STATUSES = /* @__PURE__ */ new Set([404, 405, 501]);
+  const statusOf$1 = (error2) => error2?.response?.status;
+  const createSuspendedPeersLookup = (getStore, options) => {
+    const {
+      api,
+      debounceMs = 250,
+      maxWaitMs = 1500,
+      ttlMs = SUSPENDED_STATUS_TTL_MS,
+      failureBackoffMs = 60 * 1e3,
+      recheckIntervalMs = 60 * 1e3,
+      now = () => Date.now()
+    } = options;
+    const pending2 = /* @__PURE__ */ new Set();
+    const inFlight2 = /* @__PURE__ */ new Set();
+    const failedAt = /* @__PURE__ */ new Map();
+    const watched = /* @__PURE__ */ new Map();
+    let timer = null;
+    let firstQueuedAt = 0;
+    let recheckTimer = null;
+    let unsupported = false;
+    let sessionKey2 = "";
+    let running = Promise.resolve();
+    const state2 = () => {
+      try {
+        return getStore()?.getState();
+      } catch {
+        return void 0;
+      }
+    };
+    const clearQueue = () => {
+      pending2.clear();
+      failedAt.clear();
+      if (timer) clearTimeout(timer);
+      timer = null;
+      firstQueuedAt = 0;
+    };
+    const syncSession = (current2) => {
+      const key = current2?.chatSettingStore?.user?.xmppUsername || "";
+      if (key === sessionKey2) return;
+      sessionKey2 = key;
+      clearQueue();
+      unsupported = false;
+    };
+    const isEnabled = (current2) => !unsupported && current2?.chatSettingStore?.config?.disableSuspendedPeers !== true && Boolean(current2?.chatSettingStore?.user?.xmppUsername);
+    const flush2 = () => {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      firstQueuedAt = 0;
+      const names = [...pending2];
+      pending2.clear();
+      if (names.length === 0) return running;
+      names.forEach((name2) => inFlight2.add(name2));
+      const work = async () => {
+        for (const batch of chunk(names, SUSPENDED_STATUS_MAX_BATCH)) {
+          try {
+            const answer = await api(batch);
+            const asked = new Set(batch);
+            const suspended = answer.map((value) => toPeerKey(value)).filter((key) => asked.has(key));
+            getStore()?.dispatch(
+              setPeerStatuses({ checked: batch, suspended, checkedAt: now() })
+            );
+            batch.forEach((name2) => failedAt.delete(name2));
+          } catch (error2) {
+            if (UNSUPPORTED_STATUSES.has(statusOf$1(error2) ?? 0)) {
+              unsupported = true;
+            }
+            const at2 = now();
+            batch.forEach((name2) => failedAt.set(name2, at2));
+          } finally {
+            batch.forEach((name2) => inFlight2.delete(name2));
+          }
+        }
+      };
+      running = running.then(work, work);
+      return running;
+    };
+    const schedule = () => {
+      const at2 = now();
+      if (!firstQueuedAt) firstQueuedAt = at2;
+      const waited = at2 - firstQueuedAt;
+      const delay2 = Math.max(0, Math.min(debounceMs, maxWaitMs - waited));
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        void flush2();
+      }, delay2);
+    };
+    const request = (values) => {
+      const current2 = state2();
+      syncSession(current2);
+      if (!isEnabled(current2)) return;
+      const me2 = toPeerKey(current2?.chatSettingStore?.user?.xmppUsername || "");
+      const at2 = now();
+      const candidates = [];
+      for (const value of values) {
+        const key = toPeerKey(value);
+        if (!key || key === me2 || pending2.has(key) || inFlight2.has(key)) continue;
+        const failed2 = failedAt.get(key);
+        if (failed2 !== void 0 && at2 - failed2 < failureBackoffMs) continue;
+        candidates.push(key);
+      }
+      const stale = selectStalePeerKeys(
+        [...new Set(candidates)],
+        current2?.trustSafety?.peers,
+        at2,
+        ttlMs
+      );
+      if (stale.length === 0) return;
+      stale.forEach((key) => pending2.add(key));
+      schedule();
+    };
+    const recheck = () => request(watched.keys());
+    const syncRecheckTimer = () => {
+      if (watched.size > 0 && !recheckTimer) {
+        recheckTimer = setInterval(recheck, recheckIntervalMs);
+      } else if (watched.size === 0 && recheckTimer) {
+        clearInterval(recheckTimer);
+        recheckTimer = null;
+      }
+    };
+    const watch = (value) => {
+      const key = toPeerKey(value);
+      if (!key) return () => {
+      };
+      watched.set(key, (watched.get(key) ?? 0) + 1);
+      syncRecheckTimer();
+      request([key]);
+      let done = false;
+      return () => {
+        if (done) return;
+        done = true;
+        const count = (watched.get(key) ?? 1) - 1;
+        if (count <= 0) watched.delete(key);
+        else watched.set(key, count);
+        syncRecheckTimer();
+      };
+    };
+    const markSuspended = (value) => {
+      const key = toPeerKey(value);
+      if (!key) return;
+      getStore()?.dispatch(markPeerSuspended({ xmppUsername: key, at: now() }));
+    };
+    const reset = () => {
+      clearQueue();
+      inFlight2.clear();
+      watched.clear();
+      if (recheckTimer) clearInterval(recheckTimer);
+      recheckTimer = null;
+      unsupported = false;
+      sessionKey2 = "";
+      running = Promise.resolve();
+    };
+    return { request, watch, flush: flush2, recheck, markSuspended, reset };
+  };
+  const suspendedPeersLookup = createSuspendedPeersLookup(() => store, {
+    api: postSuspendedStatus
+  });
+  const requestSuspendedStatus = (values) => suspendedPeersLookup.request(values);
+  const watchSuspendedStatus = (value) => suspendedPeersLookup.watch(value);
+  const markPeerSuspendedNow = (value) => suspendedPeersLookup.markSuspended(value);
+  const GET_ROOMS_CACHE_MS = 6e4;
+  let getRoomsInFlight = null;
+  let getRoomsInFlightToken = "";
+  let lastGetRoomsResponse = null;
+  let lastGetRoomsResponseAt = 0;
+  let lastGetRoomsResponseToken = "";
+  let roomsCacheGeneration = 0;
+  function invalidateRoomsCache() {
+    lastGetRoomsResponse = null;
+    lastGetRoomsResponseAt = 0;
+    lastGetRoomsResponseToken = "";
+    roomsCacheGeneration++;
+  }
+  async function getRooms(signal) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    const now = Date.now();
+    if (lastGetRoomsResponse && lastGetRoomsResponseToken === token2 && now - lastGetRoomsResponseAt < GET_ROOMS_CACHE_MS) {
+      return lastGetRoomsResponse;
+    }
+    if (getRoomsInFlight && getRoomsInFlightToken === token2) {
+      return getRoomsInFlight.join(signal);
+    }
+    getRoomsInFlightToken = token2;
+    const requestGeneration = roomsCacheGeneration;
+    const shared = createSharedRequest(async (sharedSignal) => {
+      const response = await http.get("/v1/chats/my", {
+        headers: {
+          Authorization: token2
+        },
+        signal: sharedSignal
+      });
+      if (roomsCacheGeneration === requestGeneration) {
+        lastGetRoomsResponse = response.data;
+        lastGetRoomsResponseAt = Date.now();
+        lastGetRoomsResponseToken = token2;
+      }
+      return response.data;
+    });
+    getRoomsInFlight = shared;
+    try {
+      return await shared.join(signal);
+    } catch (error2) {
+      if (axios.isCancel(error2)) {
+        throw error2;
+      }
+      ethoraLogger.log("Error loading rooms");
+      return { items: [], failed: true };
+    } finally {
+      getRoomsInFlight = null;
+      getRoomsInFlightToken = "";
+    }
+  }
+  const roomByNameInflight = /* @__PURE__ */ new Map();
+  async function getRoomByName(chatName, signal) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    const key = `${token2}|${chatName}`;
+    const inflight2 = roomByNameInflight.get(key);
+    if (inflight2) return inflight2.join(signal);
+    const shared = createSharedRequest(
+      (sharedSignal) => http.get(`/v1/chats/my/${encodeURIComponent(chatName)}`, {
+        headers: {
+          Authorization: token2
+        },
+        signal: sharedSignal
+      }).then((response) => response.data).catch((error2) => {
+        if (axios.isCancel(error2)) {
+          throw error2;
+        }
+        throw new Error("Error updating profile");
+      }).finally(() => {
+        roomByNameInflight.delete(key);
+      })
+    );
+    roomByNameInflight.set(key, shared);
+    return shared.join(signal);
+  }
+  async function muteRoom(chatName) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.put(
+        `/v1/chats/my/${chatName}/mute`,
+        {},
+        {
+          headers: {
+            Authorization: token2
+          }
+        }
+      );
+      invalidateRoomsCache();
+      return response.data?.result;
+    } catch (error2) {
+      throw new Error("Error muting chat");
+    }
+  }
+  async function unmuteRoom(chatName) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.delete(`/v1/chats/my/${chatName}/mute`, {
+        headers: {
+          Authorization: token2
+        }
+      });
+      invalidateRoomsCache();
+      return response.data?.result;
+    } catch (error2) {
+      throw new Error("Error unmuting chat");
+    }
+  }
+  async function leaveRoom(chatName) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.put(
+        `/v1/chats/my/${chatName}/leave`,
+        {},
+        {
+          headers: {
+            Authorization: token2
+          }
+        }
+      );
+      invalidateRoomsCache();
+      return response.data?.result;
+    } catch (error2) {
+      throw new Error("Error leaving chat");
+    }
+  }
+  async function blockUser(peer) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.post(
+        "/v1/chats/blocked",
+        { user: peer },
+        {
+          headers: {
+            Authorization: token2
+          }
+        }
+      );
+      invalidateRoomsCache();
+      return response.data?.result;
+    } catch (error2) {
+      throw new Error("Error blocking user");
+    }
+  }
+  async function getBlockedUsers() {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.get("/v1/chats/blocked", {
+        headers: {
+          Authorization: token2
+        }
+      });
+      return response.data?.items || [];
+    } catch (error2) {
+      throw new Error("Error loading blocked users");
+    }
+  }
+  async function postRoom(data) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.post("/v1/chats", data, {
+        headers: {
+          Authorization: token2
+        }
+      });
+      return response.data.result;
+    } catch (error2) {
+      throw new Error("Error updating profile");
+    }
+  }
+  async function patchMyChat(chatName, updates) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    await http.patch(
+      `/v1/chats/my/${encodeURIComponent(chatName)}`,
+      updates,
+      { headers: { Authorization: token2 } }
+    );
+    invalidateRoomsCache();
+  }
+  async function postPrivateRoom(username, e2ee = false) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.post(
+        "/v1/chats/private",
+        e2ee ? { username, e2ee: true } : { username },
+        {
+          headers: {
+            Authorization: token2
+          }
+        }
+      );
+      return response.data.result;
+    } catch (error2) {
+      if (errorCodeOf(error2) === PEER_SUSPENDED) {
+        markPeerSuspendedNow(username);
+        throw new PeerSuspendedError();
+      }
+      throw new Error("Error updating profile");
+    }
+  }
+  async function postReportRoom(data) {
+    const { chatName, category, text: text2 } = data;
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.post(
+        `/v1/chats/reports/${chatName}`,
+        { category, text: text2 },
+        {
+          headers: {
+            Authorization: token2
+          }
+        }
+      );
+      return response.data.result;
+    } catch (error2) {
+      throw new Error("Error reporting chat");
+    }
+  }
+  async function postAddRoomMember(data) {
+    const { chatName, members } = data;
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.post(
+        `/v1/chats/users-access`,
+        { chatName, members },
+        {
+          headers: {
+            Authorization: token2
+          }
+        }
+      );
+      const results = response?.data?.results || [];
+      const skipped = peerSuspendedTargetsFromResults(results);
+      if (skipped.length === 0) return results;
+      skipped.forEach((name2) => markPeerSuspendedNow(name2));
+      return results.filter(
+        (item) => peerSuspendedTargetsFromResults([item]).length === 0
+      );
+    } catch (error2) {
+      if (errorCodeOf(error2) === PEER_SUSPENDED) {
+        if (members.length === 1) markPeerSuspendedNow(members[0]);
+        throw new PeerSuspendedError();
+      }
+      throw new Error("Error updating profile");
+    }
+  }
+  async function deleteRoomMember(data) {
+    const { roomId, members } = data;
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.delete(`/v1/chats/users-access`, {
+        headers: {
+          Authorization: token2
+        },
+        data: {
+          chatName: roomId,
+          members
+        }
+      });
+      return response.data.result;
+    } catch (error2) {
+      throw new Error("Error updating profile");
+    }
+  }
+  async function deleteRoom(name2) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    try {
+      const response = await http.delete("/v1/chats", {
+        headers: {
+          Authorization: token2
+        },
+        data: { name: name2 }
+      });
+      return response.data.result;
+    } catch (error2) {
+      throw new Error("Error deleting room");
+    }
+  }
+  async function declineChatCall(callId) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    if (!callId || !token2) return false;
+    try {
+      await http.post(
+        `/v1/chats/call/state/decline/${encodeURIComponent(callId)}`,
+        void 0,
+        { headers: { Authorization: token2 } }
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  async function createChatCall(chatName, options) {
+    const token2 = store.getState().chatSettingStore.user.token || "";
+    const kind = options?.kind || "video";
+    try {
+      const response = await http.post(
+        `/v1/chats/call/create/${chatName}`,
+        { kind },
+        {
+          headers: {
+            Authorization: token2
+          }
+        }
+      );
+      return parseCallCreateResponse(response?.data, kind);
+    } catch (error2) {
+      throw new Error("Error creating chat call");
+    }
+  }
+  const rooms_api = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+    __proto__: null,
+    blockUser,
+    createChatCall,
+    declineChatCall,
+    deleteRoom,
+    deleteRoomMember,
+    getBlockedUsers,
+    getRoomByName,
+    getRooms,
+    invalidateRoomsCache,
+    leaveRoom,
+    muteRoom,
+    patchMyChat,
+    postAddRoomMember,
+    postPrivateRoom,
+    postReportRoom,
+    postRoom,
+    unmuteRoom
+  }, Symbol.toStringTag, { value: "Module" }));
+  const isLikelyMucJid = (jid2) => {
+    if (typeof jid2 !== "string" || !jid2) return false;
+    const at2 = jid2.indexOf("@");
+    if (at2 <= 0) return false;
+    const domain2 = jid2.slice(at2 + 1).split("/")[0];
+    return domain2.includes(".") && domain2.startsWith("conference.");
+  };
+  const ROOMS_SLICE_ROOT_KEYS = /* @__PURE__ */ new Set([
+    "rooms",
+    "activeRoomJID",
+    "isChatUiVisible",
+    "isLoading",
+    "editAction",
+    "usersSet",
+    "presenceByRoom",
+    "reportRoom",
+    "subscribedRooms",
+    "pushSubscriptionStatus",
+    "loadingText"
+  ]);
+  const isLikelyRoomLocalpart = (value) => {
+    if (typeof value !== "string") return false;
+    const v2 = value.trim();
+    if (!v2 || v2.includes("@")) return false;
+    if (ROOMS_SLICE_ROOT_KEYS.has(v2)) return false;
+    return v2.includes("_");
+  };
+  const toRoomJid = (chatJID, conference) => {
+    if (typeof chatJID !== "string" || !chatJID) return null;
+    if (chatJID.includes("@")) return chatJID;
+    if (!conference) return null;
+    if (!isLikelyRoomLocalpart(chatJID)) return null;
+    return `${chatJID}@${conference}`;
+  };
+  const STANZAS_NS = "urn:ietf:params:xml:ns:xmpp-stanzas";
+  const RECHECK_MS = 6e4;
+  const lastCheck = /* @__PURE__ */ new Map();
+  const inflight = /* @__PURE__ */ new Set();
+  const isForbidden = (stanza) => {
+    const error2 = stanza.getChild("error");
+    if (!error2) return false;
+    return !!(error2.getChild("forbidden", STANZAS_NS) || error2.getChild("forbidden"));
+  };
+  const dropRoom = (roomJid) => {
+    const state2 = store.getState().rooms;
+    if (!state2.rooms[roomJid]) return;
+    store.dispatch(deleteRoom$1({ jid: roomJid }));
+    if (state2.activeRoomJID === roomJid) {
+      const next2 = Object.keys(state2.rooms).find((jid2) => jid2 !== roomJid) || null;
+      store.dispatch(setCurrentRoom({ roomJID: next2 }));
+    }
+  };
+  const checkRoom = async (roomJid) => {
+    if (inflight.has(roomJid)) return;
+    const last = lastCheck.get(roomJid);
+    if (last && Date.now() - last < RECHECK_MS) return;
+    lastCheck.set(roomJid, Date.now());
+    inflight.add(roomJid);
+    try {
+      invalidateRoomsCache();
+      const response = await getRooms();
+      if (response?.failed || !Array.isArray(response?.items)) return;
+      const local = roomJid.split("@")[0];
+      const listed = response.items.some(
+        (item) => String(item?.name || "").split("@")[0] === local
+      );
+      if (listed) return;
+      ethoraLogger.log("[XMPP] room join refused and not listed, dropping", roomJid);
+      dropRoom(roomJid);
+    } catch (error2) {
+      ethoraLogger.log("[XMPP] room access check failed", roomJid, error2);
+    } finally {
+      inflight.delete(roomJid);
+    }
+  };
+  const onRoomJoinRefused = (stanza) => {
+    if (!stanza?.is?.("presence") || stanza.attrs?.type !== "error") return;
+    const from2 = typeof stanza.attrs?.from === "string" ? stanza.attrs.from : "";
+    const roomJid = from2.split("/")[0];
+    if (!roomJid || !isLikelyMucJid(roomJid)) return;
+    if (!isForbidden(stanza)) return;
+    if (!store.getState().rooms.rooms[roomJid]) return;
+    if (!store.getState().chatSettingStore?.user?.token) return;
+    void checkRoom(roomJid);
+  };
   const JOIN_LEAD_MINUTES = 15;
   const MIN_DURATION_MINUTES = 5;
   const MAX_DURATION_MINUTES = 480;
@@ -59370,6 +61110,18 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       // instead of the stale body.
       isDeleted: !!data?.deleted || !!data?.isDeleted
     };
+    const moderation = data?.moderation;
+    if (moderation?.action) {
+      applyModeration(message, moderation.action, moderation.category, moderation.by);
+    }
+    const dataAttrs = data?.data || {};
+    if (isMaskedSenderName(
+      dataAttrs.senderFirstName,
+      dataAttrs.senderLastName,
+      dataAttrs.fullName
+    )) {
+      message.senderMasked = true;
+    }
     return attachScheduledCallMeta(message);
   };
   const isCallLogMessage = (message) => {
@@ -59436,6 +61188,20 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       acc[item.language] = item;
       return acc;
     }, {});
+  };
+  const TRANSLATE_NS = "ethora:translate";
+  const normalizeTranslations = (value) => Array.isArray(value) ? value.filter(
+    (item) => !!item && typeof item === "object" && typeof item.translatedText === "string" && typeof item.language === "string" && typeof item.languageName === "string"
+  ) : [];
+  const parseTranslationsValue = (value) => {
+    if (typeof value !== "string" || !value) return void 0;
+    let payload = {};
+    try {
+      payload = JSON.parse(value) || {};
+    } catch {
+      payload = {};
+    }
+    return transformArrayToObject(normalizeTranslations(payload.translates));
   };
   const isNonEmptyString = (value) => typeof value === "string" && value.trim() !== "";
   const parseQuickReplies = (rawValue) => {
@@ -59573,9 +61339,6 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     if (!value) return void 0;
     return value.split("@")[0] || void 0;
   };
-  const normalizeTranslations = (value) => Array.isArray(value) ? value.filter(
-    (item) => !!item && typeof item === "object" && typeof item.translatedText === "string" && typeof item.language === "string" && typeof item.languageName === "string"
-  ) : [];
   const getDataFromXml = async (stanza) => {
     const fullData = stanza.getChild("result")?.getChild("forwarded")?.getChild("message") || stanza;
     const xmppId = fullData?.attrs.id;
@@ -59587,15 +61350,13 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     if (!id2) {
       id2 = xmppId || Date.now().toString();
     }
-    const translationPayload = safeJsonParse(
-      fullData?.getChild("translations")?.attrs?.value,
-      {}
-    );
     const rawBody = fullData?.getChild("body")?.getText() || void 0;
     const deleted = !!fullData?.getChild("deleted");
-    const translations = fullData?.getChild("translations")?.attrs?.value ? transformArrayToObject(
-      normalizeTranslations(translationPayload.translates)
-    ) : void 0;
+    const moderation = parseModerationMarker(fullData);
+    const translations = parseTranslationsValue(
+      fullData?.getChild("translations")?.attrs?.value
+    );
+    const translationPending = !translations && !!fullData?.getChild("translation-pending", TRANSLATE_NS);
     const langSource = fullData?.getChild("translate")?.attrs?.source;
     const delay2 = fullData?.getChild("delay", "urn:xmpp:delay") || fullData?.getChild("x", "jabber:x:delay");
     const isHistory = !!delay2;
@@ -59664,10 +61425,12 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       user,
       deleted,
       translations,
+      ...translationPending ? { translationPending: true } : {},
       langSource,
       xmppId,
       xmppFrom,
-      isHistory
+      isHistory,
+      ...moderation ? { moderation } : {}
     };
   };
   function getBooleanFromString(value) {
@@ -59682,470 +61445,6 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     const num = Number(value.trim());
     return isNaN(num) ? null : num;
   }
-  const ICE_URL_RE = /^(stun|stuns|turn|turns):/i;
-  const normalizeIceServers = (raw) => {
-    let value = raw;
-    if (typeof value === "string") {
-      const text2 = value.trim();
-      if (!text2) return [];
-      try {
-        value = JSON.parse(text2);
-      } catch {
-        return [];
-      }
-    }
-    if (value && !Array.isArray(value) && typeof value === "object" && Array.isArray(value.iceServers)) {
-      value = value.iceServers;
-    }
-    if (!Array.isArray(value)) return [];
-    const out = [];
-    for (const entry of value) {
-      if (!entry || typeof entry !== "object") continue;
-      const e2 = entry;
-      const rawUrls = e2.urls ?? e2.url;
-      const candidates = Array.isArray(rawUrls) ? rawUrls : [rawUrls];
-      const list2 = candidates.filter((u2) => typeof u2 === "string").map((u2) => u2.trim()).filter((u2) => ICE_URL_RE.test(u2));
-      if (list2.length === 0) continue;
-      const server = {
-        urls: typeof rawUrls === "string" ? list2[0] : list2
-      };
-      if (typeof e2.username === "string" && e2.username) {
-        server.username = e2.username;
-      }
-      if (typeof e2.credential === "string" && e2.credential) {
-        server.credential = e2.credential;
-      }
-      out.push(server);
-    }
-    return out;
-  };
-  const normalizeLivekitUrl = (raw) => {
-    const text2 = typeof raw === "string" ? raw.trim() : "";
-    return /^(wss?|https?):\/\/[^\s]+$/i.test(text2) ? text2 : null;
-  };
-  const isTrueish = (value) => {
-    const text2 = String(value ?? "").trim().toLowerCase();
-    return text2 === "true" || text2 === "1";
-  };
-  const parseCallTokenAttrs = (attrs) => {
-    const a2 = attrs || {};
-    const kindRaw = String(a2.kind || "").trim().toLowerCase();
-    const mode2 = String(a2.mode || "").trim().toLowerCase() === "p2p" ? "p2p" : "livekit";
-    const iceList = mode2 === "p2p" ? normalizeIceServers(a2.ice) : [];
-    return {
-      token: String(a2.token || "").trim(),
-      room: String(a2.room || "").trim(),
-      callId: String(a2.callId || a2.callid || "").trim() || null,
-      kind: kindRaw === "audio" || kindRaw === "video" ? kindRaw : null,
-      mode: mode2,
-      // A p2p call is 1:1 by construction; never let a stray attribute flip it.
-      group: mode2 === "livekit" && isTrueish(a2.group),
-      iceServers: mode2 === "p2p" && iceList.length > 0 ? iceList : null,
-      livekitUrl: mode2 === "livekit" ? normalizeLivekitUrl(a2.livekitUrl) : null,
-      callerName: sanitizeCallName(a2.callerName),
-      caller: sanitizeXmppUsername(a2.caller)
-    };
-  };
-  const parseCallCreateResponse = (data, fallbackKind) => {
-    const root2 = data && typeof data === "object" ? data : {};
-    const d2 = root2.result && typeof root2.result === "object" && !root2.mode ? root2.result : root2;
-    const mode2 = String(d2.mode || "").trim().toLowerCase() === "p2p" ? "p2p" : "livekit";
-    const kindRaw = String(d2.kind || "").trim().toLowerCase();
-    const callId = String(d2.callId || d2.callid || "").trim() || null;
-    if (mode2 === "p2p" && !callId) {
-      throw new Error("Call response is missing callId");
-    }
-    const ttl = Number(d2.ttlSeconds);
-    const livekitUrl = normalizeLivekitUrl(d2.livekitUrl);
-    return {
-      callId,
-      mode: mode2,
-      kind: kindRaw === "audio" || kindRaw === "video" ? kindRaw : fallbackKind,
-      group: typeof d2.group === "boolean" ? d2.group : null,
-      livekitUrl,
-      iceServers: mode2 === "p2p" ? normalizeIceServers(d2.iceServers) : [],
-      ttlSeconds: Number.isFinite(ttl) && ttl > 0 ? ttl : null
-    };
-  };
-  const DEFAULT_CALL_ROOM_TYPES = ["private", "group"];
-  const isCallRoomTypeAllowed = (roomType, allowedRoomTypes) => {
-    if (roomType !== "private" && roomType !== "group") return false;
-    const allowed = allowedRoomTypes || DEFAULT_CALL_ROOM_TYPES;
-    return allowed.includes(roomType);
-  };
-  const decideIncomingWhileBusy = (current2, incoming) => {
-    if (current2.phase === "idle") return "accept";
-    if (incoming.callId && current2.callId === incoming.callId) return "duplicate";
-    if (current2.mode !== "p2p" && incoming.mode !== "p2p") return "replace";
-    const sameRoom = !!incoming.roomBareName && current2.roomBareName === incoming.roomBareName;
-    if (sameRoom && current2.direction === "outgoing" && current2.phase === "requesting" && incoming.mode === "p2p" && current2.mode === "p2p" && current2.callId && incoming.callId) {
-      return incoming.callId < current2.callId ? "glare-yield" : "glare-keep";
-    }
-    return "busy";
-  };
-  const createSharedRequest = (start) => {
-    const controller = new AbortController();
-    let activeSubscribers = 0;
-    let permanentSubscribers = 0;
-    const promise2 = start(controller.signal);
-    promise2.catch(() => {
-    });
-    return {
-      join(signal) {
-        if (!signal) {
-          permanentSubscribers += 1;
-          return promise2;
-        }
-        if (signal.aborted) {
-          return Promise.reject(new axios.CanceledError("canceled"));
-        }
-        activeSubscribers += 1;
-        return new Promise((resolve2, reject) => {
-          let settled = false;
-          const onAbort = () => {
-            if (settled) return;
-            settled = true;
-            activeSubscribers -= 1;
-            if (activeSubscribers === 0 && permanentSubscribers === 0) {
-              controller.abort();
-            }
-            reject(new axios.CanceledError("canceled"));
-          };
-          signal.addEventListener("abort", onAbort, { once: true });
-          promise2.then(
-            (value) => {
-              if (settled) return;
-              settled = true;
-              signal.removeEventListener("abort", onAbort);
-              resolve2(value);
-            },
-            (error2) => {
-              if (settled) return;
-              settled = true;
-              signal.removeEventListener("abort", onAbort);
-              reject(error2);
-            }
-          );
-        });
-      }
-    };
-  };
-  const GET_ROOMS_CACHE_MS = 6e4;
-  let getRoomsInFlight = null;
-  let getRoomsInFlightToken = "";
-  let lastGetRoomsResponse = null;
-  let lastGetRoomsResponseAt = 0;
-  let lastGetRoomsResponseToken = "";
-  let roomsCacheGeneration = 0;
-  function invalidateRoomsCache() {
-    lastGetRoomsResponse = null;
-    lastGetRoomsResponseAt = 0;
-    lastGetRoomsResponseToken = "";
-    roomsCacheGeneration++;
-  }
-  async function getRooms(signal) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    const now = Date.now();
-    if (lastGetRoomsResponse && lastGetRoomsResponseToken === token2 && now - lastGetRoomsResponseAt < GET_ROOMS_CACHE_MS) {
-      return lastGetRoomsResponse;
-    }
-    if (getRoomsInFlight && getRoomsInFlightToken === token2) {
-      return getRoomsInFlight.join(signal);
-    }
-    getRoomsInFlightToken = token2;
-    const requestGeneration = roomsCacheGeneration;
-    const shared = createSharedRequest(async (sharedSignal) => {
-      const response = await http.get("/v1/chats/my", {
-        headers: {
-          Authorization: token2
-        },
-        signal: sharedSignal
-      });
-      if (roomsCacheGeneration === requestGeneration) {
-        lastGetRoomsResponse = response.data;
-        lastGetRoomsResponseAt = Date.now();
-        lastGetRoomsResponseToken = token2;
-      }
-      return response.data;
-    });
-    getRoomsInFlight = shared;
-    try {
-      return await shared.join(signal);
-    } catch (error2) {
-      if (axios.isCancel(error2)) {
-        throw error2;
-      }
-      ethoraLogger.log("Error loading rooms");
-      return { items: [], failed: true };
-    } finally {
-      getRoomsInFlight = null;
-      getRoomsInFlightToken = "";
-    }
-  }
-  const roomByNameInflight = /* @__PURE__ */ new Map();
-  async function getRoomByName(chatName, signal) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    const key = `${token2}|${chatName}`;
-    const inflight2 = roomByNameInflight.get(key);
-    if (inflight2) return inflight2.join(signal);
-    const shared = createSharedRequest(
-      (sharedSignal) => http.get(`/v1/chats/my/${encodeURIComponent(chatName)}`, {
-        headers: {
-          Authorization: token2
-        },
-        signal: sharedSignal
-      }).then((response) => response.data).catch((error2) => {
-        if (axios.isCancel(error2)) {
-          throw error2;
-        }
-        throw new Error("Error updating profile");
-      }).finally(() => {
-        roomByNameInflight.delete(key);
-      })
-    );
-    roomByNameInflight.set(key, shared);
-    return shared.join(signal);
-  }
-  async function muteRoom(chatName) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.put(
-        `/v1/chats/my/${chatName}/mute`,
-        {},
-        {
-          headers: {
-            Authorization: token2
-          }
-        }
-      );
-      invalidateRoomsCache();
-      return response.data?.result;
-    } catch (error2) {
-      throw new Error("Error muting chat");
-    }
-  }
-  async function unmuteRoom(chatName) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.delete(`/v1/chats/my/${chatName}/mute`, {
-        headers: {
-          Authorization: token2
-        }
-      });
-      invalidateRoomsCache();
-      return response.data?.result;
-    } catch (error2) {
-      throw new Error("Error unmuting chat");
-    }
-  }
-  async function leaveRoom(chatName) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.put(
-        `/v1/chats/my/${chatName}/leave`,
-        {},
-        {
-          headers: {
-            Authorization: token2
-          }
-        }
-      );
-      invalidateRoomsCache();
-      return response.data?.result;
-    } catch (error2) {
-      throw new Error("Error leaving chat");
-    }
-  }
-  async function blockUser(peer) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.post(
-        "/v1/chats/blocked",
-        { user: peer },
-        {
-          headers: {
-            Authorization: token2
-          }
-        }
-      );
-      invalidateRoomsCache();
-      return response.data?.result;
-    } catch (error2) {
-      throw new Error("Error blocking user");
-    }
-  }
-  async function getBlockedUsers() {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.get("/v1/chats/blocked", {
-        headers: {
-          Authorization: token2
-        }
-      });
-      return response.data?.items || [];
-    } catch (error2) {
-      throw new Error("Error loading blocked users");
-    }
-  }
-  async function postRoom(data) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.post("/v1/chats", data, {
-        headers: {
-          Authorization: token2
-        }
-      });
-      return response.data.result;
-    } catch (error2) {
-      throw new Error("Error updating profile");
-    }
-  }
-  async function patchMyChat(chatName, updates) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    await http.patch(
-      `/v1/chats/my/${encodeURIComponent(chatName)}`,
-      updates,
-      { headers: { Authorization: token2 } }
-    );
-    invalidateRoomsCache();
-  }
-  async function postPrivateRoom(username, e2ee = false) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.post(
-        "/v1/chats/private",
-        e2ee ? { username, e2ee: true } : { username },
-        {
-          headers: {
-            Authorization: token2
-          }
-        }
-      );
-      return response.data.result;
-    } catch (error2) {
-      throw new Error("Error updating profile");
-    }
-  }
-  async function postReportRoom(data) {
-    const { chatName, category, text: text2 } = data;
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.post(
-        `/v1/chats/reports/${chatName}`,
-        { category, text: text2 },
-        {
-          headers: {
-            Authorization: token2
-          }
-        }
-      );
-      return response.data.result;
-    } catch (error2) {
-      throw new Error("Error reporting chat");
-    }
-  }
-  async function postAddRoomMember(data) {
-    const { chatName, members } = data;
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.post(
-        `/v1/chats/users-access`,
-        { chatName, members },
-        {
-          headers: {
-            Authorization: token2
-          }
-        }
-      );
-      return response?.data?.results || [];
-    } catch (error2) {
-      throw new Error("Error updating profile");
-    }
-  }
-  async function deleteRoomMember(data) {
-    const { roomId, members } = data;
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.delete(`/v1/chats/users-access`, {
-        headers: {
-          Authorization: token2
-        },
-        data: {
-          chatName: roomId,
-          members
-        }
-      });
-      return response.data.result;
-    } catch (error2) {
-      throw new Error("Error updating profile");
-    }
-  }
-  async function deleteRoom(name2) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    try {
-      const response = await http.delete("/v1/chats", {
-        headers: {
-          Authorization: token2
-        },
-        data: { name: name2 }
-      });
-      return response.data.result;
-    } catch (error2) {
-      throw new Error("Error deleting room");
-    }
-  }
-  async function declineChatCall(callId) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    if (!callId || !token2) return false;
-    try {
-      await http.post(
-        `/v1/chats/call/state/decline/${encodeURIComponent(callId)}`,
-        void 0,
-        { headers: { Authorization: token2 } }
-      );
-      return true;
-    } catch {
-      return false;
-    }
-  }
-  async function createChatCall(chatName, options) {
-    const token2 = store.getState().chatSettingStore.user.token || "";
-    const kind = options?.kind || "video";
-    try {
-      const response = await http.post(
-        `/v1/chats/call/create/${chatName}`,
-        { kind },
-        {
-          headers: {
-            Authorization: token2
-          }
-        }
-      );
-      return parseCallCreateResponse(response?.data, kind);
-    } catch (error2) {
-      throw new Error("Error creating chat call");
-    }
-  }
-  const rooms_api = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-    __proto__: null,
-    blockUser,
-    createChatCall,
-    declineChatCall,
-    deleteRoom,
-    deleteRoomMember,
-    getBlockedUsers,
-    getRoomByName,
-    getRooms,
-    invalidateRoomsCache,
-    leaveRoom,
-    muteRoom,
-    patchMyChat,
-    postAddRoomMember,
-    postPrivateRoom,
-    postReportRoom,
-    postRoom,
-    unmuteRoom
-  }, Symbol.toStringTag, { value: "Module" }));
   const BAD_TITLE_SENTINELS = /* @__PURE__ */ new Set([
     "",
     "deleted",
@@ -60520,40 +61819,6 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     requestUsers([xmppUsername]);
     return null;
   };
-  const isLikelyMucJid = (jid2) => {
-    if (typeof jid2 !== "string" || !jid2) return false;
-    const at2 = jid2.indexOf("@");
-    if (at2 <= 0) return false;
-    const domain2 = jid2.slice(at2 + 1).split("/")[0];
-    return domain2.includes(".") && domain2.startsWith("conference.");
-  };
-  const ROOMS_SLICE_ROOT_KEYS = /* @__PURE__ */ new Set([
-    "rooms",
-    "activeRoomJID",
-    "isChatUiVisible",
-    "isLoading",
-    "editAction",
-    "usersSet",
-    "presenceByRoom",
-    "reportRoom",
-    "subscribedRooms",
-    "pushSubscriptionStatus",
-    "loadingText"
-  ]);
-  const isLikelyRoomLocalpart = (value) => {
-    if (typeof value !== "string") return false;
-    const v2 = value.trim();
-    if (!v2 || v2.includes("@")) return false;
-    if (ROOMS_SLICE_ROOT_KEYS.has(v2)) return false;
-    return v2.includes("_");
-  };
-  const toRoomJid = (chatJID, conference) => {
-    if (typeof chatJID !== "string" || !chatJID) return null;
-    if (chatJID.includes("@")) return chatJID;
-    if (!conference) return null;
-    if (!isLikelyRoomLocalpart(chatJID)) return null;
-    return `${chatJID}@${conference}`;
-  };
   const ACK_CATCHUP_DELAY_MS = 2500;
   const hasEchoLanded = (roomJID, messageId) => {
     const msg = store.getState().rooms.rooms?.[roomJID]?.messages?.find(
@@ -60818,6 +62083,40 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       return fallback;
     }
   };
+  const PAGE_SIZE$2 = 50;
+  const MAX_PAGES = 4;
+  const archiveId = (message) => {
+    const value = Number(message?.id);
+    return Number.isFinite(value) && value > 0 ? value : null;
+  };
+  const restoreTargets = (messages, notice) => (messages || []).filter(
+    (message) => noticeTargets(message, notice) && (needsArchiveRefresh(message) || Boolean(message.senderMasked))
+  );
+  const fetchRestoredMessages = async (client2, roomJID, targets) => {
+    if (!client2?.getHistoryWindow || targets.length === 0) return [];
+    const ids = targets.map(archiveId).filter((id2) => id2 !== null);
+    if (ids.length === 0) return [];
+    const wanted = new Set(targets.map((message) => String(message.id)));
+    const newest = Math.max(...ids);
+    let after = Math.min(...ids) - 1;
+    const found2 = [];
+    for (let page = 0; page < MAX_PAGES; page++) {
+      let result;
+      try {
+        result = await client2.getHistoryWindow(roomJID, PAGE_SIZE$2, { after });
+      } catch {
+        break;
+      }
+      if (!result?.ok || !result.messages?.length) break;
+      for (const message of result.messages) {
+        if (wanted.has(String(message.id))) found2.push(message);
+      }
+      const last = result.last ?? archiveId(result.messages[result.messages.length - 1]);
+      if (result.complete || last === null || last >= newest || last <= after) break;
+      after = last;
+    }
+    return found2;
+  };
   const RECEIPTS_DEFAULTS = {
     mode: "auto",
     deliveryMaxRoomSize: 20,
@@ -60899,7 +62198,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
         rawMessage,
         store.getState().chatSettingStore.user?.xmppUsername || ""
       );
-      if (!message?.body || !String(message.body).trim()) {
+      if ((!message?.body || !String(message.body).trim()) && !message?.moderation) {
         return;
       }
       store.dispatch(
@@ -60989,6 +62288,22 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       return message;
     }
   };
+  const onModerationNotice = (stanza, xmppClient) => {
+    const notice = parseModerationNotice(stanza);
+    if (!notice) return false;
+    const targets = notice.action === "restore" ? restoreTargets(store.getState().rooms.rooms[notice.roomJID]?.messages, notice) : [];
+    store.dispatch(applyModerationNotice(notice));
+    if (targets.length > 0 && xmppClient) {
+      void fetchRestoredMessages(xmppClient, notice.roomJID, targets).then((messages) => {
+        if (messages.length) {
+          store.dispatch(
+            refreshArchivedMessages({ roomJID: notice.roomJID, messages })
+          );
+        }
+      }).catch(() => void 0);
+    }
+    return true;
+  };
   const onReactionMessage = async (stanza) => {
     if (stanza?.attrs?.id?.includes("message-reaction")) {
       const reactions = stanza.getChild("reactions");
@@ -61075,11 +62390,18 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       if (!stanzaId && !replace2) {
         return;
       }
+      const translations = parseTranslationsValue(
+        stanza.getChild("translations")?.attrs?.value
+      );
+      const translationPending = !translations && !!stanza.getChild("translation-pending", TRANSLATE_NS);
       store.dispatch(
         editRoomMessage({
           roomJID: stanzaId.attrs.by,
           messageId: replace2.attrs.id,
-          text: replace2.attrs.text
+          text: replace2.attrs.text,
+          translations,
+          translationPending,
+          receivedAt: Date.now()
         })
       );
     }
@@ -61772,6 +63094,23 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     } catch (error2) {
       console.error("[ChatUpdate] Error processing stanza:", error2);
     }
+  };
+  const onTranslationUpdate = (stanza) => {
+    if (stanza?.name !== "message" || stanza.attrs?.type !== "headline") {
+      return false;
+    }
+    const update = stanza.getChild?.("translation-update", TRANSLATE_NS);
+    if (!update) return false;
+    const roomJID = String(stanza.attrs?.from || "");
+    if (!roomJID || roomJID.includes("/")) return true;
+    if (!store.getState().rooms?.rooms?.[roomJID]) return true;
+    const ids = [update.attrs?.id, update.attrs?.xmppId].filter(
+      (value) => typeof value === "string" && value !== ""
+    );
+    if (!ids.length) return true;
+    const translations = update.attrs?.status === "done" ? parseTranslationsValue(update.attrs?.value) : void 0;
+    store.dispatch(applyTranslationUpdate({ roomJID, ids, translations }));
+    return true;
   };
   const SYSTEM_ACCOUNT_LOCAL = /^([0-9a-fA-F]{24})_\1$/;
   const isSystemAccountSender = (fromJid, expectedDomain) => {
@@ -62629,6 +63968,52 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     );
     return true;
   }
+  const onPeerSuspendedBounce = (stanza) => {
+    if (!isPeerSuspendedBounce(stanza)) return false;
+    const from2 = String(stanza.attrs?.from || "").split("/")[0];
+    const messageId = String(stanza.attrs?.id || "");
+    const state2 = store.getState();
+    const me2 = state2.chatSettingStore?.user?.xmppUsername || "";
+    let roomJID;
+    let peer = "";
+    if (isLikelyMucJid(from2)) {
+      const room = state2.rooms?.rooms?.[from2];
+      if (room) roomJID = from2;
+      peer = getPrivatePeerXmppUsername(room, me2);
+    } else {
+      peer = toPeerKey(from2);
+    }
+    ethoraLogger.log(
+      `[XMPP] message_error peer_suspended id=${messageId} from=${from2}`
+    );
+    if (peer) markPeerSuspendedNow(peer);
+    if (messageId) {
+      store.dispatch(
+        markMessageUndeliverable({
+          messageId,
+          reason: PEER_SUSPENDED_FAILURE,
+          roomJID
+        })
+      );
+      store.dispatch(removeMessageFromHeapById(messageId));
+      clearSendFailureWatchdog(messageId);
+      endSendRetry(messageId);
+    }
+    const call = state2.call;
+    if (peer && call && call.phase !== "idle" && call.direction === "outgoing" && toPeerKey(call.peerXmppUsername || "") === peer) {
+      const settings = state2.chatSettingStore;
+      store.dispatch(
+        setCallError(
+          translateKey(
+            "peer.suspended.notice",
+            settings?.config?.i18n?.locale || settings?.langSource,
+            settings?.config?.i18n?.strings
+          )
+        )
+      );
+    }
+    return true;
+  };
   const unwrapMucsubMessage = (stanza) => {
     const inner = stanza?.getChild?.("event", "http://jabber.org/protocol/pubsub#event")?.getChild?.("items")?.getChild?.("item")?.getChild?.("message");
     return inner || stanza;
@@ -62639,6 +64024,9 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     handleStanza(stanza, xmppWs);
   }
   function handleStanza(stanza, xmppWs) {
+    if (stanza?.name === "message" && onPeerSuspendedBounce(stanza)) {
+      return;
+    }
     if (isE2eeEnabled() && stanza?.name === "message" && encryptedCarrier(stanza)) {
       void decryptAndRedispatch(stanza, xmppWs).catch(
         (err) => ethoraLogger.log("OMEMO: failed to handle encrypted stanza", err)
@@ -62649,6 +64037,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       return;
     }
     if (stanza?.attrs?.type === "headline") {
+      if (onTranslationUpdate(stanza)) return;
       onUserUpdate(stanza, xmppWs);
       onChatUpdate(stanza, xmppWs);
       return;
@@ -62662,6 +64051,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
     switch (stanza.name) {
       case "message": {
         const unwrapped = unwrapMucsubMessage(stanza);
+        if (onModerationNotice(unwrapped, xmppWs)) break;
         onMessageError(unwrapped, xmppWs);
         onReactionMessage(unwrapped);
         onReactionHistory(unwrapped);
@@ -62680,6 +64070,7 @@ Take a look at the reducer(s) handling this action type: ${action.type}.
       }
       case "presence":
         onRoomKicked(stanza);
+        onRoomJoinRefused(stanza);
         onPresenceInRoom(stanza);
         break;
       case "iq":
@@ -63482,6 +64873,10 @@ ${messageId}`;
     async recoverFromAuthFailure(reason) {
       if (!this.credentialsProvider) return false;
       if (this.intentionalLogout) return false;
+      if (isAccountBlocked()) {
+        this.logStep(`auth-recovery:account-blocked:${reason}`);
+        return false;
+      }
       if (this.authRecoveryAttempts >= this.maxAuthRecoveryAttempts) {
         this.logStep(`auth-recovery:exhausted:${reason}`);
         return false;
@@ -63494,6 +64889,11 @@ ${messageId}`;
       } catch (error2) {
         console.warn(`[XMPP] credential refresh failed: ${formatError(error2)}`);
         this.authRecoveryActive = false;
+        return false;
+      }
+      if (isAccountBlocked()) {
+        this.authRecoveryActive = false;
+        this.logStep(`auth-recovery:account-blocked:${reason}`);
         return false;
       }
       this.authFailureDetected = false;
@@ -64070,6 +65470,10 @@ ${messageId}`;
         this.logStep("reconnect:skip-auth-failed");
         return Promise.resolve();
       }
+      if (isAccountBlocked()) {
+        this.logStep("reconnect:skip-account-blocked");
+        return Promise.resolve();
+      }
       if (this.intentionalLogout) {
         this.logStep("reconnect:skip-intentional-logout");
         return Promise.resolve();
@@ -64637,7 +66041,7 @@ ${messageId}`;
             continue;
           }
           const text2 = msg.getChild("body")?.getText();
-          if (!text2) continue;
+          if (!text2 && !parseModerationMarker(msg)) continue;
           const { data, id: id2, body, ...rest } = await getDataFromXml(msg);
           if (!data) continue;
           const rawMessage = await createMessageFromXml({
@@ -65792,6 +67196,10 @@ ${messageId}`;
       }
       if (this.authFailureDetected || this.status === "auth_failed") {
         this.logStep(`scheduleReconnect:skip-auth-failed:${reason}`);
+        return;
+      }
+      if (isAccountBlocked()) {
+        this.logStep(`scheduleReconnect:skip-account-blocked:${reason}`);
         return;
       }
       if (this.reconnectTimer) return;
@@ -67897,7 +69305,7 @@ ${messageId}`;
     if (code2 && TRANSPORT_ERROR_CODES.has(code2)) return false;
     const status = error2?.response?.status;
     if (typeof status !== "number") return true;
-    return status !== 401 && status !== 413;
+    return status !== 401 && status !== 413 && status !== 422;
   };
   const postUpload = (endpoint, formData, token2, onProgress) => http.post(endpoint, formData, {
     headers: {
@@ -69592,6 +71000,8 @@ ${messageId}`;
             };
           }
         }
+        const blocked = accountBlockedRejection();
+        if (blocked) throw blocked;
         const fresh = await fetchFreshXmppPassword();
         if (fresh) {
           return { username: readStoreCreds().username, password: fresh };
@@ -69601,6 +71011,8 @@ ${messageId}`;
       [config?.refreshTokens?.enabled]
     );
     const initializeClient = async (username, password2, xmppSettings, roomsList) => {
+      const blocked = accountBlockedRejection();
+      if (blocked) throw blocked;
       const clientKey = buildXmppClientKey(username, xmppSettings);
       const reusableGlobalClient = getReusableXmppClientByKey(clientKey);
       if (reusableGlobalClient) {
@@ -69669,6 +71081,7 @@ ${messageId}`;
     };
     const reconnectClient = () => {
       if (!client2) return;
+      if (isAccountBlocked()) return;
       if ((client2.status === "error" || client2.status === "offline") && reconnectAttempts < 3) {
         ethoraLogger.log("Attempting to reconnect...");
         client2.reconnect();
@@ -69725,7 +71138,7 @@ ${messageId}`;
           signal: abortController.signal
         });
         if (abortController.signal.aborted) return;
-        if (!resolvedUser) {
+        if (!resolvedUser || isAccountBlocked()) {
           setProviderBootstrapStatus("idle");
           return;
         }
@@ -69847,10 +71260,15 @@ ${messageId}`;
           }
         })();
       };
+      const handleAccountBlocked = () => {
+        resetProviderState();
+      };
       window.addEventListener("ethora-xmpp-logout", handleLogout);
+      window.addEventListener(ACCOUNT_BLOCKED_EVENT, handleAccountBlocked);
       return () => {
         if (typeof window !== "undefined") {
           window.removeEventListener("ethora-xmpp-logout", handleLogout);
+          window.removeEventListener(ACCOUNT_BLOCKED_EVENT, handleAccountBlocked);
         }
       };
     }, [client2, resetProviderState]);
@@ -71293,14 +72711,358 @@ ${messageId}`;
     }, [src]);
     return { src, status: current2.status, onLoad, onError };
   };
+  const InputContainer = gt.div`
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--ethora-radius-lg, 15px) var(--ethora-radius-lg, 15px) 0
+    0;
+  padding: 16px;
+  background-color: var(--ethora-input-bg, var(--ethora-color-bg, #fff));
+  /* The composer is the bottom edge of the chat pane, and a host can round
+     that pane (config.chatRoomStyles sets a border-radius on it). Square
+     bottom corners inside a rounded parent leave the parent's background
+     showing through as an arc in each corner. */
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+  z-index: 1;
+  /* Anchors the @-mention autocomplete dropdown (position: absolute,
+     bottom: 100%) so it renders directly above the composer. */
+  position: relative;
+  box-shadow: var(--ethora-shadow-sm, 0px 0px 24px -4px #12121914);
+  max-width: 100%;
+  /* Composer sits as a flex sibling after the message list - keep it at
+     its natural height instead of letting the column flex layout shrink
+     it if content above overflows. */
+  flex-shrink: 0;
+`;
+  const MessageInputContainer = gt.div`
+  display: flex;
+  /* Buttons stay on the bottom edge as the composer grows with its text. */
+  align-items: flex-end;
+  width: 100%;
+  gap: 16px;
+`;
+  const EmojiPickerPopover = gt.div`
+  position: absolute;
+  bottom: 100%;
+  left: 16px;
+  margin-bottom: 8px;
+  z-index: 6;
+`;
+  const DropOverlay = gt.div`
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ethora-space-3, 12px);
+  pointer-events: none;
+  background: var(--ethora-drop-overlay-bg, rgba(255, 255, 255, 0.72));
+  [data-ethora-color-scheme='dark'] & {
+    background: var(--ethora-drop-overlay-bg, rgba(20, 22, 25, 0.72));
+  }
+  ${fadeInAnimation}
+`;
+  const DropTarget = gt.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--ethora-space-4, 16px);
+  text-align: center;
+  border: 2px dashed var(--ethora-color-primary, #0052cd);
+  border-radius: var(--ethora-radius-lg, 16px);
+  background: var(--ethora-color-primary-soft, #e7edf9);
+  color: var(--ethora-color-primary-text, var(--ethora-color-primary, #0052cd));
+  font-size: var(--ethora-font-size, 16px);
+  font-weight: 600;
+  ${scaleInAnimation}
+`;
+  const MessageInput = gt.input`
+  flex-grow: 1;
+  padding: 10px 12px;
+  border-radius: var(--ethora-radius-md, 12px);
+  border: 1px solid var(--ethora-color-border, #e6e8ec);
+  color: var(--ethora-color-text, #141414);
+  background-color: ${({ $colorBg }) => $colorBg ? $colorBg : "var(--ethora-color-bg-subtle, #f5f7f9)"};
+  max-height: 40px;
+  transition: border-color var(--ethora-motion-fast, 150ms)
+    var(--ethora-motion-ease, ease);
+
+  &:focus {
+    border-color: ${(props) => props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"};
+    outline: 2px solid ${(props) => props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"};
+    outline-offset: 1px;
+  }
+`;
+  const HiddenFileInput = gt.input`
+  display: none;
+`;
+  const Timer = gt.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-left: 10px;
+  color: var(--ethora-color-text, #000);
+`;
+  gt.canvas`
+  width: 100%;
+  height: 40px;
+  background: var(--ethora-color-bg-subtle, #f1f1f1);
+  border-radius: var(--ethora-radius-sm, 8px);
+`;
+  const RecordContainer = gt.div`
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+  const FilePreviewContainer = gt.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--ethora-space-2, 8px);
+  margin-top: var(--ethora-space-2, 8px);
+`;
+  const FilePreview = gt.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border: 1px solid var(--ethora-color-border, #e6e8ec);
+  border-radius: var(--ethora-radius-md, 12px);
+  overflow: hidden;
+  background-color: var(--ethora-color-bg-subtle, #f9f9f9);
+  box-shadow: var(--ethora-shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.06));
+`;
+  const ImagePreview = gt.img`
+  max-width: 80%;
+  max-height: 80%;
+`;
+  const VideoPreview = gt.video`
+  max-width: 80%;
+  max-height: 80%;
+`;
+  const DocumentPreview = gt.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+`;
+  const FilePreviewName = gt.span`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2px 4px;
+  font-size: 10px;
+  line-height: 1.3;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+`;
+  const AttachmentNotice = gt.div`
+  margin-top: var(--ethora-space-2, 8px);
+  padding: 6px 10px;
+  border-radius: var(--ethora-radius-sm, 8px);
+  font-size: 12px;
+  color: var(--ethora-color-danger, #9f0000);
+  background-color: #fdecec;
+  [data-ethora-color-scheme='dark'] & {
+    background-color: rgba(242, 118, 107, 0.15);
+  }
+`;
+  const StyledInput$2 = gt.input`
+  padding: 16px 12px;
+  background-color: ${({ $colorBg }) => $colorBg ? $colorBg : "var(--ethora-color-bg-subtle, #f5f7f9)"};
+  border: 1px solid var(--ethora-color-border, #e6e8ec);
+  outline: none;
+  font-size: var(--ethora-font-size, 16px);
+  color: var(--ethora-color-text, #000);
+  transition:
+    width 0.7s ease-in-out,
+    padding 0.7s ease-in-out,
+    border-color var(--ethora-motion-fast, 150ms) var(--ethora-motion-ease, ease);
+  opacity: 1;
+  z-index: 1;
+  border-radius: var(--ethora-radius-md, 16px);
+  /* Callers set width:100% expecting to match their container's content
+     box (this is how the sibling room-name InputWithLabel is already
+     built - see StyledInput.tsx). Without box-sizing:border-box, the
+     12px/16px padding + 1px border add ON TOP of that 100%, so the input
+     renders ~26px wider than its slot. ModalContainer sets overflow-y:auto
+     with overflow-x otherwise 'visible', which the spec computes to 'auto'
+     for the other axis too - so that overflow silently became a hidden
+     horizontal scroll region instead of an obviously-wrong overflowing box,
+     and the right edge (border/focus ring) of this search input got
+     clipped inside the modal. */
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: var(--ethora-color-primary, #0052cd);
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: 1px;
+  }
+
+  &::placeholder {
+    opacity: 1;
+    transition: opacity 0.7s ease-in-out;
+  }
+`;
+  const TextareaWrapper = gt.div`
+  flex-grow: 1;
+  position: relative;
+  border-radius: var(--ethora-radius-md, 12px);
+  background-color: ${({ $colorBg }) => $colorBg ? $colorBg : "var(--ethora-color-bg-subtle, #f5f7f9)"};
+  padding: 2px;
+  /* Height follows the textarea (auto-sized from its content), so a second
+     line is never clipped. min-height keeps the single-line field at 40px. */
+  height: auto;
+  min-height: 40px;
+  box-sizing: border-box;
+  transition:
+    border-color var(--ethora-motion-fast, 150ms) var(--ethora-motion-ease, ease);
+  border: 1px solid
+    ${(props) => props.$isFocused ? props.$color || "var(--ethora-color-primary, #0052CD)" : "var(--ethora-color-border, #e6e8ec)"};
+  outline: ${(props) => props.$isFocused ? `2px solid ${props.$color || "var(--ethora-color-primary, #0052CD)"}` : "none"};
+  outline-offset: 1px;
+`;
+  const TextareaInput = gt.textarea`
+  width: 100%;
+  display: block;
+  /* Height is set in px by fitTextareaToContent (helpers/textareaFit). */
+  min-height: 34px;
+  max-height: 140px;
+  /* 7px above and below one line (34px box). Two lines or more use 5px, set
+     by the data-multiline attribute, so the text stays evenly padded. */
+  padding: 7px 12px;
+  &[data-multiline] {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  border-radius: var(--ethora-radius-sm, 10px);
+  border: none;
+  color: var(--ethora-color-text, #141414);
+  background-color: ${({ $colorBg }) => $colorBg ? $colorBg : "var(--ethora-color-bg-subtle, #f5f7f9)"};
+  line-height: 20px;
+  font-size: inherit;
+  font-family: inherit;
+  /* Never show scrollbar for a single line (<= 40px) */
+  overflow-x: hidden;
+  overflow-y: hidden;
+  resize: none;
+  box-sizing: border-box;
+
+  &[data-scrollable] {
+    overflow-y: auto;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  /* Custom scrollbar styling for WebKit browsers (Chrome, Safari, Edge) */
+  &::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"};
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: ${(props) => props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"};
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Firefox scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: ${(props) => `${props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"} transparent`};
+`;
+  const SuspendedPeerTestIds = {
+    badge: "suspended_peer_badge",
+    notice: "suspended_peer_notice"
+  };
+  const Badge$2 = gt.span`
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  max-width: 100%;
+  padding: 1px 6px;
+  border-radius: var(--ethora-radius-full, 999px);
+  background-color: var(--ethora-color-bg-subtle, rgba(140, 140, 140, 0.12));
+  border: 1px solid var(--ethora-color-border, rgba(140, 140, 140, 0.35));
+  color: var(--ethora-color-text-muted, #8c8c8c);
+  font-family: var(--ethora-font-family, inherit);
+  font-size: var(--ethora-font-size-xs, 11px);
+  font-style: normal;
+  font-weight: var(--ethora-font-weight-medium, 500);
+  line-height: 16px;
+  white-space: nowrap;
+  vertical-align: middle;
+`;
+  const SuspendedBadge = ({
+    style
+  }) => {
+    const t2 = useT();
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Badge$2,
+      {
+        "data-testid": SuspendedPeerTestIds.badge,
+        title: t2("user.suspendedAccount"),
+        style,
+        children: t2("peer.suspended.badge")
+      }
+    );
+  };
+  const NoticeText = gt.p`
+  margin: 0;
+  text-align: center;
+  color: var(--ethora-color-text-muted, #8c8c8c);
+  font-family: var(--ethora-font-family, inherit);
+  font-size: var(--ethora-font-size-sm, 14px);
+  line-height: 1.45;
+`;
+  const SuspendedPeerNotice = () => {
+    const t2 = useT();
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(InputContainer, { role: "status", "data-testid": SuspendedPeerTestIds.notice, children: /* @__PURE__ */ jsxRuntimeExports.jsx(NoticeText, { children: t2("peer.suspended.notice") }) });
+  };
+  const suspendedAvatarStyle = {
+    filter: "grayscale(1)",
+    opacity: 0.55
+  };
   const MessageAvatarPhoto = ({
     src,
     username,
-    style
+    style: baseStyle2,
+    greyed = false
   }) => {
     const image2 = useAvatarImage(src);
     const showImage = !!image2.src && image2.status !== "failed";
     const loaded2 = image2.status === "loaded";
+    const style = greyed ? { ...baseStyle2, ...suspendedAvatarStyle } : baseStyle2;
     if (!showImage) return /* @__PURE__ */ jsxRuntimeExports.jsx(Avatar$1, { username, style });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
@@ -71308,10 +73070,11 @@ ${messageId}`;
         style: {
           position: "relative",
           width: "var(--ethora-message-avatar-size, 40px)",
-          height: "var(--ethora-message-avatar-size, 40px)"
+          height: "var(--ethora-message-avatar-size, 40px)",
+          ...greyed ? suspendedAvatarStyle : {}
         },
         children: [
-          !loaded2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Avatar$1, { username, style }),
+          !loaded2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Avatar$1, { username, style: baseStyle2 }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "img",
             {
@@ -71426,7 +73189,7 @@ ${messageId}`;
   overflow: hidden;
   box-shadow: var(--ethora-shadow-lg, 0 12px 32px rgba(16, 24, 40, 0.18));
 `;
-  const IconBadge = gt.span`
+  const IconBadge$1 = gt.span`
   flex-shrink: 0;
   width: 22px;
   height: 22px;
@@ -71444,7 +73207,7 @@ ${messageId}`;
   flex: 1;
   min-width: 0;
 `;
-  const Title$2 = gt.strong`
+  const Title$4 = gt.strong`
   display: block;
   font-size: var(--ethora-font-size-sm, 14px);
   font-weight: 600;
@@ -71472,9 +73235,9 @@ ${messageId}`;
     duration = 3e3
   }) => {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(ToastContainer, { $type: type, $duration: duration, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(IconBadge, { $type: type, "aria-hidden": "true", children: TYPE_ICON[type] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(IconBadge$1, { $type: type, "aria-hidden": "true", children: TYPE_ICON[type] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Body$3, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Title$2, { children: title }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Title$4, { children: title }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Message$1, { children: message })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(ProgressBar, { $type: type, $duration: duration })
@@ -72975,7 +74738,7 @@ ${messageId}`;
       )
     }
   );
-  const LockIcon = ({
+  const LockIcon$1 = ({
     color: color2 = "var(--ethora-icon-color, #8C8C8C)",
     ...props
   }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -73168,7 +74931,7 @@ ${messageId}`;
   box-sizing: border-box;
   width: 100%;
 `;
-  const Card$2 = gt.div`
+  const Card$3 = gt.div`
   width: 100%;
   max-width: 380px;
   box-sizing: border-box;
@@ -73189,7 +74952,7 @@ ${messageId}`;
   color: var(--ethora-color-text-secondary, #5a5f66);
   font-size: 13px;
 `;
-  const Badge = gt.span`
+  const Badge$1 = gt.span`
   margin-inline-start: auto;
   padding: 2px 8px;
   border-radius: var(--ethora-radius-full, 999px);
@@ -73198,7 +74961,7 @@ ${messageId}`;
   color: ${({ $tone }) => $tone === "live" ? "var(--ethora-color-text-on-primary, #fff)" : $tone === "danger" ? "var(--ethora-color-danger, #d92d20)" : "var(--ethora-color-text-secondary, #5a5f66)"};
   background: ${({ $tone }) => $tone === "live" ? "var(--ethora-color-success, #12b76a)" : "var(--ethora-color-bg-subtle, #f5f7fa)"};
 `;
-  const Title$1 = gt.div`
+  const Title$3 = gt.div`
   font-size: 16px;
   font-weight: 600;
   overflow-wrap: anywhere;
@@ -73232,7 +74995,7 @@ ${messageId}`;
     border-radius: 4px;
   }
 `;
-  const Actions = gt.div`
+  const Actions$1 = gt.div`
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -73322,7 +75085,7 @@ ${messageId}`;
     }, [dispatch, getState, meta.slug, message.roomJid, showToast, t2]);
     const badge = phase === "cancelled" ? { tone: "danger", text: t2("scheduledCall.status.cancelled") } : phase === "ended" ? { tone: "neutral", text: t2("scheduledCall.status.ended") } : phase === "joinable" ? { tone: "live", text: t2("scheduledCall.status.open") } : meta.status === "updated" ? { tone: "neutral", text: t2("scheduledCall.status.updated") } : null;
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Row$8, { "data-testid": "scheduled-call-card", "data-phase": phase, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      Card$2,
+      Card$3,
       {
         $muted: phase === "ended" || phase === "cancelled",
         role: "group",
@@ -73340,9 +75103,9 @@ ${messageId}`;
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: meta.kind === "audio" ? t2("scheduledCall.kind.audio") : t2("scheduledCall.kind.video") }),
-            badge && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { $tone: badge.tone, children: badge.text })
+            badge && /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { $tone: badge.tone, children: badge.text })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Title$1, { $struck: struck, children: title }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { $struck: struck, children: title }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(When, { $struck: struck, children: [
             formatScheduledDay(meta.startAt, locale),
             ", ",
@@ -73384,7 +75147,7 @@ ${messageId}`;
               }
             )
           ] }),
-          open && (canJoin || canManage) && /* @__PURE__ */ jsxRuntimeExports.jsxs(Actions, { children: [
+          open && (canJoin || canManage) && /* @__PURE__ */ jsxRuntimeExports.jsxs(Actions$1, { children: [
             canJoin && /* @__PURE__ */ jsxRuntimeExports.jsx(
               Button,
               {
@@ -74063,7 +75826,7 @@ ${messageId}`;
       };
     }, []);
   }
-  const Scrim$1 = gt.div`
+  const Scrim$2 = gt.div`
   position: absolute;
   inset: 0;
   z-index: 5;
@@ -74074,7 +75837,7 @@ ${messageId}`;
   background: var(--ethora-color-overlay, rgba(0, 0, 0, 0.5));
   ${fadeInAnimation}
 `;
-  const Card$1 = gt.div`
+  const Card$2 = gt.div`
   display: flex;
   flex-direction: column;
   gap: var(--ethora-space-3, 12px);
@@ -74166,14 +75929,14 @@ ${messageId}`;
     );
     if (!visible || !message) return null;
     return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Scrim$1,
+      Scrim$2,
       {
         "data-testid": "archived-message-card",
         onClick: (event) => {
           if (event.target === event.currentTarget)
             dispatch(clearArchivedMessage());
         },
-        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { role: "dialog", "aria-label": t2("search.messages.archivedTitle"), children: [
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$2, { role: "dialog", "aria-label": t2("search.messages.archivedTitle"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Head, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: message.sender }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Meta$2, { children: formatWhen$1(message.createdAt) })
@@ -75242,296 +77005,6 @@ ${messageId}`;
   const MessageList$1 = React.memo(MessageList);
   var reactDomExports = requireReactDom();
   const useAppDispatch = useDispatch;
-  const InputContainer = gt.div`
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--ethora-radius-lg, 15px) var(--ethora-radius-lg, 15px) 0
-    0;
-  padding: 16px;
-  background-color: var(--ethora-input-bg, var(--ethora-color-bg, #fff));
-  /* The composer is the bottom edge of the chat pane, and a host can round
-     that pane (config.chatRoomStyles sets a border-radius on it). Square
-     bottom corners inside a rounded parent leave the parent's background
-     showing through as an arc in each corner. */
-  border-bottom-left-radius: inherit;
-  border-bottom-right-radius: inherit;
-  z-index: 1;
-  /* Anchors the @-mention autocomplete dropdown (position: absolute,
-     bottom: 100%) so it renders directly above the composer. */
-  position: relative;
-  box-shadow: var(--ethora-shadow-sm, 0px 0px 24px -4px #12121914);
-  max-width: 100%;
-  /* Composer sits as a flex sibling after the message list - keep it at
-     its natural height instead of letting the column flex layout shrink
-     it if content above overflows. */
-  flex-shrink: 0;
-`;
-  const MessageInputContainer = gt.div`
-  display: flex;
-  /* Buttons stay on the bottom edge as the composer grows with its text. */
-  align-items: flex-end;
-  width: 100%;
-  gap: 16px;
-`;
-  const EmojiPickerPopover = gt.div`
-  position: absolute;
-  bottom: 100%;
-  left: 16px;
-  margin-bottom: 8px;
-  z-index: 6;
-`;
-  const DropOverlay = gt.div`
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--ethora-space-3, 12px);
-  pointer-events: none;
-  background: var(--ethora-drop-overlay-bg, rgba(255, 255, 255, 0.72));
-  [data-ethora-color-scheme='dark'] & {
-    background: var(--ethora-drop-overlay-bg, rgba(20, 22, 25, 0.72));
-  }
-  ${fadeInAnimation}
-`;
-  const DropTarget = gt.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  padding: var(--ethora-space-4, 16px);
-  text-align: center;
-  border: 2px dashed var(--ethora-color-primary, #0052cd);
-  border-radius: var(--ethora-radius-lg, 16px);
-  background: var(--ethora-color-primary-soft, #e7edf9);
-  color: var(--ethora-color-primary-text, var(--ethora-color-primary, #0052cd));
-  font-size: var(--ethora-font-size, 16px);
-  font-weight: 600;
-  ${scaleInAnimation}
-`;
-  const MessageInput = gt.input`
-  flex-grow: 1;
-  padding: 10px 12px;
-  border-radius: var(--ethora-radius-md, 12px);
-  border: 1px solid var(--ethora-color-border, #e6e8ec);
-  color: var(--ethora-color-text, #141414);
-  background-color: ${({ $colorBg }) => $colorBg ? $colorBg : "var(--ethora-color-bg-subtle, #f5f7f9)"};
-  max-height: 40px;
-  transition: border-color var(--ethora-motion-fast, 150ms)
-    var(--ethora-motion-ease, ease);
-
-  &:focus {
-    border-color: ${(props) => props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"};
-    outline: 2px solid ${(props) => props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"};
-    outline-offset: 1px;
-  }
-`;
-  const HiddenFileInput = gt.input`
-  display: none;
-`;
-  const Timer = gt.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: bold;
-  margin-left: 10px;
-  color: var(--ethora-color-text, #000);
-`;
-  gt.canvas`
-  width: 100%;
-  height: 40px;
-  background: var(--ethora-color-bg-subtle, #f1f1f1);
-  border-radius: var(--ethora-radius-sm, 8px);
-`;
-  const RecordContainer = gt.div`
-  height: 40px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-`;
-  const FilePreviewContainer = gt.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: var(--ethora-space-2, 8px);
-  margin-top: var(--ethora-space-2, 8px);
-`;
-  const FilePreview = gt.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100px;
-  height: 100px;
-  border: 1px solid var(--ethora-color-border, #e6e8ec);
-  border-radius: var(--ethora-radius-md, 12px);
-  overflow: hidden;
-  background-color: var(--ethora-color-bg-subtle, #f9f9f9);
-  box-shadow: var(--ethora-shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.06));
-`;
-  const ImagePreview = gt.img`
-  max-width: 80%;
-  max-height: 80%;
-`;
-  const VideoPreview = gt.video`
-  max-width: 80%;
-  max-height: 80%;
-`;
-  const DocumentPreview = gt.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-`;
-  const FilePreviewName = gt.span`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 2px 4px;
-  font-size: 10px;
-  line-height: 1.3;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.55);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-`;
-  const AttachmentNotice = gt.div`
-  margin-top: var(--ethora-space-2, 8px);
-  padding: 6px 10px;
-  border-radius: var(--ethora-radius-sm, 8px);
-  font-size: 12px;
-  color: var(--ethora-color-danger, #9f0000);
-  background-color: #fdecec;
-  [data-ethora-color-scheme='dark'] & {
-    background-color: rgba(242, 118, 107, 0.15);
-  }
-`;
-  const StyledInput$2 = gt.input`
-  padding: 16px 12px;
-  background-color: ${({ $colorBg }) => $colorBg ? $colorBg : "var(--ethora-color-bg-subtle, #f5f7f9)"};
-  border: 1px solid var(--ethora-color-border, #e6e8ec);
-  outline: none;
-  font-size: var(--ethora-font-size, 16px);
-  color: var(--ethora-color-text, #000);
-  transition:
-    width 0.7s ease-in-out,
-    padding 0.7s ease-in-out,
-    border-color var(--ethora-motion-fast, 150ms) var(--ethora-motion-ease, ease);
-  opacity: 1;
-  z-index: 1;
-  border-radius: var(--ethora-radius-md, 16px);
-  /* Callers set width:100% expecting to match their container's content
-     box (this is how the sibling room-name InputWithLabel is already
-     built - see StyledInput.tsx). Without box-sizing:border-box, the
-     12px/16px padding + 1px border add ON TOP of that 100%, so the input
-     renders ~26px wider than its slot. ModalContainer sets overflow-y:auto
-     with overflow-x otherwise 'visible', which the spec computes to 'auto'
-     for the other axis too - so that overflow silently became a hidden
-     horizontal scroll region instead of an obviously-wrong overflowing box,
-     and the right edge (border/focus ring) of this search input got
-     clipped inside the modal. */
-  box-sizing: border-box;
-
-  &:focus {
-    border-color: var(--ethora-color-primary, #0052cd);
-    outline: 2px solid var(--ethora-color-primary, #0052cd);
-    outline-offset: 1px;
-  }
-
-  &::placeholder {
-    opacity: 1;
-    transition: opacity 0.7s ease-in-out;
-  }
-`;
-  const TextareaWrapper = gt.div`
-  flex-grow: 1;
-  position: relative;
-  border-radius: var(--ethora-radius-md, 12px);
-  background-color: ${({ $colorBg }) => $colorBg ? $colorBg : "var(--ethora-color-bg-subtle, #f5f7f9)"};
-  padding: 2px;
-  /* Height follows the textarea (auto-sized from its content), so a second
-     line is never clipped. min-height keeps the single-line field at 40px. */
-  height: auto;
-  min-height: 40px;
-  box-sizing: border-box;
-  transition:
-    border-color var(--ethora-motion-fast, 150ms) var(--ethora-motion-ease, ease);
-  border: 1px solid
-    ${(props) => props.$isFocused ? props.$color || "var(--ethora-color-primary, #0052CD)" : "var(--ethora-color-border, #e6e8ec)"};
-  outline: ${(props) => props.$isFocused ? `2px solid ${props.$color || "var(--ethora-color-primary, #0052CD)"}` : "none"};
-  outline-offset: 1px;
-`;
-  const TextareaInput = gt.textarea`
-  width: 100%;
-  display: block;
-  /* Height is set in px by fitTextareaToContent (helpers/textareaFit). */
-  min-height: 34px;
-  max-height: 140px;
-  /* 7px above and below one line (34px box). Two lines or more use 5px, set
-     by the data-multiline attribute, so the text stays evenly padded. */
-  padding: 7px 12px;
-  &[data-multiline] {
-    padding-top: 5px;
-    padding-bottom: 5px;
-  }
-  border-radius: var(--ethora-radius-sm, 10px);
-  border: none;
-  color: var(--ethora-color-text, #141414);
-  background-color: ${({ $colorBg }) => $colorBg ? $colorBg : "var(--ethora-color-bg-subtle, #f5f7f9)"};
-  line-height: 20px;
-  font-size: inherit;
-  font-family: inherit;
-  /* Never show scrollbar for a single line (<= 40px) */
-  overflow-x: hidden;
-  overflow-y: hidden;
-  resize: none;
-  box-sizing: border-box;
-
-  &[data-scrollable] {
-    overflow-y: auto;
-  }
-
-  &:focus {
-    outline: none;
-  }
-
-  /* Custom scrollbar styling for WebKit browsers (Chrome, Safari, Edge) */
-  &::-webkit-scrollbar {
-    width: 2px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 0;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"};
-    border-radius: 2px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: ${(props) => props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"};
-  }
-
-  &::-webkit-scrollbar-corner {
-    background: transparent;
-  }
-
-  /* Firefox scrollbar styling */
-  scrollbar-width: thin;
-  scrollbar-color: ${(props) => `${props.$color ? props.$color : "var(--ethora-color-primary, #0052CD)"} transparent`};
-`;
   const pulse = Et`
   0% {
     transform: scale(1);
@@ -76110,8 +77583,8 @@ ${messageId}`;
     const contentH = Math.max(scrollHeight - singlePad, COMPOSER_LINE_HEIGHT);
     const lines = Math.max(1, Math.round(contentH / COMPOSER_LINE_HEIGHT));
     const multiline = lines >= 2;
-    const pad = multiline ? COMPOSER_PAD_MULTI * 2 : singlePad;
-    const natural = lines * COMPOSER_LINE_HEIGHT + pad;
+    const pad3 = multiline ? COMPOSER_PAD_MULTI * 2 : singlePad;
+    const natural = lines * COMPOSER_LINE_HEIGHT + pad3;
     return {
       height: Math.min(natural, COMPOSER_MAX_HEIGHT),
       multiline,
@@ -76483,11 +77956,11 @@ ${messageId}`;
   font-size: 24px;
   font-weight: 400;
 `;
-  const Label$4 = gt.span`
+  const Label$5 = gt.span`
   color: var(--ethora-color-text, #141414);
   font-size: 16px;
 `;
-  const ActionButton = gt(Button)`
+  const ActionButton$1 = gt(Button)`
   width: 100%;
 `;
   gt.div`
@@ -76548,7 +78021,7 @@ ${messageId}`;
   accent-color: var(--ethora-color-primary, #0052cd);
   cursor: pointer;
 `;
-  const Label$3 = gt.span`
+  const Label$4 = gt.span`
   font-size: var(--ethora-font-size-sm, 14px);
   color: var(--ethora-color-text, #141414);
   overflow: hidden;
@@ -77124,12 +78597,12 @@ ${messageId}`;
       };
     }, [enabled2]);
   };
-  const Backdrop = gt.div`
+  const Backdrop$1 = gt.div`
   position: fixed; inset: 0; z-index: 2147483647;
   display: flex; align-items: center; justify-content: center;
   background: rgba(0, 0, 0, .55); padding: 16px;
 `;
-  const Panel$1 = gt.div`
+  const Panel$2 = gt.div`
   box-sizing: border-box; width: min(100%, 640px); max-height: 100%; overflow: auto;
   background: var(--ethora-color-bg, #fff); color: var(--ethora-color-text, #171717);
   border-radius: 16px; padding: 20px;
@@ -77196,12 +78669,12 @@ ${messageId}`;
       }, "image/png");
     };
     return reactDomExports.createPortal(
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Backdrop, { onMouseDown: (event) => {
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Backdrop$1, { onMouseDown: (event) => {
         if (event.target === event.currentTarget) onCancel();
       }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: cropStyles }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Panel$1,
+          Panel$2,
           {
             ref: panelRef,
             role: "dialog",
@@ -77258,7 +78731,8 @@ ${messageId}`;
     placeholderIcon,
     disableOverlay,
     fileInputId = "avatar-file-input",
-    online = false
+    online = false,
+    greyed = false
   }) => {
     const colors = useSelector(
       (state2) => state2.chatSettingStore.config?.colors
@@ -77330,7 +78804,8 @@ ${messageId}`;
                 fontSize: size >= 64 ? "24px" : "18px",
                 ...iconColor ? { color: iconColor } : {},
                 cursor: "pointer",
-                position: "relative"
+                position: "relative",
+                ...greyed ? suspendedAvatarStyle : {}
               },
               children: [
                 !imageLoaded && (placeholderIcon ?? getInitials()),
@@ -77373,7 +78848,7 @@ ${messageId}`;
             setCropFile(null);
             upload?.onUpload(file);
           } }),
-          online && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          online && !greyed && /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
             {
               "aria-label": "online",
@@ -77513,7 +78988,7 @@ ${messageId}`;
                     size: 36
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(UserItemInfo, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Label$3, { children: fullName2 || user.xmppUsername }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(UserItemInfo, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Label$4, { children: fullName2 || user.xmppUsername }) }),
                 !singleSelect && /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Checkbox,
                   {
@@ -77551,7 +79026,7 @@ ${messageId}`;
             role: "button",
             tabIndex: 0,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Label$3,
+              Label$4,
               {
                 style: {
                   color: "var(--ethora-color-primary-text, var(--ethora-color-primary, #0052CD))",
@@ -78612,13 +80087,13 @@ ${messageId}`;
     const handleKeyDown = (e2) => {
       props.onKeyDown?.(e2);
       if (e2.defaultPrevented) return;
-      if (e2.key === "Escape" && onClear && hasText) {
+      if (e2.key === "Escape" && onClear && hasText2) {
         e2.preventDefault();
         e2.stopPropagation();
         handleClear();
       }
     };
-    const hasText = String(props.value ?? "").length > 0;
+    const hasText2 = String(props.value ?? "").length > 0;
     reactExports.useEffect(() => {
       if (isExpanded && animated) {
         const timeout2 = setTimeout(() => {
@@ -78657,7 +80132,7 @@ ${messageId}`;
               onKeyDown: handleKeyDown
             }
           ),
-          onClear && hasText && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          onClear && hasText2 && /* @__PURE__ */ jsxRuntimeExports.jsx(
             ClearButton,
             {
               type: "button",
@@ -78781,7 +80256,7 @@ ${messageId}`;
                 },
                 children: [
                   option.icon,
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Label$2, { style: { ...option?.styles }, children: option.label })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Label$3, { style: { ...option?.styles }, children: option.label })
                 ]
               }
             ),
@@ -78825,7 +80300,7 @@ ${messageId}`;
     background-color: var(--ethora-color-bg-hover, #f0f2f5);
   }
 `;
-  const Label$2 = gt.span`
+  const Label$3 = gt.span`
   margin-left: 2px;
   font-size: var(--ethora-font-size, 14px);
   color: var(--ethora-color-text, #141414);
@@ -78863,7 +80338,7 @@ ${messageId}`;
   justify-content: start;
   align-items: start;
 `;
-  const Label$1 = gt.label`
+  const Label$2 = gt.label`
   font-size: var(--ethora-font-size-sm, 14px);
   color: #8c8c8c;
   [data-ethora-color-scheme='dark'] & {
@@ -78909,7 +80384,7 @@ ${messageId}`;
     ...rest
   }) => {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(InputWrapper, { children: [
-      label && /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: label }),
+      label && /* @__PURE__ */ jsxRuntimeExports.jsx(Label$2, { children: label }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(StyledInput, { color: color2, $colorBg: colorBg, $error: error2, ...rest }),
       helperText && /* @__PURE__ */ jsxRuntimeExports.jsx(HelperText, { $error: error2, children: helperText })
     ] });
@@ -80137,6 +81612,7 @@ ${messageId}`;
       const m2 = messages[i2];
       if (!m2) continue;
       if (m2.isDeleted || m2.body || m2.emoji || hasMediaPreview(m2)) return m2;
+      if (m2.moderation) return m2;
     }
     return lastMessage ?? void 0;
   };
@@ -80147,7 +81623,7 @@ ${messageId}`;
       name2 && /* @__PURE__ */ jsxRuntimeExports.jsx(LastRoomMessageName, { "data-testid": "last-message-name", children: name2 }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(LastRoomMessageMedia, { "data-testid": "last-message-line", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
-          LockIcon,
+          LockIcon$1,
           {
             width: 14,
             height: 14,
@@ -80161,6 +81637,22 @@ ${messageId}`;
   const LastMessageItem = ({ lastMessage, sealed }) => {
     const t2 = useT();
     const { body, emoji } = lastMessage;
+    const moderation = lastMessage?.isDeleted ? void 0 : lastMessage?.moderation;
+    if (moderation?.action === "blur" || moderation?.action === "hidden") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(LastRoomMessageContainer, { "data-testid": "last-message-block", children: [
+        lastMessage.user?.name && /* @__PURE__ */ jsxRuntimeExports.jsx(LastRoomMessageName, { "data-testid": "last-message-name", children: lastMessage.user.name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          LastRoomMessageText,
+          {
+            "data-testid": "last-message-line",
+            style: { fontStyle: "italic", opacity: 0.7 },
+            children: moderation.action === "hidden" ? t2("ts.message.hidden") : t2(
+              isPersonalInfoCategory(moderation.category) ? "ts.message.blurredPersonalShort" : "ts.message.blurredShort"
+            )
+          }
+        )
+      ] });
+    }
     if (lastMessage?.isDeleted) {
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(LastRoomMessageContainer, { "data-testid": "last-message-block", children: [
         lastMessage.user?.name && /* @__PURE__ */ jsxRuntimeExports.jsx(LastRoomMessageName, { "data-testid": "last-message-name", children: lastMessage.user.name }),
@@ -80327,6 +81819,48 @@ ${messageId}`;
     roomRow: "room_row",
     searchInput: "rooms_search_input"
   };
+  const selectDisabled = (state2) => state2.chatSettingStore?.config?.disableSuspendedPeers === true;
+  const usePeerSuspended = (xmppUsername) => {
+    const key = toPeerKey(xmppUsername || "");
+    const disabled = useSelector(selectDisabled);
+    const suspended = useSelector(
+      (state2) => key ? state2.trustSafety?.peers?.[key]?.suspended === true : false
+    );
+    reactExports.useEffect(() => {
+      if (!key || disabled) return;
+      return watchSuspendedStatus(key);
+    }, [key, disabled]);
+    return suspended && !disabled;
+  };
+  const usePrivatePeerXmppUsername = (room) => {
+    const me2 = useSelector(
+      (state2) => state2.chatSettingStore?.user?.xmppUsername || ""
+    );
+    return reactExports.useMemo(() => getPrivatePeerXmppUsername(room, me2), [room, me2]);
+  };
+  const RECHECK_INTERVAL_MS = 60 * 1e3;
+  const selectTargetsKey = createSelector(
+    [
+      (state2) => state2.rooms?.rooms,
+      (state2) => state2.rooms?.activeRoomJID,
+      (state2) => state2.chatSettingStore?.user?.xmppUsername
+    ],
+    (rooms, activeRoomJID, me2) => collectSuspendedLookupTargets(rooms, activeRoomJID, me2).join(",")
+  );
+  const useSuspendedPeerLookups = () => {
+    const disabled = useSelector(selectDisabled);
+    const targetsKey = useSelector(selectTargetsKey);
+    reactExports.useEffect(() => {
+      if (disabled || !targetsKey) return;
+      const targets = targetsKey.split(",");
+      requestSuspendedStatus(targets);
+      const timer = setInterval(
+        () => requestSuspendedStatus(targets),
+        RECHECK_INTERVAL_MS
+      );
+      return () => clearInterval(timer);
+    }, [targetsKey, disabled]);
+  };
   const MOBILE_BREAKPOINT_PX = 767;
   const ChatRoomItem = ({
     chat,
@@ -80350,6 +81884,7 @@ ${messageId}`;
       (state2) => peerKey ? state2.rooms.usersSet?.[peerKey] ?? state2.rooms.usersSet?.[peerLocalKey] : void 0
     );
     const peerProfileImage = peer?.profileImage || peerUsersSetEntry?.profileImage || "";
+    const peerSuspended = usePeerSuspended(isPrivateRoom2 ? peerKey : "");
     const showOnlineUsersPopover = !isPrivateRoom2 && onlineUsers.length > 0;
     const previewSourceMessage = pickPreviewSource(
       chat?.messages,
@@ -80383,7 +81918,10 @@ ${messageId}`;
         );
         const real = named.find((c2) => !c2.includes("@"));
         const mail = named.find((c2) => c2.includes("@"));
-        const safeName = isOwn ? t2("search.messages.you") : real || (mail ? mail.split("@")[0] : idFallback[0] || "");
+        const safeName = isOwn ? t2("search.messages.you") : message?.senderMasked ? (
+          // Trust & Safety: a suspension masked this sender's name.
+          t2("user.suspendedAccount")
+        ) : real || (mail ? mail.split("@")[0] : idFallback[0] || "");
         return {
           ...message,
           // Call logs bake an English sentence into `body` when the stanza
@@ -80491,6 +82029,7 @@ ${messageId}`;
                 fileToken
               ),
               online: peerOnline,
+              greyed: peerSuspended,
               size: 44
             }
           ),
@@ -80533,13 +82072,14 @@ ${messageId}`;
                           },
                           children: [
                             /* @__PURE__ */ jsxRuntimeExports.jsx(ChatName, { style: { minWidth: 0 }, children: displayName2 }),
+                            peerSuspended && /* @__PURE__ */ jsxRuntimeExports.jsx(SuspendedBadge, {}),
                             chat?.e2ee && /* @__PURE__ */ jsxRuntimeExports.jsx(
                               "span",
                               {
                                 title: t2("e2ee.roomEncrypted"),
                                 style: { display: "inline-flex", flexShrink: 0 },
                                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                  LockIcon,
+                                  LockIcon$1,
                                   {
                                     width: 14,
                                     height: 14,
@@ -80610,7 +82150,7 @@ ${messageId}`;
                           usersTyping: chat.composingList,
                           style: { color: "var(--ethora-color-text, #141414)" }
                         }
-                      ) : lastMessage?.body || lastMessage?.isDeleted || hasMediaPreview(lastMessage) ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      ) : lastMessage?.body || lastMessage?.isDeleted || lastMessage?.moderation || hasMediaPreview(lastMessage) ? /* @__PURE__ */ jsxRuntimeExports.jsx(
                         LastMessageItem,
                         {
                           lastMessage,
@@ -83449,6 +84989,7 @@ ${messageId}`;
       (state2) => peerKey ? state2.rooms.usersSet?.[peerKey] ?? state2.rooms.usersSet?.[peerLocalKey] : void 0
     );
     const peerProfileImage = peer?.profileImage || peerUsersSetEntry?.profileImage || "";
+    const peerSuspended = usePeerSuspended(isPrivateRoom2 ? peerKey : "");
     const canBlock = isPrivateRoom2 && !!peer?.xmppUsername && config?.features?.userBlock === true && !config?.disableUserBlock;
     const isRoomAllowed = isCallRoomTypeAllowed(
       currentRoom?.type,
@@ -83456,7 +84997,7 @@ ${messageId}`;
     );
     const hasLivekitUrl = Boolean(videoCallsConfig?.livekitUrl?.trim());
     const isCallBusy = call?.phase !== "idle";
-    const canCall = isVideoCallsEnabled && isRoomAllowed && hasLivekitUrl;
+    const canCall = isVideoCallsEnabled && isRoomAllowed && hasLivekitUrl && !peerSuspended;
     const isAudioCallsEnabled = canCall && videoCallsConfig?.enableAudioCalls === true;
     const canSchedule = canCall && isScheduledCallsEnabled(config);
     const callDisabledReason = !isRoomAllowed ? t2("call.disabled.roomType") : !hasLivekitUrl ? t2("call.disabled.noLivekit") : isCallBusy ? t2("call.disabled.busy") : "";
@@ -83590,12 +85131,14 @@ ${messageId}`;
                       fileToken
                     ),
                     active: true,
-                    online: isPrivateRoom2 && peerOnline
+                    online: isPrivateRoom2 && peerOnline,
+                    greyed: peerSuspended
                   }
                 ) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(HeaderTextCol, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs(HeaderTitleRow, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(HeaderTitle, { children: currentRoom?.title }),
+                    peerSuspended && /* @__PURE__ */ jsxRuntimeExports.jsx(SuspendedBadge, {}),
                     currentRoom?.e2ee && // The tooltip lives on the wrapper, not on the <svg>: these
                     // icon components spread props onto an svg that already has
                     // its own children, so a <title> child would be dropped.
@@ -83605,7 +85148,7 @@ ${messageId}`;
                         title: t2("e2ee.roomEncrypted"),
                         style: { display: "inline-flex", flexShrink: 0 },
                         children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          LockIcon,
+                          LockIcon$1,
                           {
                             width: 16,
                             height: 16,
@@ -83959,6 +85502,31 @@ ${messageId}`;
       };
     }, [activeRoomJID]);
   };
+  const UPLOAD_BLOCKED_SENSITIVE = "UPLOAD_BLOCKED_SENSITIVE";
+  const isUploadBlockedSensitive = (error2) => {
+    const response = error2?.response;
+    if (response?.status !== 422) return false;
+    const data = response.data;
+    const code2 = data?.code ?? data?.error?.code ?? data?.errorCode;
+    return code2 === UPLOAD_BLOCKED_SENSITIVE;
+  };
+  const sensitiveFlagsFromUploads = (results) => {
+    const flagged = results.find(
+      (result) => result?.sensitive === true || result?.sensitive === "true"
+    );
+    if (!flagged) return void 0;
+    const category = typeof flagged.sensitiveCategory === "string" && flagged.sensitiveCategory.trim() ? flagged.sensitiveCategory.trim() : void 0;
+    return { isSensitive: "true", ...category ? { sensitiveCategory: category } : {} };
+  };
+  const isSensitiveMessage = (message) => message?.isSensitive === true || message?.isSensitive === "true";
+  const pickProbeAttachment = (attachments) => {
+    const withUrl = attachments.filter((attachment) => Boolean(attachment.location));
+    return withUrl.find((attachment) => {
+      const kind = getFileKind(attachment.mimetype, getAttachmentName(attachment));
+      return kind === "image" || kind === "video";
+    }) ?? withUrl[0];
+  };
+  const pickCoverPreview = (attachments) => attachments.find((attachment) => Boolean(attachment.locationPreview))?.locationPreview;
   async function mapWithConcurrency(items, limit, worker) {
     const results = new Array(items.length);
     const width = Math.max(1, Math.min(Math.floor(limit) || 1, items.length));
@@ -84106,6 +85674,8 @@ ${messageId}`;
     const { client: client2 } = useXmppClient();
     const dispatch = useDispatch();
     const { handleMessageSent, handleMessageFailed } = useEventHandlers(config);
+    const toast = useOptionalToast();
+    const t2 = useT();
     const emitMessageSent = reactExports.useCallback((payload) => {
       Promise.resolve(handleMessageSent(payload)).catch((error2) => {
         console.error("Error in async message sent hook:", error2);
@@ -84646,6 +86216,7 @@ ${messageId}`;
           ...!isE2ee && typeof URL !== "undefined" && URL.createObjectURL && isRasterImage(file.type || type, file.name) ? { localUrl: URL.createObjectURL(file) } : {}
         }));
         const uploaded = files.map(() => void 0);
+        const blockedIndices = /* @__PURE__ */ new Set();
         const rawResults = files.map(() => void 0);
         const sealedKeys = files.map(() => void 0);
         let delivered = false;
@@ -84752,6 +86323,7 @@ ${messageId}`;
           const raws = rawResults;
           const attachments = uploaded;
           const [head] = raws;
+          const sensitive = sensitiveFlagsFromUploads(raws);
           const messagePayload = {
             firstName: user.firstName,
             lastName: user.lastName,
@@ -84787,7 +86359,9 @@ ${messageId}`;
             __v: head.__v,
             // Consumed by sendMediaMessage, which puts them inside the encrypted
             // <body>. Never stamped onto <data>: that rides in the clear.
-            e2eeKeys: isE2ee ? sealedKeys : void 0
+            e2eeKeys: isE2ee ? sealedKeys : void 0,
+            // Trust & Safety: `<data isSensitive="true" sensitiveCategory>`.
+            ...sensitive ?? {}
           };
           const mediaSent = await sendWithActiveRoomRetry(
             activeRoomJID2,
@@ -84818,6 +86392,7 @@ ${messageId}`;
                   originalName: head?.originalname && repairFilenameEncoding(head.originalname),
                   fileName: head.filename,
                   size: head.size?.toString?.() ?? head.size,
+                  ...sensitive ?? {},
                   ...captionFields ? {
                     caption: captionFields.caption,
                     captionMentions: captionFields.mentions
@@ -84855,9 +86430,31 @@ ${messageId}`;
                 await uploadOne(index2);
               } catch (error2) {
                 console.error("Upload failed:", error2);
+                if (isUploadBlockedSensitive(error2)) blockedIndices.add(index2);
                 patchItem(index2, { uploadStatus: "failed", uploadProgress: 0 });
               }
             });
+            if (blockedIndices.size > 0) {
+              delivered = true;
+              unregisterMediaRetry(id2);
+              if (!config?.disableSentLogic) {
+                dispatch(removeRoomMessage({ roomJID: activeRoomJID2, messageId: id2 }));
+              }
+              toast?.showToast({
+                id: `upload-blocked-${id2}`,
+                title: t2("ts.upload.blockedTitle"),
+                message: t2("ts.upload.blocked"),
+                type: "error",
+                duration: 6e3
+              });
+              handleMessageFailed({
+                message: "media",
+                roomJID: activeRoomJID2,
+                error: new Error("upload_blocked_sensitive"),
+                messageType: "media"
+              });
+              return false;
+            }
             if (missingIndices().length > 0) {
               throw new Error("media_upload_failed");
             }
@@ -84899,7 +86496,9 @@ ${messageId}`;
         markMessageSending,
         emitMessageSent,
         sendWithActiveRoomRetry,
-        dispatch
+        dispatch,
+        toast,
+        t2
       ]
     );
     const sendMedia = reactExports.useCallback(
@@ -85380,6 +86979,8 @@ ${messageId}`;
         (state2) => activeRoomJID ? state2.rooms.rooms?.[activeRoomJID] : void 0,
         sameHeaderRoom
       );
+      const privatePeer = usePrivatePeerXmppUsername(headerRoom);
+      const peerSuspended = usePeerSuspended(privatePeer);
       const {
         sendMessage: sendMs,
         sendMedia: sendMessageMedia,
@@ -85628,6 +87229,7 @@ ${messageId}`;
                 onSendMessage: baseInputProps.sendMessage,
                 onSendMedia: baseInputProps.sendMedia
               };
+              if (peerSuspended) return /* @__PURE__ */ jsxRuntimeExports.jsx(SuspendedPeerNotice, {});
               return CustomInputComponent ? /* @__PURE__ */ jsxRuntimeExports.jsx(CustomInputComponent, { ...normalizedProps }) : /* @__PURE__ */ jsxRuntimeExports.jsx(SendInput, { ...baseInputProps });
             })(),
             config?.customTypingIndicator?.enabled && (config.customTypingIndicator.position === "overlay" || config.customTypingIndicator.position === "floating") && activeRoom?.composing && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -85692,6 +87294,730 @@ ${messageId}`;
   );
   ChatWrapperBox.displayName = "ChatWrapperBox";
   const ChatWrapperInnerBox = ChatWrapperBoxBase;
+  const BLOCK_HEADER = "x-ethora-block";
+  const cache$1 = /* @__PURE__ */ new Map();
+  const CACHE_LIMIT$1 = 300;
+  const readBlockReason = (value) => {
+    const reason = String(value || "").trim().toLowerCase();
+    if (reason === "age-required") return "age-required";
+    if (reason === "moderation") return "moderation";
+    return null;
+  };
+  const classifyResponse = (response) => {
+    if (response.ok || response.status >= 300 && response.status < 400) return "ok";
+    if (response.status === 403) {
+      return readBlockReason(response.headers?.get?.(BLOCK_HEADER)) ?? "forbidden";
+    }
+    return "unknown";
+  };
+  const probeFileAccess = (url, options = {}) => {
+    if (!url) return Promise.resolve("unknown");
+    const key = withoutFileToken(url);
+    if (!options.force) {
+      const hit = cache$1.get(key);
+      if (hit) return hit;
+    }
+    const fetchImpl = options.fetchImpl ?? (typeof fetch === "function" ? fetch : void 0);
+    if (!fetchImpl) return Promise.resolve("unknown");
+    const secure = isSecureFileUrl(url);
+    const target = secure && options.fileToken ? appendFileToken(key, options.fileToken) : url;
+    const request = fetchImpl(target, {
+      method: "HEAD",
+      cache: "no-store",
+      // The token rides in the URL; without one, fall back to the cookie.
+      credentials: secure && !options.fileToken ? "include" : "omit"
+    }).then(classifyResponse).catch(() => "unknown");
+    cache$1.delete(key);
+    cache$1.set(key, request);
+    if (cache$1.size > CACHE_LIMIT$1) {
+      const oldest = cache$1.keys().next().value;
+      if (oldest !== void 0) cache$1.delete(oldest);
+    }
+    return request;
+  };
+  const MediaAccessContext = reactExports.createContext(null);
+  const useMediaAccess = () => reactExports.useContext(MediaAccessContext);
+  const MediaCoverContext = reactExports.createContext(null);
+  const useMediaCover = () => reactExports.useContext(MediaCoverContext);
+  const EyeOffIcon = ({ size = 20, ...props }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      width: size,
+      height: size,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: 1.8,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      "aria-hidden": "true",
+      focusable: "false",
+      ...props,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M10.6 5.1A10.4 10.4 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.7 3.5" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M6.6 6.6C3.9 8.3 2.5 12 2.5 12s3.5 7 9.5 7a9.6 9.6 0 0 0 5.4-1.6" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M9.9 9.9a3 3 0 0 0 4.2 4.2" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M3 3l18 18" })
+      ]
+    }
+  );
+  const ShieldIcon = ({ size = 16, ...props }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "svg",
+    {
+      width: size,
+      height: size,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: 1.8,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      "aria-hidden": "true",
+      focusable: "false",
+      ...props,
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12 3l7 3v6c0 4.4-3 7.7-7 9-4-1.3-7-4.6-7-9V6l7-3z" })
+    }
+  );
+  const PersonIcon = ({ size = 20, ...props }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      width: size,
+      height: size,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: 1.8,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      "aria-hidden": "true",
+      focusable: "false",
+      ...props,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "12", cy: "8", r: "4" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M4 21c0-4 3.6-7 8-7s8 3 8 7" })
+      ]
+    }
+  );
+  const tsState = (store2) => store2.getState()?.trustSafety;
+  const policyInFlight = /* @__PURE__ */ new Map();
+  let ageInFlight = null;
+  const ensureAppPolicy = async (store2, appId, api = { get: getAppTrustSafety }) => {
+    if (!appId) return { status: "error", ageGate: true };
+    const cached = tsState(store2)?.policy?.[appId];
+    if (cached?.status === "loaded") return cached;
+    const pending2 = policyInFlight.get(appId);
+    if (pending2) return pending2;
+    store2.dispatch(setAppPolicy({ appId, status: "loading" }));
+    const request = api.get(appId).then((policy) => {
+      const entry = {
+        status: "loaded",
+        enabled: policy.enabled,
+        ageGate: policy.ageGate
+      };
+      store2.dispatch(setAppPolicy({ appId, ...entry }));
+      return entry;
+    }).catch(() => {
+      const entry = { status: "error", ageGate: true };
+      store2.dispatch(setAppPolicy({ appId, ...entry }));
+      return entry;
+    }).finally(() => {
+      policyInFlight.delete(appId);
+    });
+    policyInFlight.set(appId, request);
+    return request;
+  };
+  const toAgeState = (age) => ({ status: "loaded", ...age });
+  const ensureMyAge = async (store2, api = { get: getMyAge }) => {
+    const cached = tsState(store2)?.age;
+    if (cached?.status === "loaded") return cached;
+    if (ageInFlight) return ageInFlight;
+    store2.dispatch(setAgeLoading());
+    ageInFlight = api.get().then((age) => {
+      store2.dispatch(setAge(age));
+      return toAgeState(age);
+    }).catch(() => {
+      store2.dispatch(setAgeFailed());
+      return { ...initialAgeState, status: "error" };
+    }).finally(() => {
+      ageInFlight = null;
+    });
+    return ageInFlight;
+  };
+  const declareMyAge = async (store2, dateOfBirth, api = { put: putMyAge }) => {
+    const age = await api.put(dateOfBirth);
+    store2.dispatch(setAge(age));
+    return toAgeState(age);
+  };
+  const Backdrop = gt.div`
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  background: var(--ethora-color-overlay, rgba(0, 0, 0, 0.55));
+`;
+  const Panel$1 = gt.div`
+  box-sizing: border-box;
+  width: min(100%, 400px);
+  max-height: 100%;
+  overflow: auto;
+  padding: 20px;
+  border-radius: var(--ethora-radius-lg, 16px);
+  background: var(--ethora-color-bg, #ffffff);
+  color: var(--ethora-color-text, #141414);
+  border: 1px solid var(--ethora-color-border, rgba(140, 140, 140, 0.25));
+  font-family: var(--ethora-font-family, inherit);
+  cursor: default;
+`;
+  const Title$2 = gt.h2`
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+`;
+  const Description$1 = gt.p`
+  margin: 0 0 16px;
+  font-size: var(--ethora-font-size-sm, 14px);
+  line-height: 1.45;
+  color: var(--ethora-color-text-secondary, #555555);
+`;
+  const Label$1 = gt.label`
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--ethora-font-size-sm, 14px);
+  font-weight: 600;
+`;
+  const DateInput = gt.input`
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--ethora-radius-sm, 8px);
+  border: 1px solid var(--ethora-color-border, rgba(140, 140, 140, 0.35));
+  background: var(--ethora-color-bg-subtle, #f3f6fc);
+  color: var(--ethora-color-text, #141414);
+  font: inherit;
+
+  &:focus-visible {
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: 1px;
+  }
+`;
+  const ErrorText$1 = gt.p`
+  margin: 10px 0 0;
+  font-size: var(--ethora-font-size-sm, 13px);
+  color: var(--ethora-color-danger, #d92d20);
+`;
+  const Actions = gt.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+`;
+  const ActionButton = gt.button`
+  min-width: 96px;
+  padding: 9px 16px;
+  border-radius: var(--ethora-radius-md, 12px);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--ethora-color-primary, #0052cd);
+  background: ${({ $primary }) => $primary ? "var(--ethora-color-primary, #0052cd)" : "transparent"};
+  color: ${({ $primary }) => $primary ? "var(--ethora-color-text-on-primary, #ffffff)" : "var(--ethora-color-primary, #0052cd)"};
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: 2px;
+  }
+`;
+  const pad = (value) => String(value).padStart(2, "0");
+  const todayIso = (now = /* @__PURE__ */ new Date()) => `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const isValidDateOfBirth = (value, now = /* @__PURE__ */ new Date()) => {
+    const match2 = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || "").trim());
+    if (!match2) return false;
+    const [year, month, day] = [Number(match2[1]), Number(match2[2]), Number(match2[3])];
+    if (year < 1900) return false;
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+      return false;
+    }
+    return value <= todayIso(now);
+  };
+  const stop = (event) => event.stopPropagation();
+  const AgeDialog = ({ onCancel, onDeclared }) => {
+    const t2 = useT();
+    const store2 = useStore();
+    const titleId = reactExports.useId();
+    const descriptionId = reactExports.useId();
+    const inputId = reactExports.useId();
+    const anchorRef = reactExports.useRef(null);
+    const panelRef = reactExports.useRef(null);
+    const [host, setHost] = reactExports.useState(null);
+    const [value, setValue] = reactExports.useState("");
+    const [error2, setError] = reactExports.useState(null);
+    const [saving, setSaving] = reactExports.useState(false);
+    reactExports.useLayoutEffect(() => {
+      const root2 = anchorRef.current?.closest(`.${CHAT_ROOT_CLASS}`) ?? (typeof document !== "undefined" ? document.body : null);
+      setHost(root2);
+    }, []);
+    useModalDismiss({ onClose: onCancel, containerRef: panelRef, enabled: Boolean(host) });
+    const submit = async (event) => {
+      event?.preventDefault();
+      if (saving) return;
+      if (!isValidDateOfBirth(value)) {
+        setError(t2("ts.age.invalid"));
+        return;
+      }
+      setSaving(true);
+      setError(null);
+      try {
+        const age = await declareMyAge(store2, value);
+        onDeclared(age);
+      } catch (failure) {
+        if (statusOf$2(failure) === 409 || errorCodeOf(failure) === AGE_LOCKED) {
+          setError(t2("ts.age.locked"));
+        } else {
+          setError(t2("ts.age.error"));
+        }
+      } finally {
+        setSaving(false);
+      }
+    };
+    const dialog = /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Backdrop,
+      {
+        "data-testid": "age-dialog",
+        onClick: stop,
+        onMouseDown: (event) => {
+          event.stopPropagation();
+          if (event.target === event.currentTarget) onCancel();
+        },
+        onTouchStart: stop,
+        onTouchEnd: stop,
+        onTouchMove: stop,
+        onContextMenu: stop,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Panel$1,
+          {
+            ref: panelRef,
+            role: "dialog",
+            "aria-modal": "true",
+            "aria-labelledby": titleId,
+            "aria-describedby": descriptionId,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: submit, noValidate: true, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Title$2, { id: titleId, children: t2("ts.age.title") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Description$1, { id: descriptionId, children: t2("ts.age.description") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { htmlFor: inputId, children: t2("ts.age.dateOfBirth") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                DateInput,
+                {
+                  id: inputId,
+                  type: "date",
+                  value,
+                  max: todayIso(),
+                  min: "1900-01-01",
+                  required: true,
+                  "aria-invalid": error2 ? "true" : void 0,
+                  onChange: (event) => {
+                    setValue(event.target.value);
+                    if (error2) setError(null);
+                  }
+                }
+              ),
+              error2 && /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText$1, { role: "alert", children: error2 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Actions, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ActionButton, { type: "button", onClick: onCancel, children: t2("ts.age.cancel") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ActionButton, { type: "submit", $primary: true, disabled: saving || !value, children: t2("ts.age.confirm") })
+              ] })
+            ] })
+          }
+        )
+      }
+    );
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { ref: anchorRef, hidden: true }),
+      host ? reactDomExports.createPortal(dialog, host) : null
+    ] });
+  };
+  const appIdOf = (state2) => state2.chatSettingStore?.appId || state2.chatSettingStore?.config?.appId || state2.chatSettingStore?.user?.appId || "";
+  const useSensitiveReveal = ({ messageId, probeUrl, probe, own: own2 = false }) => {
+    const dispatch = useDispatch();
+    const store2 = useStore();
+    const fileToken = useSelector(
+      (state2) => state2.chatSettingStore?.user?.fileToken || ""
+    );
+    const revealed = useSelector(
+      (state2) => Boolean(messageId && state2.trustSafety?.revealed?.[messageId])
+    );
+    const blocked = useSelector(
+      (state2) => messageId ? state2.trustSafety?.blocked?.[messageId] : void 0
+    );
+    const [checking, setChecking] = reactExports.useState(false);
+    const [unavailable, setUnavailable] = reactExports.useState(false);
+    const [dialogOpen, setDialogOpen] = reactExports.useState(false);
+    const mounted = reactExports.useRef(true);
+    reactExports.useEffect(() => {
+      mounted.current = true;
+      return () => {
+        mounted.current = false;
+      };
+    }, []);
+    const ask = reactExports.useCallback(
+      (url) => probe ? probe(url) : probeFileAccess(url, { force: true, fileToken }),
+      [probe, fileToken]
+    );
+    const run = reactExports.useCallback(
+      async (afterDialog) => {
+        if (!messageId) return;
+        setChecking(true);
+        setUnavailable(false);
+        const settle2 = (next2) => {
+          if (!mounted.current) return;
+          if (next2.unavailable) setUnavailable(true);
+          if (next2.dialog) setDialogOpen(true);
+        };
+        try {
+          if (own2) {
+            dispatch(revealMessageMedia(messageId));
+            return;
+          }
+          const policy = await ensureAppPolicy(store2, appIdOf(store2.getState()));
+          const gated = policy.ageGate !== false;
+          let age;
+          if (gated) {
+            age = await ensureMyAge(store2);
+            if (age.isAdult === false) return settle2({ unavailable: true });
+            if (age.isAdult !== true) {
+              return settle2(afterDialog ? { unavailable: true } : { dialog: true });
+            }
+          }
+          const access = probeUrl ? await ask(probeUrl) : "unknown";
+          if (access === "moderation") {
+            dispatch(markMediaBlocked({ messageId, reason: "moderation" }));
+            return;
+          }
+          if (access === "age-required") {
+            if (!age) age = await ensureMyAge(store2);
+            if (age.isAdult === true || age.isAdult === false || afterDialog) {
+              return settle2({ unavailable: true });
+            }
+            return settle2({ dialog: true });
+          }
+          if (access === "forbidden") {
+            return settle2({ unavailable: true });
+          }
+          dispatch(revealMessageMedia(messageId));
+        } finally {
+          if (mounted.current) setChecking(false);
+        }
+      },
+      [messageId, probeUrl, store2, dispatch, ask, own2]
+    );
+    const requestReveal = reactExports.useCallback(() => {
+      if (checking) return;
+      void run(false);
+    }, [checking, run]);
+    const conceal = reactExports.useCallback(() => {
+      if (messageId) dispatch(concealMessageMedia(messageId));
+    }, [dispatch, messageId]);
+    const onAgeDeclared = reactExports.useCallback(() => {
+      setDialogOpen(false);
+      void run(true);
+    }, [run]);
+    const onAgeCancel = reactExports.useCallback(() => setDialogOpen(false), []);
+    const status = blocked === "moderation" ? "removed" : revealed ? "revealed" : checking ? "checking" : unavailable ? "unavailable" : "covered";
+    return {
+      status,
+      requestReveal,
+      conceal,
+      dialogOpen,
+      onAgeDeclared,
+      onAgeCancel
+    };
+  };
+  const Cover = gt.button`
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  ${({ $fill }) => $fill ? ft`
+          width: 100%;
+          height: 100%;
+          min-height: 200px;
+        ` : ft`
+          width: min(280px, ${MEDIA_WIDTH_CSS});
+          max-width: 100%;
+          aspect-ratio: 4 / 3;
+        `}
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--ethora-radius-md, 12px);
+  background-color: var(--ethora-color-bg-subtle, #f3f6fc);
+  color: var(--ethora-color-text, #141414);
+  font: inherit;
+  cursor: ${({ $interactive }) => $interactive ? "pointer" : "default"};
+
+  &:focus-visible {
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: 2px;
+  }
+`;
+  const CoverImage = gt.img`
+  position: absolute;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  object-fit: cover;
+  filter: blur(24px) saturate(0.9);
+  transform: scale(1.05);
+  z-index: 0;
+`;
+  const Scrim$1 = gt.div`
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  text-align: center;
+  background: color-mix(in srgb, var(--ethora-color-bg, #ffffff) 55%, transparent);
+  color: var(--ethora-color-text, #141414);
+  font-size: var(--ethora-font-size-sm, 14px);
+  font-weight: 600;
+  line-height: 1.35;
+`;
+  const Badge = gt.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ethora-color-bg, #ffffff);
+  color: var(--ethora-color-text, #141414);
+  border: 1px solid var(--ethora-color-border, rgba(140, 140, 140, 0.35));
+`;
+  const Muted$1 = gt.span`
+  font-weight: 400;
+  color: var(--ethora-color-text-secondary, #555555);
+`;
+  const Notice$1 = gt.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--ethora-radius-sm, 8px);
+  background-color: var(--ethora-color-bg-subtle, rgba(140, 140, 140, 0.08));
+  border: 1px dashed var(--ethora-color-border, rgba(140, 140, 140, 0.35));
+  color: var(--ethora-color-text-muted, #8c8c8c);
+  font-style: italic;
+  font-size: var(--ethora-font-size-sm, 13px);
+  line-height: 1.45;
+`;
+  const RemovedByModerators = () => {
+    const t2 = useT();
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Notice$1, { "data-testid": "media-removed", role: "note", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, { size: 14 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("ts.media.removed") })
+    ] });
+  };
+  const SensitiveCover = ({
+    status,
+    previewUrl,
+    onReveal,
+    fill
+  }) => {
+    const t2 = useT();
+    const interactive = status === "covered";
+    const label = status === "unavailable" ? t2("ts.sensitive.unavailable") : status === "checking" ? t2("ts.sensitive.checking") : t2("ts.sensitive.overlay");
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Cover,
+      {
+        type: "button",
+        "data-testid": "sensitive-cover",
+        "data-state": status,
+        $interactive: interactive,
+        $fill: fill,
+        "aria-label": label,
+        "aria-disabled": interactive ? void 0 : "true",
+        "aria-busy": status === "checking" ? "true" : void 0,
+        onClick: (event) => {
+          event.stopPropagation();
+          if (interactive) onReveal();
+        },
+        children: [
+          previewUrl && /* @__PURE__ */ jsxRuntimeExports.jsx(CoverImage, { src: safeImageUrl(previewUrl), alt: "", "aria-hidden": "true", draggable: false }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Scrim$1, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOffIcon, { size: 22 }) }),
+            status === "unavailable" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Muted$1, { children: label }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+          ] })
+        ]
+      }
+    );
+  };
+  const InPlace = gt.div`
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  border-radius: var(--ethora-radius-md, 12px);
+  overflow: hidden;
+`;
+  const InPlaceMedia = gt.div`
+  pointer-events: none;
+  user-select: none;
+`;
+  const InPlaceButton = gt.button`
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: ${({ $interactive }) => $interactive ? "pointer" : "default"};
+
+  &:focus-visible {
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: -2px;
+  }
+`;
+  const HideAgain = gt.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ethora-color-border, rgba(140, 140, 140, 0.35));
+  background: color-mix(in srgb, var(--ethora-color-bg, #ffffff) 85%, transparent);
+  color: var(--ethora-color-text, #141414);
+  font: inherit;
+  font-size: var(--ethora-font-size-xs, 12px);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: 2px;
+  }
+`;
+  const RevealedWrap = gt.div`
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+`;
+  const SensitiveMediaGate = ({
+    messageId,
+    probeUrl,
+    previewUrl,
+    children: children2,
+    fill,
+    own: own2,
+    cover
+  }) => {
+    const t2 = useT();
+    const reveal = useSensitiveReveal({ messageId, probeUrl, own: own2 });
+    const latest2 = reactExports.useRef(null);
+    const lock = reactExports.useRef(null);
+    const revealed = reveal.status === "revealed";
+    const lastRevealed = reactExports.useRef(revealed);
+    if (lastRevealed.current !== revealed) {
+      lastRevealed.current = revealed;
+      if (!lock.current && latest2.current) lock.current = latest2.current;
+    }
+    const lockedSolo = lock.current;
+    const onSoloBox = reactExports.useCallback((box, placeholder2) => {
+      if (placeholder2 && lastRevealed.current) return;
+      latest2.current = box;
+    }, []);
+    const coveredCtx = reactExports.useMemo(() => ({ covered: true, lockedSolo, onSoloBox }), [lockedSolo, onSoloBox]);
+    const revealedCtx = reactExports.useMemo(() => ({ covered: false, lockedSolo, onSoloBox }), [lockedSolo, onSoloBox]);
+    if (reveal.status === "removed") return /* @__PURE__ */ jsxRuntimeExports.jsx(RemovedByModerators, {});
+    if (reveal.status === "revealed") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(RevealedWrap, { "data-testid": "sensitive-revealed", style: fill ? { width: "100%", height: "100%" } : void 0, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(MediaCoverContext.Provider, { value: revealedCtx, children: children2 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          HideAgain,
+          {
+            type: "button",
+            onClick: (event) => {
+              event.stopPropagation();
+              reveal.conceal();
+            },
+            "aria-label": t2("ts.sensitive.hideAgain"),
+            title: t2("ts.sensitive.hideAgain"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOffIcon, { size: 14 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("ts.sensitive.hide") })
+            ]
+          }
+        )
+      ] });
+    }
+    const dialog = reveal.dialogOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(AgeDialog, { onCancel: reveal.onAgeCancel, onDeclared: reveal.onAgeDeclared });
+    if (cover && !fill) {
+      const interactive = reveal.status === "covered";
+      const label = reveal.status === "unavailable" ? t2("ts.sensitive.unavailable") : reveal.status === "checking" ? t2("ts.sensitive.checking") : t2("ts.sensitive.overlay");
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(InPlace, { "data-testid": "sensitive-in-place", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(InPlaceMedia, { "aria-hidden": "true", ...{ inert: "" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MediaCoverContext.Provider, { value: coveredCtx, children: cover }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            InPlaceButton,
+            {
+              type: "button",
+              "data-testid": "sensitive-cover",
+              "data-state": reveal.status,
+              $interactive: interactive,
+              "aria-label": label,
+              "aria-disabled": interactive ? void 0 : "true",
+              "aria-busy": reveal.status === "checking" ? "true" : void 0,
+              onClick: (event) => {
+                event.stopPropagation();
+                if (interactive) reveal.requestReveal();
+              },
+              children: [
+                previewUrl && /* @__PURE__ */ jsxRuntimeExports.jsx(CoverImage, { src: safeImageUrl(previewUrl), alt: "", "aria-hidden": "true", draggable: false }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Scrim$1, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOffIcon, { size: 22 }) }),
+                  reveal.status === "unavailable" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Muted$1, { children: label }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+                ] })
+              ]
+            }
+          )
+        ] }),
+        dialog
+      ] });
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        SensitiveCover,
+        {
+          status: reveal.status,
+          previewUrl,
+          onReveal: reveal.requestReveal,
+          fill
+        }
+      ),
+      reveal.dialogOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(AgeDialog, { onCancel: reveal.onAgeCancel, onDeclared: reveal.onAgeDeclared })
+    ] });
+  };
   const senderFromMessage = (message) => message?.user ? {
     id: message.user.id,
     username: message.user.username,
@@ -85707,6 +88033,8 @@ ${messageId}`;
     messages.forEach((message, messageIndex) => {
       if (!message || message.isDeleted) return;
       if (message.id === "delimiter-new") return;
+      if (message.moderation?.action === "hidden") return;
+      const sensitive = isSensitiveMessage(message);
       getMessageAttachments(message).forEach((attachment, slot) => {
         if (!attachment.location) return;
         const fileName = getAttachmentName(attachment);
@@ -85721,7 +88049,9 @@ ${messageId}`;
           mimetype: attachment.mimetype || "",
           previewURL: attachment.locationPreview || void 0,
           date: isoDateFromMessage(message),
-          sender: senderFromMessage(message)
+          sender: senderFromMessage(message),
+          ...message.id ? { messageId: String(message.id) } : {},
+          ...sensitive ? { sensitive: true } : {}
         });
       });
     });
@@ -85749,7 +88079,9 @@ ${messageId}`;
         mimetype: file.mimetype || "",
         previewURL: file.previewURL,
         date: file.date,
-        sender: file.sender
+        sender: file.sender,
+        ...file.messageId ? { messageId: file.messageId } : {},
+        ...file.sensitive ? { sensitive: true } : {}
       });
     });
     return entries;
@@ -86389,6 +88721,7 @@ ${messageId}`;
   const VideoLayer = ({ src, label, compact, poster }) => {
     const [ready, setReady] = reactExports.useState(false);
     const [failed2, setFailed] = reactExports.useState(false);
+    const access = useMediaAccess();
     if (failed2) return /* @__PURE__ */ jsxRuntimeExports.jsx(ImageUnavailableState, { compact });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       !ready && /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { $shimmer: true }),
@@ -86404,12 +88737,33 @@ ${messageId}`;
           preload: "metadata",
           $ready: ready,
           onLoadedMetadata: () => setReady(true),
-          onError: () => setFailed(true)
+          onError: () => {
+            setFailed(true);
+            access?.reportFailure(src);
+          }
         }
       )
     ] });
   };
-  const MediaSurface = ({
+  const MediaSurface = (props) => {
+    const cover = useMediaCover();
+    const covered = Boolean(cover?.covered);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      MediaSurfaceInner,
+      {
+        ...props,
+        src: covered ? void 0 : props.src,
+        onOpen: covered ? void 0 : props.onOpen,
+        interactive: covered ? false : props.interactive,
+        chrome: covered ? false : props.chrome,
+        blurred: covered || props.blurred,
+        coverMode: covered,
+        lockedSolo: cover?.lockedSolo || null,
+        onSoloBox: cover?.onSoloBox
+      }
+    );
+  };
+  const MediaSurfaceInner = ({
     kind,
     src,
     previewSrc,
@@ -86426,7 +88780,10 @@ ${messageId}`;
     localSrc,
     loadProgress,
     openDisabled = false,
-    mimetype
+    mimetype,
+    coverMode = false,
+    lockedSolo = null,
+    onSoloBox
   }) => {
     const isImage = kind === "image";
     const reducedMotionPref = usePrefersReducedMotion();
@@ -86436,7 +88793,7 @@ ${messageId}`;
     const localReady = local.status === "loaded";
     const hasPreview = isImage && Boolean(previewSrc) && previewSrc !== src;
     const recordedBox = variant === "solo" ? computeSoloBox(parseDimension(dims?.width), parseDimension(dims?.height)) : null;
-    const previewOnly = hasPreview && !animate && recordedBox?.mode !== "natural";
+    const previewOnly = hasPreview && (coverMode || !animate && recordedBox?.mode !== "natural");
     const low = useMediaProbe(hasPreview ? previewSrc : void 0);
     const full = useMediaProbe(
       isImage && src && (!previewOnly || low.status === "error") ? src : void 0
@@ -86446,7 +88803,9 @@ ${messageId}`;
     const cursor = !isInteractive ? "default" : isImage ? "zoom-in" : "pointer";
     let solo = null;
     let placeholder2 = false;
-    if (variant === "solo") {
+    if (variant === "solo" && lockedSolo) {
+      solo = lockedSolo;
+    } else if (variant === "solo") {
       if (kind === "video") {
         const { width, height } = SOLO_VIDEO_DEFAULT_BOX;
         solo = { width, height, imageWidth: width, imageHeight: height, mode: "fit" };
@@ -86462,6 +88821,10 @@ ${messageId}`;
     const natural = solo?.mode === "natural";
     const soloRatio = solo ? Math.round(solo.width / solo.height * 1e4) / 1e4 : 1;
     const unavailable = kind === "image" && Boolean(src) && full.status === "error" && !localReady && (!hasPreview || low.status === "error");
+    const access = useMediaAccess();
+    reactExports.useEffect(() => {
+      if (unavailable && src) access?.reportFailure(src);
+    }, [unavailable, src, access]);
     const compactCard = unavailable && placeholder2;
     const soloStyle = compactCard ? { width: `min(280px, ${MEDIA_WIDTH_CSS})`, height: "160px" } : solo ? {
       width: natural ? `min(${solo.width}px, ${MEDIA_WIDTH_CSS})` : `min(${solo.width}px, ${MEDIA_WIDTH_CSS}, calc(${SOLO_MAX_HEIGHT_CSS} * ${soloRatio}))`,
@@ -86474,7 +88837,11 @@ ${messageId}`;
       height: `${solo.imageHeight}px`,
       margin: "auto",
       objectFit: "contain"
-    } : void 0;
+    } : lockedSolo && variant === "solo" ? { objectFit: "contain" } : void 0;
+    const soloKey = solo ? `${solo.width}x${solo.height}:${solo.mode}:${placeholder2 ? "p" : ""}` : "";
+    reactExports.useEffect(() => {
+      if (onSoloBox && solo && !lockedSolo) onSoloBox(solo, placeholder2);
+    }, [onSoloBox, soloKey, lockedSolo]);
     const fullLoaded = full.status === "loaded";
     const lowLoaded = low.status === "loaded";
     const showLocal = localReady && !fullLoaded;
@@ -86487,7 +88854,9 @@ ${messageId}`;
       full.retry();
     };
     let body;
-    if (kind === "video") {
+    if (kind === "video" && coverMode) {
+      body = previewSrc ? /* @__PURE__ */ jsxRuntimeExports.jsx(FullLayer, { "data-media-layer": "cover", src: safeImageUrl(previewSrc), alt: "", "aria-hidden": "true", draggable: false }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { $shimmer: false });
+    } else if (kind === "video") {
       body = src ? /* @__PURE__ */ jsxRuntimeExports.jsx(VideoLayer, { src, poster: previewSrc || void 0, label: alt, compact: variant === "fill" }, src) : /* @__PURE__ */ jsxRuntimeExports.jsx(Skeleton, { $shimmer: pending2 });
     } else if (unavailable) {
       body = /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -87240,7 +89609,7 @@ ${messageId}`;
     }, [rootMargin, once, inView]);
     return { ref, inView };
   };
-  const Card = gt.button`
+  const Card$1 = gt.button`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -87349,7 +89718,7 @@ ${messageId}`;
   opacity: 0.75;
   transition: opacity 150ms ease;
 
-  ${Card}:hover & {
+  ${Card$1}:hover & {
     opacity: 1;
   }
 `;
@@ -87357,7 +89726,7 @@ ${messageId}`;
     ({ name: name2, meta, icon, tone = "neutral", compact = false, onOpen, title, ...rest }, ref) => {
       const parts = meta.filter((part) => Boolean(part));
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        Card,
+        Card$1,
         {
           ref,
           type: "button",
@@ -88215,7 +90584,7 @@ ${messageId}`;
   border-radius: var(--ethora-radius-sm, 8px);
   background-color: var(--ethora-color-bg, #fff);
 `;
-  const Details = gt.span`
+  const Details$1 = gt.span`
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -88265,8 +90634,8 @@ ${messageId}`;
     }, [attachment.location, canDownload, keyMaterial, state2]);
     if (!canDownload) {
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(SealedCard, { as: "div", title: t2("media.sealedUnavailable"), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(IconBox, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(LockIcon, { width: 18, height: 18 }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Details, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(IconBox, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(LockIcon$1, { width: 18, height: 18 }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Details$1, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Name$1, { children: t2("media.sealedFile") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Meta, { children: t2("media.sealedUnavailable") })
         ] })
@@ -88282,8 +90651,8 @@ ${messageId}`;
         title: name2 || t2("media.sealedFile"),
         "aria-label": t2("media.sealedDownload"),
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(IconBox, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(LockIcon, { width: 18, height: 18 }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Details, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(IconBox, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(LockIcon$1, { width: 18, height: 18 }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Details$1, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Name$1, { children: label }),
             state2 === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorNote, { children: t2("media.sealedDownloadFailed") }) : size && /* @__PURE__ */ jsxRuntimeExports.jsx(Meta, { children: size })
           ] }),
@@ -88309,9 +90678,11 @@ ${messageId}`;
     mimeType,
     location,
     locationPreview,
-    message
+    message,
+    isUser = false
   }) => {
     const t2 = useT();
+    const dispatch = useDispatch();
     const fileToken = useSelector(
       (state2) => state2.chatSettingStore.user?.fileToken || ""
     );
@@ -88325,7 +90696,9 @@ ${messageId}`;
         fileName: message?.fileName,
         size: message?.size,
         duration: message?.duration,
-        mediaDuration: message?.mediaDuration
+        mediaDuration: message?.mediaDuration,
+        width: message?.width,
+        height: message?.height
       }).map((attachment) => ({
         ...attachment,
         location: appendFileToken(attachment.location, fileToken),
@@ -88335,6 +90708,8 @@ ${messageId}`;
         message?.attachments,
         message?.location,
         message?.locationPreview,
+        message?.width,
+        message?.height,
         message?.mimetype,
         message?.originalName,
         message?.fileName,
@@ -88348,6 +90723,26 @@ ${messageId}`;
       ]
     );
     const messageId = message?.id;
+    const blocked = useSelector(
+      (state2) => messageId ? state2.trustSafety?.blocked?.[messageId] : void 0
+    );
+    const sealed = Boolean(message?.e2eeKeys?.length);
+    const gated = !sealed && (isSensitiveMessage(message) || !isUser && blocked === "age-required");
+    const reportFailure = reactExports.useCallback(
+      (url) => {
+        if (!messageId || !isSecureFileUrl(url)) return;
+        void probeFileAccess(url, { fileToken }).then((access) => {
+          if (access === "moderation") {
+            dispatch(markMediaBlocked({ messageId, reason: "moderation" }));
+          } else if (access === "age-required" && !isUser) {
+            dispatch(markMediaBlocked({ messageId, reason: "age-required" }));
+            dispatch(concealMessageMedia(messageId));
+          }
+        });
+      },
+      [messageId, fileToken, dispatch, isUser]
+    );
+    const accessContext = reactExports.useMemo(() => ({ reportFailure }), [reportFailure]);
     if (attachments.length === 0) {
       return /* @__PURE__ */ jsxRuntimeExports.jsx(UnsupportedMedia, { children: t2("media.unsupported") });
     }
@@ -88359,15 +90754,37 @@ ${messageId}`;
       if (!messageId) return;
       requestMediaRetry(messageId, index2);
     };
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    if (blocked === "moderation") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(RemovedByModerators, {});
+    }
+    const list2 = (items) => /* @__PURE__ */ jsxRuntimeExports.jsx(MediaAccessContext.Provider, { value: accessContext, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       AttachmentList,
       {
-        attachments,
+        attachments: items,
         onRetryAttachment: messageId ? handleRetryAttachment : void 0,
         sender: senderFromMessage(message),
         date: isoDateFromMessage(message)
       }
-    );
+    ) });
+    if (gated) {
+      const originals = attachments.map((attachment) => ({
+        ...attachment,
+        locationPreview: void 0
+      }));
+      const probeTarget = pickProbeAttachment(attachments);
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        SensitiveMediaGate,
+        {
+          messageId,
+          probeUrl: probeTarget?.location,
+          previewUrl: pickCoverPreview(attachments),
+          own: isUser,
+          cover: list2(attachments),
+          children: list2(originals)
+        }
+      );
+    }
+    return list2(attachments);
   };
   const CaptionText = gt(CustomMessageText)`
   box-sizing: border-box;
@@ -88922,6 +91339,80 @@ ${messageId}`;
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "This message was deleted" })
     ] });
   };
+  const baseStyle = ft`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  border-radius: var(--ethora-radius-sm, 8px);
+  background-color: var(--ethora-color-bg-subtle, rgba(140, 140, 140, 0.08));
+  border: 1px dashed var(--ethora-color-border, rgba(140, 140, 140, 0.35));
+  color: var(--ethora-color-text-muted, #8c8c8c);
+  font-style: italic;
+  font-size: var(--ethora-font-size-sm, 13px);
+  line-height: 1.45;
+  text-align: left;
+`;
+  const Base = gt.div`
+  ${baseStyle}
+`;
+  const Collapsed = gt.button`
+  ${baseStyle}
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--ethora-color-text-secondary, #555555);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ethora-color-primary, #0052cd);
+    outline-offset: 2px;
+  }
+`;
+  const blurredLabelKey = (category) => isPersonalInfoCategory(category) ? "ts.message.blurredPersonal" : "ts.message.blurred";
+  const ModeratedMessage = ({
+    moderation,
+    onExpand
+  }) => {
+    const t2 = useT();
+    if (moderation.action === "hidden") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Base, { "data-testid": "moderated-hidden", role: "note", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, { size: 14 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("ts.message.hidden") })
+      ] });
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Collapsed,
+      {
+        type: "button",
+        "data-testid": "moderated-blurred",
+        onClick: (event) => {
+          event.stopPropagation();
+          onExpand?.();
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOffIcon, { size: 14 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2(blurredLabelKey(moderation.category)) })
+        ]
+      }
+    );
+  };
+  const MaskedCircle = gt.div`
+  width: var(--ethora-message-avatar-size, 40px);
+  height: var(--ethora-message-avatar-size, 40px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: var(--ethora-color-bg-subtle, #f3f6fc);
+  border: 1px solid var(--ethora-color-border, rgba(140, 140, 140, 0.35));
+  color: var(--ethora-color-text-muted, #8c8c8c);
+`;
+  const MaskedSenderAvatar = () => /* @__PURE__ */ jsxRuntimeExports.jsx(MaskedCircle, { "data-testid": "masked-sender-avatar", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntimeExports.jsx(PersonIcon, { size: 20 }) });
   const MAX_VISIBLE_REACTIONS = 6;
   const TOOLTIP_ROOM_ABOVE_PX = 56;
   const TOOLTIP_EDGE_PX = 130;
@@ -89236,6 +91727,13 @@ ${messageId}`;
   background-color: ${(props) => props.$isUser ? props.$configColorUser || "var(--ethora-color-primary, #0052CD)" : props.$configColor || "var(--ethora-color-primary, #0052CD)"};
 `;
   const toBaseLanguage = (locale) => String(locale || "").split("-")[0].toLowerCase();
+  const TRANSLATION_PENDING_MAX_AGE_MS = 3 * 6e4;
+  const sentAtMs = (message) => {
+    const m2 = /^(\d{13})/.exec(String(message?.id || ""));
+    if (m2) return Number(m2[1]);
+    const t2 = message?.date ? new Date(message.date).getTime() : NaN;
+    return Number.isFinite(t2) ? t2 : 0;
+  };
   const hasNoLetters = (text2) => !new RegExp("\\p{L}", "u").test(text2);
   const resolveMessageTranslation = (message, readerLocale) => {
     const originalText = message?.body || "";
@@ -89246,12 +91744,44 @@ ${messageId}`;
     const needsTranslation = !!trimmedText && !!source && sourceBase !== targetBase && !hasNoLetters(trimmedText);
     const result = needsTranslation ? message?.translations?.[readerLocale || ""]?.translatedText || message?.translations?.[targetBase]?.translatedText : void 0;
     const isRealTranslation = !!result && result.trim() !== originalText.trim();
+    const sentAt = message?.translationPending ? message.translationPendingSince || sentAtMs(message) : 0;
+    const pendingUntil = needsTranslation && !isRealTranslation && sentAt ? sentAt + TRANSLATION_PENDING_MAX_AGE_MS : 0;
     return {
       needsTranslation,
       hasTranslation: isRealTranslation,
+      isPending: pendingUntil > Date.now(),
+      pendingUntil,
       originalText,
       displayText: isRealTranslation ? result : originalText
     };
+  };
+  const useMessageTranslation = (message, readerLocale, enabled2 = true) => {
+    const resolved = resolveMessageTranslation(message, readerLocale);
+    if (!enabled2) {
+      return {
+        hasTranslation: false,
+        isPending: false,
+        pendingUntil: 0,
+        originalText: resolved.originalText,
+        displayText: resolved.originalText
+      };
+    }
+    return {
+      hasTranslation: resolved.hasTranslation,
+      isPending: resolved.isPending,
+      pendingUntil: resolved.pendingUntil,
+      originalText: resolved.originalText,
+      displayText: resolved.displayText
+    };
+  };
+  const useRerenderAt = (at2) => {
+    const [, tick] = reactExports.useReducer((n2) => n2 + 1, 0);
+    reactExports.useEffect(() => {
+      const left = at2 - Date.now();
+      if (!at2 || left <= 0) return;
+      const timer = setTimeout(tick, left);
+      return () => clearTimeout(timer);
+    }, [at2]);
   };
   const TRANSLATE_REQUEST_TIMEOUT_MS = 5e3;
   const NOT_FOUND_STATUSES = /* @__PURE__ */ new Set([404, 405]);
@@ -89357,6 +91887,7 @@ ${messageId}`;
     const targetLocale = translates?.readerLocale || config?.i18n?.locale || "en";
     const linkColor = config?.colors?.primary;
     const resolved = resolveMessageTranslation(message, targetLocale);
+    useRerenderAt(resolved.pendingUntil);
     const hasHostTranslate = typeof translates?.onTranslate === "function";
     const hasExplicitEndpoint = !!translates?.endpoint;
     const shouldShow = (() => {
@@ -89364,7 +91895,7 @@ ${messageId}`;
         return translates.showTranslateForMessage(message);
       }
       if (!resolved.needsTranslation) return false;
-      return resolved.hasTranslation || hasHostTranslate || hasExplicitEndpoint;
+      return resolved.hasTranslation || resolved.isPending || hasHostTranslate || hasExplicitEndpoint;
     })();
     const runTranslate = reactExports.useCallback(async () => {
       if (!originalText.trim()) return;
@@ -89380,6 +91911,10 @@ ${messageId}`;
         } else {
           const attached = resolveMessageTranslation(message, targetLocale);
           result = attached.hasTranslation ? attached.displayText : void 0;
+          if (!result && attached.isPending) {
+            setPhase("awaiting");
+            return;
+          }
           if (!result && translates?.endpoint) {
             const entry = await fetchTranslation(
               originalText,
@@ -89410,11 +91945,20 @@ ${messageId}`;
         setPhase("error");
       }
     }, [originalText, translates, sourceLocale, targetLocale, message, dispatch]);
+    reactExports.useEffect(() => {
+      if (phase !== "awaiting") return;
+      if (resolved.hasTranslation) {
+        setTranslated(resolved.displayText);
+        setPhase("done");
+      } else if (!resolved.isPending) {
+        setPhase("idle");
+      }
+    }, [phase, resolved.hasTranslation, resolved.isPending, resolved.displayText]);
     if (!shouldShow) return null;
     if (phase === "idle") {
       return /* @__PURE__ */ jsxRuntimeExports.jsx(TranslateLink, { $color: linkColor, onClick: runTranslate, children: t2("action.translate") });
     }
-    if (phase === "loading") {
+    if (phase === "loading" || phase === "awaiting") {
       return /* @__PURE__ */ jsxRuntimeExports.jsx(TranslateLink, { $color: linkColor, as: "span", children: t2("translation.translating") });
     }
     if (phase === "error") {
@@ -89723,21 +92267,6 @@ ${messageId}`;
     const queue2 = Array.isArray(queueRaw) ? queueRaw : [];
     const idSet = new Set(queue2.map((m2) => m2.id));
     return { queue: queue2, idSet };
-  };
-  const useMessageTranslation = (message, readerLocale, enabled2 = true) => {
-    const resolved = resolveMessageTranslation(message, readerLocale);
-    if (!enabled2) {
-      return {
-        hasTranslation: false,
-        originalText: resolved.originalText,
-        displayText: resolved.originalText
-      };
-    }
-    return {
-      hasTranslation: resolved.hasTranslation,
-      originalText: resolved.originalText,
-      displayText: resolved.displayText
-    };
   };
   const Wrapper = gt.div`
   display: flex;
@@ -90170,6 +92699,7 @@ ${messageId}`;
       readerLocale,
       isAutoTranslate
     );
+    useRerenderAt(translationDisplay.pendingUntil);
     const senderUserId = message.user?.id ?? "";
     const senderLocal = senderUserId.split("@")[0];
     const senderEntry = useSelector(
@@ -90196,6 +92726,11 @@ ${messageId}`;
     const unresolvedPlaceholder = lookupStatus === "notfound" ? "Deleted User" : t2("user.unknown");
     const senderDisplayName = senderNamePending ? SENDER_NAME_PLACEHOLDER : usersSetDisplayName || trustedMessageName || dataComposed || safeSenderLocal || unresolvedPlaceholder;
     const senderProfileImage = senderEntry?.profileImage || message.user?.profileImage || "";
+    const senderMasked = Boolean(message.senderMasked);
+    const shownSenderName = senderMasked ? t2("user.suspendedAccount") : senderDisplayName;
+    const senderSuspended = usePeerSuspended(
+      !isUser && !senderMasked ? senderLocal : ""
+    );
     const referencedMessage = parseMessageReference(message.mainMessage);
     const dispatch = useDispatch();
     const [contextMenu, setContextMenu] = reactExports.useState(
@@ -90207,7 +92742,12 @@ ${messageId}`;
     );
     const [previewUrl, setPreviewUrl] = reactExports.useState(null);
     const [reactionHang, setReactionHang] = reactExports.useState(REACTION_HANG_PX);
-    const isMediaBubble = isMediaMessage(message);
+    const [moderationExpanded, setModerationExpanded] = reactExports.useState(false);
+    const moderation = message.isDeleted ? void 0 : message.moderation;
+    const contentCovered = Boolean(
+      moderation && (moderation.action === "hidden" || moderation.action === "blur" && !moderationExpanded)
+    );
+    const isMediaBubble = isMediaMessage(message) && !contentCovered;
     const captionText = isMediaBubble ? getMessageCaption(message) : void 0;
     const previewSource = isMediaBubble ? captionText : message?.body;
     reactExports.useEffect(() => {
@@ -90255,9 +92795,9 @@ ${messageId}`;
         handleTouchEnd();
       }
     };
-    const avatarClickable = !profilesDisabled && !senderNamePending && senderDisplayName !== "Deleted User" && senderDisplayName !== unresolvedPlaceholder;
+    const avatarClickable = !senderMasked && !profilesDisabled && !senderNamePending && senderDisplayName !== "Deleted User" && senderDisplayName !== unresolvedPlaceholder;
     const handleUserAvatarClick = (user2) => {
-      if (profilesDisabled || user2?.name === "Deleted User") return;
+      if (senderMasked || profilesDisabled || user2?.name === "Deleted User") return;
       dispatch(setActiveModal(MODAL_TYPES.PROFILE));
       const enriched = {
         ...user2,
@@ -90442,6 +92982,7 @@ ${messageId}`;
     const readStatus = tickInfo.status;
     const sentLogicEnabled = !config?.disableSentLogic;
     const isFailed = Boolean(sentLogicEnabled && isUser && message?.failed);
+    const peerSuspendedFailure = isFailed && message?.failedReason === PEER_SUSPENDED_FAILURE;
     const mediaRetryLost = Boolean(
       isFailed && message?.isMediafile === "true" && !hasMediaRetry(message.id)
     );
@@ -90519,7 +93060,7 @@ ${messageId}`;
     };
     const mediaAttachments = isMediaBubble ? getMessageAttachments(message) : [];
     const mediaBlockMode = getMediaBlockMode(mediaAttachments);
-    const showsTranslateRow = !isUser && Boolean(config?.translates?.enabled) && effectiveTranslateMode === "manual" && (!isMediaBubble || Boolean(captionText));
+    const showsTranslateRow = !isUser && !contentCovered && Boolean(config?.translates?.enabled) && effectiveTranslateMode === "manual" && (!isMediaBubble || Boolean(captionText));
     const mediaTime = getMediaTimeLayout({
       attachments: mediaAttachments,
       hasCaption: Boolean(captionText),
@@ -90604,12 +93145,13 @@ ${messageId}`;
               {
                 onClick: avatarClickable ? () => handleUserAvatarClick(message.user) : void 0,
                 style: avatarClickable ? void 0 : { cursor: "default" },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                children: senderMasked ? /* @__PURE__ */ jsxRuntimeExports.jsx(MaskedSenderAvatar, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(
                   MessageAvatarPhoto,
                   {
                     src: senderProfileImage,
                     username: senderDisplayName,
-                    style: { cursor: avatarClickable ? "pointer" : "default" }
+                    style: { cursor: avatarClickable ? "pointer" : "default" },
+                    greyed: senderSuspended
                   }
                 )
               }
@@ -90630,14 +93172,18 @@ ${messageId}`;
                 onTouchMove: !config?.disableInteractions ? handleTouchMove : void 0,
                 onTouchCancel: !config?.disableInteractions ? handleTouchEnd : void 0,
                 children: [
-                  !isUser && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  !isUser && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     CustomUserName,
                     {
                       $isUser: isUser,
                       $media: isMediaBubble,
                       $color: config?.colors?.primary,
-                      style: senderNamePending ? { opacity: 0.5, minWidth: "1.5em", display: "inline-block" } : void 0,
-                      children: senderDisplayName
+                      style: senderNamePending && !senderMasked ? { opacity: 0.5, minWidth: "1.5em", display: "inline-block" } : void 0,
+                      "data-sender-masked": senderMasked ? "true" : void 0,
+                      children: [
+                        shownSenderName,
+                        senderSuspended && /* @__PURE__ */ jsxRuntimeExports.jsx(SuspendedBadge, { style: { marginLeft: 6 } })
+                      ]
                     }
                   ),
                   !isReply && referencedMessage?.text && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -90649,14 +93195,35 @@ ${messageId}`;
                       color: config?.colors?.primary
                     }
                   ),
-                  isMediaBubble ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  contentCovered && moderation ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    CustomMessageText,
+                    {
+                      style: timeInline ? {
+                        display: "flex",
+                        flexWrap: "wrap",
+                        alignItems: "flex-end",
+                        columnGap: 12
+                      } : void 0,
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          ModeratedMessage,
+                          {
+                            moderation,
+                            onExpand: () => setModerationExpanded(true)
+                          }
+                        ),
+                        timeInline && timeNode
+                      ]
+                    }
+                  ) : isMediaBubble ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       MediaMessage,
                       {
                         mimeType: message.mimetype,
                         locationPreview: message.locationPreview,
                         location: message?.location,
-                        message
+                        message,
+                        isUser
                       }
                     ),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -90691,11 +93258,27 @@ ${messageId}`;
                             ) : translationDisplay.displayText;
                             const displayText = isUser ? filteredText : stripBotMarkup(filteredText);
                             const mentionsForDisplay = displayText === message.body ? message.mentions : void 0;
-                            const body = /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "message-body", style: { minWidth: 0 }, children: parseMessageBody({
-                              text: displayText,
-                              mentions: mentionsForDisplay,
-                              onMentionClick: handleMentionClick
-                            }) });
+                            const body = /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "message-body", style: { minWidth: 0 }, children: [
+                              parseMessageBody({
+                                text: displayText,
+                                mentions: mentionsForDisplay,
+                                onMentionClick: handleMentionClick
+                              }),
+                              translationDisplay.isPending && !isUser && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "div",
+                                {
+                                  className: "message-translating",
+                                  "data-testid": "message-translating",
+                                  style: {
+                                    fontSize: 12,
+                                    fontStyle: "italic",
+                                    opacity: 0.6,
+                                    marginTop: 4
+                                  },
+                                  children: t2("translation.translating")
+                                }
+                              )
+                            ] });
                             if (!translationDisplay.hasTranslation) return body;
                             return /* @__PURE__ */ jsxRuntimeExports.jsx(
                               TranslatedMessageBody,
@@ -90731,7 +93314,7 @@ ${messageId}`;
                     }
                   ),
                   !timeInline && timeNode,
-                  quickReplies.length > 0 && !message.isDeleted && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  quickReplies.length > 0 && !message.isDeleted && !contentCovered && /* @__PURE__ */ jsxRuntimeExports.jsx(
                     QuickReplies,
                     {
                       replies: quickReplies,
@@ -90742,7 +93325,8 @@ ${messageId}`;
                       onSelect: handleQuickReply
                     }
                   ),
-                  isFailed && mediaRetryLost && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  isFailed && peerSuspendedFailure && /* @__PURE__ */ jsxRuntimeExports.jsx(FailedNotice, { "data-failed-reason": PEER_SUSPENDED_FAILURE, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("peer.suspended.notDelivered") }) }),
+                  isFailed && !peerSuspendedFailure && mediaRetryLost && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(FailedNotice, { children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("message.notDelivered") }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -90757,7 +93341,7 @@ ${messageId}`;
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(FailedNote, { children: t2("message.mediaLostNote") })
                   ] }),
-                  isFailed && !mediaRetryLost && /* @__PURE__ */ jsxRuntimeExports.jsxs(FailedNotice, { children: [
+                  isFailed && !peerSuspendedFailure && !mediaRetryLost && /* @__PURE__ */ jsxRuntimeExports.jsxs(FailedNotice, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("message.notDelivered") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       RetryButton,
@@ -90769,7 +93353,7 @@ ${messageId}`;
                       }
                     )
                   ] }),
-                  previewUrl && !message.isDeleted && /* @__PURE__ */ jsxRuntimeExports.jsx(URLPreviewCard, { url: previewUrl, isUserMessage: isUser })
+                  previewUrl && !message.isDeleted && !contentCovered && /* @__PURE__ */ jsxRuntimeExports.jsx(URLPreviewCard, { url: previewUrl, isUserMessage: isUser })
                 ]
               }
             ),
@@ -91355,6 +93939,13 @@ ${messageId}`;
       shallowEqual$1
     );
     const parentTs = Number(activeMessage.id);
+    const privatePeer = useSelector(
+      (state2) => getPrivatePeerXmppUsername(
+        state2.rooms?.rooms?.[roomJid],
+        state2.chatSettingStore?.user?.xmppUsername
+      )
+    );
+    const peerSuspended = usePeerSuspended(privatePeer);
     const inFlightRef = reactExports.useRef(false);
     const lastRequestKeyRef = reactExports.useRef(null);
     reactExports.useEffect(() => {
@@ -91552,7 +94143,7 @@ ${messageId}`;
             }
           ),
           editAction.isEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(EditWrapper, { text: editAction.text, onClose: onCloseEdit }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
+          peerSuspended ? /* @__PURE__ */ jsxRuntimeExports.jsx(SuspendedPeerNotice, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(
             SendInput,
             {
               editMessage: editAction.text,
@@ -92404,6 +94995,10 @@ ${messageId}`;
         }
       };
       const initXmmpClient = async () => {
+        if (isAccountBlocked()) {
+          dispatch(setIsLoading({ loading: false, loadingText: void 0 }));
+          return;
+        }
         const legacyLangSource = resolveLegacyTranslatesLangSource(config?.translates);
         if (legacyLangSource) {
           dispatch(setLangSource(legacyLangSource));
@@ -93097,7 +95692,7 @@ ${messageId}`;
   text-align: center;
   color: var(--ethora-color-text, #141414);
 `;
-  const Title = gt.div`
+  const Title$1 = gt.div`
   font-size: 20px;
   font-weight: 600;
   overflow-wrap: anywhere;
@@ -93188,7 +95783,7 @@ ${messageId}`;
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsx(ModalTitle, { children: t2("scheduledCall.prejoin.title") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { children: title }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Title$1, { children: title }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Line, { children: [
           call.kind === "audio" ? t2("scheduledCall.kind.audio") : t2("scheduledCall.kind.video"),
           " \xB7 ",
@@ -93357,6 +95952,7 @@ ${messageId}`;
       (state2) => Boolean(state2.rooms?.reportRoom?.isOpen)
     );
     const { loadingText } = useRoomState();
+    useSuspendedPeerLookups();
     const { wasAutoSelected } = useQRCodeChat(
       reactExports.useCallback(
         (params) => dispatch(setCurrentRoom(params)),
@@ -93657,10 +96253,227 @@ ${messageId}`;
       reportModalExit.shouldRender && /* @__PURE__ */ jsxRuntimeExports.jsx(ModalReportChat, { isClosing: reportModalExit.isExiting })
     ] });
   };
+  const AccountBlockedNoticeTestIds = {
+    screen: "account_blocked_notice",
+    title: "account_blocked_title",
+    description: "account_blocked_description",
+    reason: "account_blocked_reason",
+    message: "account_blocked_message",
+    support: "account_blocked_support",
+    signOutButton: "account_blocked_sign_out"
+  };
+  const Screen = gt.div`
+  height: 100%;
+  width: 100%;
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ethora-space-6, 24px);
+  box-sizing: border-box;
+  background: var(--ethora-color-bg, #ffffff);
+  color: var(--ethora-color-text, #141414);
+  font-family: var(--ethora-font-family, Inter, Arial, sans-serif);
+  font-size: var(--ethora-font-size, 16px);
+`;
+  const Card = gt.div`
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ethora-space-3, 12px);
+  text-align: center;
+`;
+  const IconBadge = gt.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--ethora-radius-full, 9999px);
+  background: var(--ethora-color-bg-subtle, #f3f6fc);
+  color: var(--ethora-color-danger, #d92d20);
+`;
+  const Title = gt.h2`
+  margin: 0;
+  font-size: var(--ethora-font-size-lg, 18px);
+  font-weight: var(--ethora-font-weight-semibold, 600);
+  line-height: var(--ethora-line-height-tight, 1.25);
+  color: var(--ethora-color-text, #141414);
+`;
+  const Description = gt.p`
+  margin: 0;
+  font-size: var(--ethora-font-size-sm, 14px);
+  line-height: var(--ethora-line-height-normal, 1.5);
+  color: var(--ethora-color-text-secondary, #5a5f66);
+`;
+  const Details = gt.dl`
+  margin: var(--ethora-space-1, 4px) 0 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ethora-space-3, 12px);
+  padding: var(--ethora-space-4, 16px);
+  box-sizing: border-box;
+  border: 1px solid var(--ethora-color-border, #e4e7ec);
+  border-radius: var(--ethora-radius-md, 12px);
+  background: var(--ethora-color-bg-subtle, #f3f6fc);
+  text-align: left;
+`;
+  const DetailRow = gt.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+  const DetailLabel = gt.dt`
+  font-size: var(--ethora-font-size-xs, 12px);
+  font-weight: var(--ethora-font-weight-medium, 500);
+  color: var(--ethora-color-text-muted, #8a8f98);
+`;
+  const DetailValue = gt.dd`
+  margin: 0;
+  font-size: var(--ethora-font-size-sm, 14px);
+  line-height: var(--ethora-line-height-normal, 1.5);
+  color: var(--ethora-color-text, #141414);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+`;
+  const SupportLink = gt.a`
+  color: var(--ethora-color-primary-text, var(--ethora-color-primary, #0052cd));
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+
+  &:focus-visible {
+    outline: var(--ethora-focus-ring-width, 2px) solid
+      var(--ethora-color-primary, #0052cd);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+`;
+  const SignOutButton = gt.button`
+  margin-top: var(--ethora-space-1, 4px);
+  border: 1px solid var(--ethora-color-primary, #0052cd);
+  border-radius: var(--ethora-radius-full, 9999px);
+  background: transparent;
+  color: var(--ethora-color-primary-text, var(--ethora-color-primary, #0052cd));
+  cursor: pointer;
+  padding: var(--ethora-space-2, 8px) var(--ethora-space-5, 20px);
+  font-family: inherit;
+  font-size: var(--ethora-font-size-sm, 14px);
+
+  &:hover {
+    background: var(--ethora-color-primary-soft, rgba(0, 82, 205, 0.08));
+  }
+
+  &:focus-visible {
+    outline: var(--ethora-focus-ring-width, 2px) solid
+      var(--ethora-color-primary, #0052cd);
+    outline-offset: 2px;
+  }
+`;
+  const LockIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      width: "26",
+      height: "26",
+      viewBox: "0 0 24 24",
+      fill: "none",
+      "aria-hidden": "true",
+      focusable: "false",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "5",
+            y: "10.5",
+            width: "14",
+            height: "10",
+            rx: "2.5",
+            stroke: "currentColor",
+            strokeWidth: "1.8"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5",
+            stroke: "currentColor",
+            strokeWidth: "1.8",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "12", cy: "15.5", r: "1.4", fill: "currentColor" })
+      ]
+    }
+  );
+  const AccountBlockedNotice = ({
+    info,
+    onSignOut,
+    style
+  }) => {
+    const t2 = useT();
+    const locale = useUiLocale();
+    const suspended = info.blocked === "suspended";
+    const suspension = suspended ? info.suspension : void 0;
+    const until = formatSuspensionUntil(suspension?.until, locale);
+    const contact = suspension?.supportContact || null;
+    const contactHref = supportContactHref(contact);
+    const contactLabel = supportContactLabel(contact);
+    const title = suspended ? t2("account.suspended.title") : t2("account.archived.title");
+    const description = suspended ? until ? t2("account.suspended.descriptionUntil", { date: until }) : t2("account.suspended.description") : t2("account.archived.description");
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Screen,
+      {
+        role: "alert",
+        "aria-live": "assertive",
+        "data-testid": AccountBlockedNoticeTestIds.screen,
+        "data-account-blocked": info.blocked,
+        style,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(IconBadge, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(LockIcon, {}) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { "data-testid": AccountBlockedNoticeTestIds.title, children: title }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Description, { "data-testid": AccountBlockedNoticeTestIds.description, children: description }),
+          suspension && /* @__PURE__ */ jsxRuntimeExports.jsxs(Details, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(DetailRow, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailLabel, { children: t2("account.suspended.reasonLabel") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailValue, { "data-testid": AccountBlockedNoticeTestIds.reason, children: t2(suspensionReasonKey(suspension.reasonCode)) })
+            ] }),
+            suspension.message && /* @__PURE__ */ jsxRuntimeExports.jsxs(DetailRow, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailLabel, { children: t2("account.suspended.messageLabel") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailValue, { "data-testid": AccountBlockedNoticeTestIds.message, children: suspension.message })
+            ] }),
+            contact && /* @__PURE__ */ jsxRuntimeExports.jsxs(DetailRow, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailLabel, { children: t2("account.suspended.supportLabel") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailValue, { "data-testid": AccountBlockedNoticeTestIds.support, children: contactHref ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                SupportLink,
+                {
+                  href: contactHref,
+                  ...contactHref.startsWith("mailto:") ? {} : { target: "_blank", rel: "noopener noreferrer" },
+                  children: contactLabel
+                }
+              ) : contactLabel })
+            ] })
+          ] }),
+          onSignOut && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            SignOutButton,
+            {
+              type: "button",
+              onClick: onSignOut,
+              "data-testid": AccountBlockedNoticeTestIds.signOutButton,
+              children: t2("account.blocked.signOut")
+            }
+          )
+        ] })
+      }
+    );
+  };
   const LoginWrapper = ({ ...props }) => {
     const [showModal, setShowModal] = reactExports.useState(false);
     const { config, MainComponentStyles } = props;
-    const { user } = useSelector((state2) => state2.chatSettingStore);
+    const { user, accountStatus } = useSelector(
+      (state2) => state2.chatSettingStore
+    );
     const [isRestoringSession, setIsRestoringSession] = reactExports.useState(() => {
       try {
         const stored = getStoredUser(props.config?.appId);
@@ -93693,6 +96506,9 @@ ${messageId}`;
           setBaseURL(config.baseUrl, config.customAppToken);
         }
         const wantedUsername = config?.userLogin?.user?.xmppUsername || "";
+        if (accountStatus && !(config?.userLogin?.enabled && wantedUsername && accountStatus.userKey && wantedUsername !== accountStatus.userKey)) {
+          return;
+        }
         const hasUsableSession = Boolean(user.xmppUsername && user.xmppPassword);
         if (hasUsableSession && (!wantedUsername || user.xmppUsername === wantedUsername)) {
           return;
@@ -93778,8 +96594,33 @@ ${messageId}`;
       return () => {
         cancelled = true;
       };
-    }, [config, dispatch, loginUserFunction, user.xmppUsername, user.xmppPassword]);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: showModal ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+    }, [
+      config,
+      dispatch,
+      loginUserFunction,
+      user.xmppUsername,
+      user.xmppPassword,
+      accountStatus
+    ]);
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: accountStatus ? (
+      // Above every other state, the login form included: the server
+      // refuses this account, so nothing else here can work.
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        AccountBlockedNotice,
+        {
+          info: accountStatus,
+          onSignOut: (
+            // Only when the chat runs its own sign-in (the built-in form).
+            // A host that signs the user in (its own login, a JWT, a user
+            // object or the `user` credentials prop) owns sign-out and is
+            // told through config.onAccountBlocked.
+            config?.customLogin?.enabled || config?.jwtLogin?.enabled || config?.userLogin?.enabled || props.user?.email ? void 0 : () => {
+              void logoutService.performLogout();
+            }
+          )
+        }
+      )
+    ) : showModal ? /* @__PURE__ */ jsxRuntimeExports.jsx(
       ErrorFallback,
       {
         MainComponentStyles,
@@ -94526,7 +97367,76 @@ ${messageId}`;
   }
   const VITE_APP_API_URL = "https://api.chat.ethora.com/v1";
   const VITE_APP_XMPP_BASEDOMAIN = "xmpp.chat.ethora.com";
-  const DEFAULT_GREETING_MESSAGE = "Hi, how can I help you?";
+  const WIDGET_LANGUAGES = [
+    { id: "en-CA", name: "English" },
+    { id: "es-US", name: "Espa\xF1ol" },
+    { id: "fr-CA", name: "Fran\xE7ais" }
+  ];
+  const WIDGET_STRINGS = {
+    en: {
+      "widget.open": "Open {name}",
+      "widget.close": "Close assistant chat",
+      "widget.expand": "Expand",
+      "widget.collapse": "Collapse",
+      "widget.cta": "Ask me anything!",
+      "widget.resize": "Drag to resize, double-click to reset",
+      "widget.online": "Online, replies instantly",
+      "widget.emptyTitle": "Ask me anything",
+      "widget.emptyBody": "Usually replies in a few seconds",
+      "widget.greeting": "Hi there! What can I help you with today?"
+    },
+    fr: {
+      "widget.open": "Ouvrir {name}",
+      "widget.close": "Fermer le chat de l'assistant",
+      "widget.expand": "Agrandir",
+      "widget.collapse": "R\xE9duire",
+      "widget.cta": "Posez-moi vos questions !",
+      "widget.resize": "Glisser pour redimensionner, double-clic pour r\xE9initialiser",
+      "widget.online": "En ligne, r\xE9pond instantan\xE9ment",
+      "widget.emptyTitle": "Posez-moi une question",
+      "widget.emptyBody": "R\xE9pond en quelques secondes",
+      "widget.greeting": "Bonjour ! Comment puis-je vous aider aujourd\u2019hui ?"
+    },
+    es: {
+      "widget.open": "Abrir {name}",
+      "widget.close": "Cerrar el chat del asistente",
+      "widget.expand": "Ampliar",
+      "widget.collapse": "Reducir",
+      "widget.cta": "\xA1Preg\xFAntame lo que quieras!",
+      "widget.resize": "Arrastra para cambiar el tama\xF1o, doble clic para restablecer",
+      "widget.online": "En l\xEDnea, responde al instante",
+      "widget.emptyTitle": "Preg\xFAntame lo que quieras",
+      "widget.emptyBody": "Suele responder en unos segundos",
+      "widget.greeting": "\xA1Hola! \xBFEn qu\xE9 puedo ayudarte hoy?"
+    },
+    // Only the opening line so far: a visitor on a page in one of these
+    // languages is greeted in it even though the chrome stays in English.
+    de: {
+      "widget.greeting": "Hallo! Wie kann ich Ihnen heute helfen?"
+    },
+    pt: {
+      "widget.greeting": "Ol\xE1! Como posso ajudar voc\xEA hoje?"
+    },
+    uk: {
+      "widget.greeting": "\u0412\u0456\u0442\u0430\u044E! \u0427\u0438\u043C \u043C\u043E\u0436\u0443 \u0434\u043E\u043F\u043E\u043C\u043E\u0433\u0442\u0438?"
+    }
+  };
+  const DEFAULT_COPY = {
+    cta: WIDGET_STRINGS.en["widget.cta"],
+    emptyTitle: WIDGET_STRINGS.en["widget.emptyTitle"],
+    greeting: WIDGET_STRINGS.en["widget.greeting"]
+  };
+  function makeT(locale) {
+    const base = toBaseLanguage$1(locale);
+    const own2 = { ...WIDGET_STRINGS.en, ...WIDGET_STRINGS[base] || {} };
+    const engine = resolveStringTable(locale);
+    return (key, vars) => interpolate(own2[key] ?? engine[key] ?? key, vars);
+  }
+  function matchLanguage(locale) {
+    const base = toBaseLanguage$1(locale);
+    return WIDGET_LANGUAGES.find((l2) => toBaseLanguage$1(l2.id) === base)?.id;
+  }
+  const DEFAULT_GREETING_MESSAGE = DEFAULT_COPY.greeting;
   const hostFromJid = (jid2) => {
     if (!jid2 || !jid2.includes("@")) return "";
     return jid2.split("@")[1] || "";
@@ -94560,6 +97470,7 @@ ${messageId}`;
     const greetingTitle = overrides.greetingTitle || "Write a question";
     const greeting = overrides.greeting || `Our ${botName} will be happy to help`;
     const greetingMessage = overrides.greetingMessage ?? (envelope.bot.greetingMessage || DEFAULT_GREETING_MESSAGE);
+    const greetingIsDefault = overrides.greetingMessage === void 0 && (!envelope.bot.greetingMessage || envelope.bot.greetingIsDefault === true);
     return {
       user,
       roomJID,
@@ -94571,6 +97482,7 @@ ${messageId}`;
         greetingTitle,
         greeting,
         greetingMessage,
+        greetingIsDefault,
         botXmppUsername: envelope.bot.xmppUsername,
         botNameExplicit: !!(overrides.botName || envelope.bot.displayName),
         titleExplicit: !!overrides.title
@@ -94969,6 +97881,10 @@ ${GROUP}[data-stack] > button {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+@keyframes ew-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
 @keyframes ew-msg-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: none; }
@@ -95098,18 +98014,32 @@ ${CHROME_KEYFRAMES}
 .ew-powered-by:hover { color: var(--ew-primary); text-decoration: underline; }
 .ew-powered-by:focus-visible { outline: 2px solid var(--ew-primary); outline-offset: -3px; }
 
-/* Small screens: the panel becomes a bottom sheet across the full width. */
-@media (max-width: 520px) {
-  .ew-panel:not(.ew-expanded) {
+/* Keep both the header and composer inside the visible browser viewport. */
+@media (max-width: 520px), (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .ew-panel,
+  .ew-panel.ew-expanded {
     position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    height: min(88dvh, calc(100dvh - 16px)) !important;
-    border-radius: 16px 16px 0 0 !important;
+    inset: var(--ew-viewport-top, 0px) auto auto var(--ew-viewport-left, 0px) !important;
+    width: var(--ew-viewport-width, 100%) !important;
+    height: var(--ew-viewport-height, 100vh) !important;
+    height: var(--ew-viewport-height, 100dvh) !important;
+    transform: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+    animation-name: ew-fade-in;
+    animation-duration: 180ms;
   }
+  .ew-panel.ew-closing { animation-name: ew-fade-out; }
+  .ew-panel .ew-edge,
+  .ew-panel .ew-iconbtn--expand { display: none; }
+  .ew-panel .ew-iconbtn { min-width: 44px; min-height: 44px; }
+  .ew-panel .ew-header { padding: 4px 8px 4px 12px; }
+  .ew-panel input:not([type]),
+  .ew-panel input[type="text"],
+  .ew-panel textarea { font-size: 16px !important; }
+  .ew-panel .message-body { overflow-wrap: anywhere; }
 }
 
 /* Resize: only the corner that faces into the page. It carries a small
@@ -95166,7 +98096,6 @@ ${CHROME_KEYFRAMES}
   0%, 100% { opacity: 0.55; }
   50%      { opacity: 1; }
 }
-@media (max-width: 520px) { .ew-edge { display: none; } }
 @media (prefers-reduced-motion: reduce) { .ew-edge::after { animation: none; } }
 
 .ew-header {
@@ -95461,64 +98390,6 @@ ${CHROME_KEYFRAMES}
       text2 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ew-typing-label", children: text2 }) : null
     ] });
   };
-  const WIDGET_LANGUAGES = [
-    { id: "en-CA", name: "English" },
-    { id: "es-US", name: "Espa\xF1ol" },
-    { id: "fr-CA", name: "Fran\xE7ais" }
-  ];
-  const WIDGET_STRINGS = {
-    en: {
-      "widget.open": "Open {name}",
-      "widget.close": "Close assistant chat",
-      "widget.expand": "Expand",
-      "widget.collapse": "Collapse",
-      "widget.cta": "Ask me anything!",
-      "widget.resize": "Drag to resize, double-click to reset",
-      "widget.online": "Online, replies instantly",
-      "widget.emptyTitle": "Ask me anything",
-      "widget.emptyBody": "Usually replies in a few seconds",
-      "widget.greeting": "Hi there! What can I help you with today?"
-    },
-    fr: {
-      "widget.open": "Ouvrir {name}",
-      "widget.close": "Fermer le chat de l'assistant",
-      "widget.expand": "Agrandir",
-      "widget.collapse": "R\xE9duire",
-      "widget.cta": "Posez-moi vos questions !",
-      "widget.resize": "Glisser pour redimensionner, double-clic pour r\xE9initialiser",
-      "widget.online": "En ligne, r\xE9pond instantan\xE9ment",
-      "widget.emptyTitle": "Posez-moi une question",
-      "widget.emptyBody": "R\xE9pond en quelques secondes",
-      "widget.greeting": "Bonjour ! Comment puis-je vous aider aujourd\u2019hui ?"
-    },
-    es: {
-      "widget.open": "Abrir {name}",
-      "widget.close": "Cerrar el chat del asistente",
-      "widget.expand": "Ampliar",
-      "widget.collapse": "Reducir",
-      "widget.cta": "\xA1Preg\xFAntame lo que quieras!",
-      "widget.resize": "Arrastra para cambiar el tama\xF1o, doble clic para restablecer",
-      "widget.online": "En l\xEDnea, responde al instante",
-      "widget.emptyTitle": "Preg\xFAntame lo que quieras",
-      "widget.emptyBody": "Suele responder en unos segundos",
-      "widget.greeting": "\xA1Hola! \xBFEn qu\xE9 puedo ayudarte hoy?"
-    }
-  };
-  const DEFAULT_COPY = {
-    cta: WIDGET_STRINGS.en["widget.cta"],
-    emptyTitle: WIDGET_STRINGS.en["widget.emptyTitle"],
-    greeting: WIDGET_STRINGS.en["widget.greeting"]
-  };
-  function makeT(locale) {
-    const base = toBaseLanguage$1(locale);
-    const own2 = { ...WIDGET_STRINGS.en, ...WIDGET_STRINGS[base] || {} };
-    const engine = resolveStringTable(locale);
-    return (key, vars) => interpolate(own2[key] ?? engine[key] ?? key, vars);
-  }
-  function matchLanguage(locale) {
-    const base = toBaseLanguage$1(locale);
-    return WIDGET_LANGUAGES.find((l2) => toBaseLanguage$1(l2.id) === base)?.id;
-  }
   const OPEN_STATE_KEY = "EthoraAssistantOpen";
   const EXPANDED_STATE_KEY = "EthoraAssistantExpanded";
   const CTA_DISMISSED_KEY = "EthoraAssistantCtaDismissed";
@@ -95708,7 +98579,7 @@ ${CHROME_KEYFRAMES}
       const timer = setTimeout(() => {
         registerGreeting({
           roomJID,
-          text: persona.greetingMessage === DEFAULT_COPY.greeting ? makeT(uiLocale)("widget.greeting") : persona.greetingMessage,
+          text: persona.greetingIsDefault || persona.greetingMessage === DEFAULT_COPY.greeting ? makeT(uiLocale)("widget.greeting") : persona.greetingMessage,
           botXmppUsername: persona.botXmppUsername,
           botName: persona.botName,
           botAvatar: persona.botAvatar,
@@ -96035,6 +98906,30 @@ ${CHROME_KEYFRAMES}
     const glowSoft = `color-mix(in srgb, ${glowColor} 36%, transparent)`;
     const glowStrong = `color-mix(in srgb, ${glowColor} 60%, transparent)`;
     const panelVisible = open || closing;
+    reactExports.useEffect(() => {
+      const root2 = rootRef.current;
+      const viewport = window.visualViewport;
+      if (!panelVisible || !root2 || !viewport) return;
+      let frame = 0;
+      const sync = () => {
+        root2.style.setProperty("--ew-viewport-top", `${viewport.offsetTop}px`);
+        root2.style.setProperty("--ew-viewport-left", `${viewport.offsetLeft}px`);
+        root2.style.setProperty("--ew-viewport-width", `${viewport.width}px`);
+        root2.style.setProperty("--ew-viewport-height", `${viewport.height}px`);
+      };
+      const schedule = () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(sync);
+      };
+      sync();
+      viewport.addEventListener("resize", schedule);
+      viewport.addEventListener("scroll", schedule);
+      return () => {
+        cancelAnimationFrame(frame);
+        viewport.removeEventListener("resize", schedule);
+        viewport.removeEventListener("scroll", schedule);
+      };
+    }, [panelVisible]);
     const showPoweredBy = !(envelope?.branding?.paymentStatus === "paid" && envelope.branding.showPoweredBy === false);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
@@ -100368,14 +103263,14 @@ ${CHROME_KEYFRAMES}
      *   Array of items.
      */
     slice(start, end) {
-      const stop = end === null || end === void 0 ? Number.POSITIVE_INFINITY : end;
-      if (stop < this.left.length) {
-        return this.left.slice(start, stop);
+      const stop2 = end === null || end === void 0 ? Number.POSITIVE_INFINITY : end;
+      if (stop2 < this.left.length) {
+        return this.left.slice(start, stop2);
       }
       if (start > this.left.length) {
-        return this.right.slice(this.right.length - stop + this.left.length, this.right.length - start + this.left.length).reverse();
+        return this.right.slice(this.right.length - stop2 + this.left.length, this.right.length - start + this.left.length).reverse();
       }
-      return this.left.slice(start).concat(this.right.slice(this.right.length - stop + this.left.length).reverse());
+      return this.left.slice(start).concat(this.right.slice(this.right.length - stop2 + this.left.length).reverse());
     }
     /**
      * Mimics the behavior of Array.prototype.splice() except for the change of
@@ -102550,19 +105445,19 @@ ${CHROME_KEYFRAMES}
         let size = 0;
         let tabs;
         while (index2--) {
-          const chunk = chunks[index2];
-          if (typeof chunk === "string") {
-            bufferIndex = chunk.length;
-            while (chunk.charCodeAt(bufferIndex - 1) === 32) {
+          const chunk2 = chunks[index2];
+          if (typeof chunk2 === "string") {
+            bufferIndex = chunk2.length;
+            while (chunk2.charCodeAt(bufferIndex - 1) === 32) {
               size++;
               bufferIndex--;
             }
             if (bufferIndex) break;
             bufferIndex = -1;
-          } else if (chunk === -2) {
+          } else if (chunk2 === -2) {
             tabs = true;
             size++;
-          } else if (chunk === -1) ;
+          } else if (chunk2 === -1) ;
           else {
             index2++;
             break;
@@ -102751,17 +105646,17 @@ ${CHROME_KEYFRAMES}
     function main2() {
       let chunkIndex;
       while (point2._index < chunks.length) {
-        const chunk = chunks[point2._index];
-        if (typeof chunk === "string") {
+        const chunk2 = chunks[point2._index];
+        if (typeof chunk2 === "string") {
           chunkIndex = point2._index;
           if (point2._bufferIndex < 0) {
             point2._bufferIndex = 0;
           }
-          while (point2._index === chunkIndex && point2._bufferIndex < chunk.length) {
-            go(chunk.charCodeAt(point2._bufferIndex));
+          while (point2._index === chunkIndex && point2._bufferIndex < chunk2.length) {
+            go(chunk2.charCodeAt(point2._bufferIndex));
           }
         } else {
-          go(chunk);
+          go(chunk2);
         }
       }
     }
@@ -102952,11 +105847,11 @@ ${CHROME_KEYFRAMES}
     const result = [];
     let atTab;
     while (++index2 < chunks.length) {
-      const chunk = chunks[index2];
+      const chunk2 = chunks[index2];
       let value;
-      if (typeof chunk === "string") {
-        value = chunk;
-      } else switch (chunk) {
+      if (typeof chunk2 === "string") {
+        value = chunk2;
+      } else switch (chunk2) {
         case -5: {
           value = "\r";
           break;
@@ -102979,10 +105874,10 @@ ${CHROME_KEYFRAMES}
           break;
         }
         default: {
-          value = String.fromCharCode(chunk);
+          value = String.fromCharCode(chunk2);
         }
       }
-      atTab = chunk === -2;
+      atTab = chunk2 === -2;
       result.push(value);
     }
     return result.join("");
@@ -108762,7 +111657,7 @@ ${CHROME_KEYFRAMES}
       start: Object.assign({}, marker.end),
       end: Object.assign({}, events2[events2.length - 1][1].start)
     };
-    const chunk = {
+    const chunk2 = {
       type: "chunkString",
       contentType: "string",
       start: Object.assign({}, string2.start),
@@ -108781,8 +111676,8 @@ ${CHROME_KEYFRAMES}
       ["exit", marker, context],
       // Everything in between.
       ["enter", string2, context],
-      ["enter", chunk, context],
-      ["exit", chunk, context],
+      ["enter", chunk2, context],
+      ["exit", chunk2, context],
       ["exit", string2, context],
       // The ending (`]`, properly parsed and labelled).
       events2[events2.length - 2],
@@ -112186,6 +115081,12 @@ ${CHROME_KEYFRAMES}
     const canCall = videoCallsConfig?.enabled === true && Boolean(videoCallsConfig?.livekitUrl?.trim()) && isCallRoomTypeAllowed("private", videoCallsConfig?.allowedRoomTypes);
     const isAudioCallsEnabled = canCall && videoCallsConfig?.enableAudioCalls === true;
     const isCallBusy = callPhase !== "idle";
+    const selectedUserXmppUsername = String(
+      selectedUser?.xmppUsername || selectedUser?.userJID || selectedUser?.id || ""
+    );
+    const selectedUserSuspended = usePeerSuspended(
+      selectedUser ? selectedUserXmppUsername : ""
+    );
     const handleBackClick = reactExports.useCallback(() => {
       dispatch(setSelectedUser());
       handleCloseModal();
@@ -112296,7 +115197,7 @@ ${CHROME_KEYFRAMES}
           showToast({
             id: Date.now().toString(),
             title: t2("toast.error"),
-            message: e2?.message || t2("toast.failedToCreatePrivateChat"),
+            message: isPeerSuspendedError(e2) ? t2("peer.suspended.notice") : e2?.message || t2("toast.failedToCreatePrivateChat"),
             type: "error",
             duration: 4e3
           });
@@ -112469,10 +115370,14 @@ ${CHROME_KEYFRAMES}
             {
               icon: modalUser?.profileImage ?? null,
               name: modalUser?.name ?? modalUser?.firstName,
-              size: 96
+              size: 96,
+              greyed: selectedUserSuspended
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileHeroName, { children: modalUser?.name ? `${modalUser?.name}` : `${modalUser?.firstName} ${modalUser?.lastName}` })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(ProfileHeroName, { children: [
+            modalUser?.name ? `${modalUser?.name}` : `${modalUser?.firstName} ${modalUser?.lastName}`,
+            selectedUserSuspended && /* @__PURE__ */ jsxRuntimeExports.jsx(SuspendedBadge, { style: { marginLeft: 8 } })
+          ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DrawerSection, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(DrawerSectionTitle, { children: t2("modal.profile.about") }),
@@ -112503,8 +115408,8 @@ ${CHROME_KEYFRAMES}
         showActions && /* @__PURE__ */ jsxRuntimeExports.jsxs(DrawerSection, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(DrawerSectionTitle, { children: t2("modal.profile.actions") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(ProfileActions, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ActionButton,
+            !selectedUserSuspended && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ActionButton$1,
               {
                 StartIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ChatIcon, {}),
                 onClick: handlePrivateMessage,
@@ -112512,17 +115417,17 @@ ${CHROME_KEYFRAMES}
                 children: t2("action.message")
               }
             ),
-            isE2eeEnabled2 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ActionButton,
+            isE2eeEnabled2 && !selectedUserSuspended && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ActionButton$1,
               {
-                StartIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(LockIcon, { color: "var(--ethora-color-text-on-primary, #FFFFFF)" }),
+                StartIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(LockIcon$1, { color: "var(--ethora-color-text-on-primary, #FFFFFF)" }),
                 onClick: handleEncryptedPrivateMessage,
                 variant: "filled",
                 children: t2("action.encryptedMessage")
               }
             ),
-            canCall && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ActionButton,
+            canCall && !selectedUserSuspended && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ActionButton$1,
               {
                 StartIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(VideoCallIcon, { color: "var(--ethora-color-text-on-primary, #FFFFFF)" }),
                 onClick: () => void handleCall("video"),
@@ -112531,8 +115436,8 @@ ${CHROME_KEYFRAMES}
                 children: isAudioCallsEnabled ? t2("action.videoCall") : t2("action.call")
               }
             ),
-            isAudioCallsEnabled && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ActionButton,
+            isAudioCallsEnabled && !selectedUserSuspended && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ActionButton$1,
               {
                 StartIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AudioCallIcon, { color: "var(--ethora-color-text-on-primary, #FFFFFF)" }),
                 onClick: () => void handleCall("audio"),
@@ -112542,7 +115447,7 @@ ${CHROME_KEYFRAMES}
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ActionButton,
+              ActionButton$1,
               {
                 onClick: () => handleCopyClick(selectedUser.id),
                 variant: "outlined",
@@ -112550,7 +115455,7 @@ ${CHROME_KEYFRAMES}
               }
             ),
             canBlock && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ActionButton,
+              ActionButton$1,
               {
                 StartIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(BlockIcon, {}),
                 onClick: handleBlockClick,
@@ -112564,6 +115469,7 @@ ${CHROME_KEYFRAMES}
       ] }),
       [
         modalUser,
+        selectedUserSuspended,
         canCall,
         canBlock,
         isAudioCallsEnabled,
@@ -114839,7 +117745,7 @@ ${CHROME_KEYFRAMES}
       ] })
     ] }) });
   };
-  const AddUsersButton = gt(ActionButton)`
+  const AddUsersButton = gt(ActionButton$1)`
   flex: 0 0 auto;
   min-height: 44px;
   padding: 8px 16px;
@@ -115009,6 +117915,12 @@ ${CHROME_KEYFRAMES}
   text-overflow: ellipsis;
   white-space: nowrap;
 `;
+  const NameLine = gt.span`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+`;
   const Secondary = gt.span`
   font-size: var(--ethora-font-size-xs, 12px);
   color: ${({ $online }) => $online ? "var(--ethora-color-online, #12b76a)" : "var(--ethora-color-text-muted, #8c8c8c)"};
@@ -115054,6 +117966,7 @@ ${CHROME_KEYFRAMES}
       lastName,
       profileImage
     };
+    const suspended = usePeerSuspended(localKey);
     const hasRole = !!member.role && member.role !== "none";
     const isBanned = member.ban_status === "banned";
     let secondaryText = "";
@@ -115091,14 +118004,18 @@ ${CHROME_KEYFRAMES}
                 name: `${firstName} ${lastName}`,
                 icon: profileImage,
                 size: 40,
-                online
+                online,
+                greyed: suspended
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(NameColumn, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Name, { children: [
-                firstName,
-                " ",
-                lastName
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(NameLine, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Name, { children: [
+                  firstName,
+                  " ",
+                  lastName
+                ] }),
+                suspended && /* @__PURE__ */ jsxRuntimeExports.jsx(SuspendedBadge, {})
               ] }),
               secondaryText && /* @__PURE__ */ jsxRuntimeExports.jsx(Secondary, { $online: online, children: secondaryText })
             ] })
@@ -115226,6 +118143,7 @@ ${CHROME_KEYFRAMES}
       (state2) => peerKey ? state2.rooms.usersSet?.[peerKey] ?? state2.rooms.usersSet?.[peerLocalKey] : void 0
     );
     const peerProfileImage = peer?.profileImage || peerUsersSetEntry?.profileImage || "";
+    const peerSuspended = usePeerSuspended(isPrivateRoom2 ? peerLocalKey : "");
     const onlineUsersSet = reactExports.useMemo(() => new Set(onlineUsers), [onlineUsers]);
     const membersTruncated = isRoomMembersTruncated(activeRoom);
     const { members: directoryMembers, state: directoryState } = useRoomDirectory(
@@ -115476,7 +118394,8 @@ ${CHROME_KEYFRAMES}
                 },
                 remove: roomConfigDisabled ? void 0 : { enabled: true, onRemoveClick },
                 role: activeRoom?.role,
-                size: 96
+                size: 96,
+                greyed: peerSuspended
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(RoomIdentity, { children: [
@@ -115489,6 +118408,7 @@ ${CHROME_KEYFRAMES}
                   onChange: (event) => setRoomTitleDraft(event.target.value)
                 }
               ) : /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileHeroName, { children: activeRoom.title || activeRoom.name }),
+              !editingRoomInfo && peerSuspended && /* @__PURE__ */ jsxRuntimeExports.jsx(SuspendedBadge, { style: { marginTop: 4 } }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileHeroSubtitle, { children: memberCountLabel }),
               canEditRoomInfo && !editingRoomInfo && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 RoomInfoEditButton,
@@ -115716,7 +118636,7 @@ ${CHROME_KEYFRAMES}
   flex-direction: column;
   gap: 8px;
 `;
-  gt(Label$4)`
+  gt(Label$5)`
   font-weight: 600;
   text-align: start;
   flex-wrap: wrap;
@@ -115728,7 +118648,7 @@ ${CHROME_KEYFRAMES}
   align-items: center;
   gap: 4px;
 `;
-  gt(Label$4)`
+  gt(Label$5)`
   font-size: 12px;
   text-align: start;
   color: var(--ethora-color-text-muted, #8c8c8c);
@@ -118513,6 +121433,32 @@ ${CHROME_KEYFRAMES}
       [headerSender, usersSet, me2, peerRoomName]
     );
     const senderName = resolvedSender.name;
+    const revealedMap = useSelector(
+      (state2) => state2.trustSafety?.revealed
+    );
+    const blockedMap = useSelector(
+      (state2) => state2.trustSafety?.blocked
+    );
+    const [viewerBlock, setViewerBlock] = reactExports.useState(null);
+    const myId = String(me2?.xmppUsername || "");
+    const isOwnEntry = reactExports.useCallback(
+      (sender) => Boolean(myId) && String(sender?.id || "").split("@")[0] === myId,
+      [myId]
+    );
+    const isCoveredEntry = reactExports.useCallback(
+      (entry) => {
+        if (!entry || isOwnEntry(entry.sender)) return false;
+        const id2 = entry.messageId;
+        const revealed = Boolean(id2 && revealedMap?.[id2]);
+        const askedForAge = Boolean(id2 && blockedMap?.[id2] === "age-required");
+        return (Boolean(entry.sensitive) || askedForAge) && !revealed;
+      },
+      [isOwnEntry, revealedMap, blockedMap]
+    );
+    const entryMessageId = current2?.messageId ?? activeFile.messageId;
+    const entryInfo = current2 ?? activeFile;
+    const blockReason = (entryMessageId ? blockedMap?.[entryMessageId] : void 0) ?? (viewerBlock?.url === activeFile.fileURL ? viewerBlock.reason : void 0);
+    const entryCovered = (kind === "image" || kind === "video") && isCoveredEntry(entryInfo);
     const dateText = formatViewerDate(current2?.date ?? activeFile.date);
     const hasSource = Boolean(activeFile.fileURL);
     const imageFailed = kind === "image" && (!hasSource || failedUrl === activeFile.fileURL);
@@ -118533,6 +121479,8 @@ ${CHROME_KEYFRAMES}
             fileName: target.fileName,
             fileURL: target.fileURL,
             mimetype: target.mimetype,
+            messageId: target.messageId,
+            sensitive: target.sensitive,
             // Keep the opener's list so paging never loses it.
             siblings
           })
@@ -118551,10 +121499,11 @@ ${CHROME_KEYFRAMES}
       [index2 - 1, index2 + 1].forEach((neighbour) => {
         const entry = gallery[neighbour];
         if (!entry || entry.kind !== "image") return;
+        if (isCoveredEntry(entry)) return;
         const src = appendFileToken(entry.fileURL, fileToken);
         if (src) new Image().src = src;
       });
-    }, [hasGallery, index2, gallery, fileToken]);
+    }, [hasGallery, index2, gallery, fileToken, isCoveredEntry]);
     reactExports.useEffect(() => {
       if (!hasGallery) return;
       const thumb = thumbRefs.current[index2];
@@ -118628,11 +121577,27 @@ ${CHROME_KEYFRAMES}
     const onStageClick = (event) => {
       if (event.target === event.currentTarget) closeModal();
     };
+    const classifyFailure = () => {
+      const url = activeFile.fileURL;
+      if (!isSecureFileUrl(url)) return;
+      const messageId = entryMessageId;
+      void probeFileAccess(url, { fileToken }).then((access) => {
+        if (access !== "moderation" && access !== "age-required") return;
+        if (access === "age-required" && isOwnEntry(entryInfo?.sender)) return;
+        if (messageId) {
+          dispatch(markMediaBlocked({ messageId, reason: access }));
+          if (access === "age-required") dispatch(concealMessageMedia(messageId));
+        } else {
+          setViewerBlock({ url, reason: access });
+        }
+      });
+    };
     const handleImageError = () => {
       if (isSecureFileUrl(activeFile.fileURL)) {
         void requestFileTokenRecovery();
       }
       setFailedUrl(activeFile.fileURL);
+      classifyFailure();
     };
     const tryAgain = () => {
       setRetry({
@@ -118664,7 +121629,22 @@ ${CHROME_KEYFRAMES}
     const sourceURL = appendFileToken(activeFile.fileURL, fileToken);
     let media;
     let mediaFit = "media";
-    if (imageFailed) {
+    if (blockReason === "moderation") {
+      mediaFit = "content";
+      media = /* @__PURE__ */ jsxRuntimeExports.jsx(RemovedByModerators, {});
+    } else if (entryCovered || blockReason === "age-required" && !entryMessageId) {
+      media = /* @__PURE__ */ jsxRuntimeExports.jsx(
+        SensitiveMediaGate,
+        {
+          fill: true,
+          messageId: entryMessageId,
+          probeUrl: activeFile.fileURL,
+          previewUrl: previewSrc,
+          children: null
+        },
+        activeFile.fileURL
+      );
+    } else if (imageFailed) {
       mediaFit = "content";
       media = /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorPanel, { onRetry: tryAgain, onDownload: saveClick });
     } else {
@@ -118691,7 +121671,8 @@ ${CHROME_KEYFRAMES}
             {
               src: sourceURL,
               controls: true,
-              autoPlay: false
+              autoPlay: false,
+              onError: classifyFailure
             },
             sourceURL
           );
@@ -118715,7 +121696,8 @@ ${CHROME_KEYFRAMES}
           );
       }
     }
-    const showImageControls = kind === "image" && !imageFailed;
+    const showImageControls = kind === "image" && !imageFailed && !entryCovered && !blockReason;
+    const fileActionsBlocked = entryCovered || Boolean(blockReason);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       ViewerSurface,
       {
@@ -118747,6 +121729,7 @@ ${CHROME_KEYFRAMES}
                 {
                   type: "button",
                   onClick: saveClick,
+                  disabled: fileActionsBlocked,
                   "aria-label": t2("action.save"),
                   title: t2("action.save"),
                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(SaveIcon, { color: "currentColor" })
@@ -118757,7 +121740,7 @@ ${CHROME_KEYFRAMES}
                 {
                   type: "button",
                   onClick: openInNewTab,
-                  disabled: !hasSource,
+                  disabled: !hasSource || fileActionsBlocked,
                   "aria-label": t2("modal.filePreview.openExternally"),
                   title: t2("modal.filePreview.openExternally"),
                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLinkGlyph, {})
@@ -118822,7 +121805,7 @@ ${CHROME_KEYFRAMES}
                     "aria-current": i2 === index2 ? "true" : void 0,
                     onClick: () => goTo(i2),
                     children: [
-                      item.kind === "video" && !item.previewURL ? /* @__PURE__ */ jsxRuntimeExports.jsx(ThumbVideoGlyph, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      !item.previewURL && (item.kind === "video" || isCoveredEntry(item)) ? /* @__PURE__ */ jsxRuntimeExports.jsx(ThumbVideoGlyph, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(
                         ThumbImage,
                         {
                           src: safeImageUrl(
@@ -118830,7 +121813,8 @@ ${CHROME_KEYFRAMES}
                           ),
                           alt: "",
                           loading: "lazy",
-                          draggable: false
+                          draggable: false,
+                          style: isCoveredEntry(item) ? { filter: "blur(8px)" } : void 0
                         }
                       ),
                       item.kind === "video" && /* @__PURE__ */ jsxRuntimeExports.jsx(ThumbPlayBadge, {})
